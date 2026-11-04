@@ -159,7 +159,4 @@ jobs:
         if: env.CARGO_REGISTRY_TOKEN != ''
       - name: Publish, dependencies first
         if: env.CARGO_REGISTRY_TOKEN != ''
-        run: |
-          for crate in grafta-kiwi grafta-figfile grafta-model grafta-render grafta-toolkit grafta-mcp grafta; do
-            cargo publish --locked -p "$crate"
-          done
+        run: scripts/publish-crates.sh "${GITHUB_REF_NAME#v}"

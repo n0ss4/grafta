@@ -20,4 +20,6 @@ serde.workspace = true
 thiserror.workspace = true
 
 [dev-dependencies]
-figfile.workspace = true
+# A path alone: `figfile` needs this crate first, so crates.io cannot hold a
+# version of it yet when this crate is published.
+figfile = { package = "grafta-figfile", path = "../figfile" }
