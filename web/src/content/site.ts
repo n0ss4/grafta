@@ -4,13 +4,13 @@ export const GITHUB = "https://github.com/n0ss4/grafta";
 const blob = `${GITHUB}/blob/main`;
 
 export const announcement: Announcement | undefined = {
-  text: "New: every tool and its arguments, generated from the server",
-  href: "tools/",
+  text: "0.1.0: the first release. Early, and bug reports are welcome",
+  href: "changelog/",
 };
 
 export const nav: Link[] = [
-  { label: "Products", href: "#products" },
-  { label: "Examples", href: "#jobs" },
+  { label: "How it works", href: "#how" },
+  { label: "Examples", href: "#ask" },
   { label: "Tools", href: "tools/" },
   { label: "Changelog", href: "changelog/" },
 ];
@@ -19,8 +19,8 @@ export const footer: FooterColumn[] = [
   {
     title: "Product",
     links: [
-      { label: "Install", href: "#install" },
-      { label: "Examples", href: "#jobs" },
+      { label: "Get grafta", href: "#get" },
+      { label: "Examples", href: "#ask" },
       { label: "FAQ", href: "#faq" },
     ],
   },

@@ -12,19 +12,22 @@ export const steps: Card[] = [
   },
   {
     title: "Open the result",
-    text: "Drag the new file into Figma. grafta never overwrites yours, and reads what it wrote back before it says it is done.",
+    text: "Drag the new file into Figma. grafta saves beside yours and reads back what it wrote, but only Figma can say it opens.",
   },
 ];
 
 export const promises: Card[] = [
-  { title: "Exact", text: "Every figure read from the file's bytes. No heuristics, no network." },
+  { title: "Exact", text: "What it reads comes from the file's bytes, with no network call of its own." },
   {
     title: "Says what it left out",
     text: "A cut result names what is missing; a picture, what it drew approximately.",
   },
-  { title: "Never overwrites", text: "Saves to a new path and re-reads what it wrote." },
+  { title: "Does not write over your files", text: "Saves to a new path and re-reads what it wrote." },
   { title: "Survives restarts", text: "Unsaved edits are journaled as they are made, and replayed." },
-  { title: "Refuses, not breaks", text: "It will not write what Figma would have to repair, and says why." },
+  {
+    title: "Refuses, not breaks",
+    text: "It refuses writes it knows Figma would have to repair, and says why.",
+  },
 ];
 
 export const limits: Card[] = [
@@ -38,15 +41,19 @@ export const limits: Card[] = [
   },
   {
     title: "Pictures are close, not Figma's",
-    text: "They use your machine's fonts. With the design's font installed, most lines are within 2% of Figma's width.",
+    text: "They use your machine's fonts. Two blend modes and noise effects are not drawn exactly, and in Preview some PDFs come out wrong.",
   },
   {
     title: "Open files cost memory",
-    text: "A 25 MB file holds about 2.5 GB while open, as measured. Close what you are done with.",
+    text: "A 57 MB file took 1.3 GB while open, and an 86 MB one took 5.5 GB. Close what you are done with.",
   },
   {
     title: "Not yet",
     text: "Auto-layout grids, component slots, boolean operations, prototyping, Dev Mode annotations, properties on variants.",
+  },
+  {
+    title: "It cannot run Figma",
+    text: "Opening the result in Figma is the final check, and yours to make. Keep your original.",
   },
   {
     title: "Its own tokens only",
@@ -56,7 +63,7 @@ export const limits: Card[] = [
 
 /** How a model works with it: the loop. */
 export const loop = [
-  { verb: "Open", tool: "open_file", text: "a handle, kept open: later calls answer in milliseconds" },
+  { verb: "Open", tool: "open_file", text: "a handle, kept open: later calls do not read the file again" },
   { verb: "Find", tool: "search_nodes", text: "pages, counts, nodes by name or type, with their path" },
   { verb: "Read", tool: "read_node", text: "a node exactly, in the plugin API's names" },
   { verb: "Write", tool: "set_properties", text: "frames, text, shapes, tokens, components" },

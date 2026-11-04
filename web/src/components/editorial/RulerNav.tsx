@@ -3,13 +3,13 @@ import { href } from "~/lib/seo";
 import { GITHUB } from "~/content/site";
 import { GitHubMark } from "./icons";
 import { ThemeToggle } from "./ThemeToggle";
+import { GetGraftaButton } from "../install/Picker";
 
 const links = [
-  { label: "Why", to: "#why" },
-  { label: "See it", to: "#client" },
-  { label: "Jobs", to: "#jobs" },
-  { label: "Tools", to: "tools/" },
-  { label: "Install", to: "#install" },
+  { label: "How it works", to: "#how" },
+  { label: "What you can ask", to: "#ask" },
+  { label: "vs Figma MCP", to: "#difference" },
+  { label: "Questions", to: "#faq" },
 ];
 
 /** The nav as a ruler: its links on the grid's columns, a tick under each. */
@@ -34,16 +34,41 @@ export function RulerNav({ home = false }: { home?: boolean }) {
             {link.label}
           </a>
         ))}
-        <div className="col-span-3 flex items-center justify-end gap-5 lg:col-span-2 lg:pr-4">
-          <a href={at("#install")} className="text-[14px] font-medium text-text no-underline lg:hidden">
-            Install
+        {home ? (
+          <GetGraftaButton className="relative hidden h-full items-center text-left text-[14px] font-medium text-text after:absolute after:bottom-0 after:left-0 after:h-2 after:w-px after:bg-text/50 hover:text-accent-text lg:flex">
+            Get grafta
+          </GetGraftaButton>
+        ) : (
+          <a
+            href={at("#get")}
+            className="relative hidden h-full items-center text-[14px] font-medium text-text no-underline after:absolute after:bottom-0 after:left-0 after:h-2 after:w-px after:bg-text/50 lg:flex"
+          >
+            Get grafta
+          </a>
+        )}
+        <div className="col-span-3 flex items-center justify-end gap-4 whitespace-nowrap lg:col-span-2 lg:gap-5 lg:pr-4">
+          {home ? (
+            <GetGraftaButton className="text-[14px] font-medium text-text lg:hidden">
+              Get grafta
+            </GetGraftaButton>
+          ) : (
+            <a href={at("#get")} className="text-[14px] font-medium text-text no-underline lg:hidden">
+              Get grafta
+            </a>
+          )}
+          <a
+            href={at("tools/")}
+            className="text-[14px] font-medium text-text no-underline hover:text-accent-text"
+          >
+            Tools
           </a>
           <a
             href={GITHUB}
+            aria-label="GitHub"
             className="inline-flex items-center gap-1.5 text-[14px] font-medium text-text no-underline hover:text-accent-text"
           >
             <GitHubMark size={14} />
-            GitHub ↗
+            <span className="hidden sm:inline">GitHub ↗</span>
           </a>
           <span aria-hidden="true" className="h-5 w-px bg-line" />
           <ThemeToggle />

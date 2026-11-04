@@ -38,10 +38,6 @@ export function EditorialFooter() {
         <p className="micro col-span-4 text-muted lg:col-span-6 lg:col-start-2">
           MIT licence · Not affiliated with Figma. Figma is a trademark of Figma, Inc.
         </p>
-        <p className="micro col-span-4 text-muted lg:col-span-6 lg:col-start-2">
-          Not affiliated with Anthropic. Claude is a trademark of Anthropic. The client in the first screen is
-          redrawn from the measures of MCP Apps for Claude (Figma Community, CC BY 4.0).
-        </p>
       </div>
     </footer>
   );

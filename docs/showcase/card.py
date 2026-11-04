@@ -96,13 +96,45 @@ for product, extension in [("Design", ".fig"), ("Slides", ".deck"), ("FigJam", "
     text(None, key, product, 17, "Semi Bold", PAPER)
     text(None, key, extension, 17, "Regular", MUTED)
 
-# ── The showcase, light behind dark: grafta's own pictures of one frame ──────
-for key, picture, x, y in [("light", "showcase-2-designed.png", 700, 92), ("dark", "showcase-3-dark.png", 818, 178)]:
-    call(key, "create_frame", handle=h(), parent=ref("card"), name=picture, x=x, y=y, width=320, height=324)
-    props(key, cornerRadius=22, clipsContent=True, strokes=solid(LINE), strokeWeight=1, strokeAlign="INSIDE",
-          fills=[{"type": "IMAGE", "image": f"{ASSETS}/{picture}", "scaleMode": "FILL"}],
-          effects=[{"type": "DROP_SHADOW", "color": "#000000", "opacity": 0.45,
-                    "offset": {"x": 0, "y": 24}, "radius": 48}])
+# ── The concept: a generic web wireframe as named, editable .fig layers ─────
+call("file-window", "create_frame", handle=h(), parent=ref("card"), name="landing-editable.fig",
+     x=700, y=72, width=420, height=472)
+props("file-window", cornerRadius=22, clipsContent=True, fills=solid("#2C2C2C"),
+      strokes=solid(LINE), strokeWeight=1, strokeAlign="INSIDE",
+      effects=[{"type": "DROP_SHADOW", "color": "#000000", "opacity": 0.45,
+                "offset": {"x": 0, "y": 24}, "radius": 48}])
+call("file-top", "create_frame", handle=h(), parent=ref("file-window"), name="File bar",
+     x=0, y=0, width=420, height=50)
+props("file-top", fills=solid("#202124"))
+text(None, "file-top", "landing-editable.fig", 14, "Medium", PAPER, family="Inter", x=20, y=17)
+text(None, "file-top", "LOCAL FILE", 10, "Semi Bold", BUD, family="Inter", x=326, y=19,
+     letterSpacing={"value": 8, "unit": "PERCENT"})
+
+call("layers", "create_frame", handle=h(), parent=ref("file-window"), name="Layers",
+     x=0, y=50, width=132, height=422)
+props("layers", fills=solid("#252629"))
+text(None, "layers", "LAYERS", 10, "Semi Bold", MUTED, family="Inter", x=18, y=18,
+     letterSpacing={"value": 10, "unit": "PERCENT"})
+for i, label in enumerate(("▣  Landing", "◇  Navigation", "◇  Hero", "T  Heading", "◇  CTA",
+                           "◇  Features", "◇  Footer")):
+    text(None, "layers", label, 10, "Regular", PAPER if i == 0 else MUTED,
+         family="Inter", x=18, y=50 + i * 30)
+
+call("poster", "create_frame", handle=h(), parent=ref("file-window"), name="Landing",
+     x=168, y=78, width=220, height=240)
+props("poster", clipsContent=True, fills=solid(PAPER), strokes=solid(BUD), strokeWeight=2, strokeAlign="OUTSIDE")
+for name, x, y, width, height, color in [
+    ("Logo", 14, 14, 16, 10, INK), ("Nav", 128, 17, 76, 5, MUTED),
+    ("Heading 1", 14, 50, 84, 14, INK), ("Heading 2", 14, 70, 66, 14, INK),
+    ("Copy 1", 14, 96, 82, 5, MUTED), ("Copy 2", 14, 107, 68, 5, MUTED),
+    ("CTA", 14, 126, 48, 18, SAP), ("Hero media", 116, 48, 88, 98, "#E3F4EA"),
+    ("Feature 1", 14, 170, 58, 46, "#E6E2D8"), ("Feature 2", 81, 170, 58, 46, "#E6E2D8"),
+    ("Feature 3", 148, 170, 58, 46, "#E6E2D8")]:
+    call(None, "create_shape", handle=h(), parent=ref("poster"), type="RECTANGLE", name=name,
+         x=x, y=y, width=width, height=height, fills=solid(color), cornerRadius=3)
+text(None, "file-window", "1440 × 960", 10, "Medium", MUTED, family="Inter", x=244, y=334)
+text(None, "file-window", "7 named layers  ·  editable text  ·  vectors", 11, "Medium", BUD,
+     family="Inter", x=162, y=410)
 
 text(None, "card", "n0ss4.github.io/grafta", 18, "Medium", MUTED, x=876, y=560)
 

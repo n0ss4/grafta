@@ -1,17 +1,19 @@
 import { expect, test } from "@playwright/test";
 
-test("the home page has its content and metadata", async ({ page }) => {
+test("the home page keeps its products, questions and metadata", async ({ page }) => {
   await page.goto("./");
-  await expect(page).toHaveTitle("grafta · Your agent, inside your Figma files");
-  for (const product of ["Figma Design", "Figma Slides", "FigJam", "Figma Sites"]) {
-    await expect(page.locator("#products").getByRole("heading", { name: product })).toBeVisible();
+  await expect(page).toHaveTitle("grafta · Ask your AI. Get a Figma file back.");
+  for (const extension of [".fig", ".deck", ".jam", ".site"]) {
+    await expect(page.locator("#trust").getByText(extension, { exact: true })).toBeVisible();
   }
-  await expect(page.locator("#jobs li h3")).toHaveCount(6);
-  await expect(page.locator("#faq details")).toHaveCount(8);
-  await expect(page.locator("#why ol > li")).toHaveCount(4);
-  await expect(page.locator("#limits li")).toHaveCount(6);
-  await expect(page.locator("#difference tbody tr")).toHaveCount(6);
-
+  await expect(page.locator("#faq details")).toHaveCount(11);
+  await expect(page.locator("#difference article").first().locator("dl > div")).toHaveCount(6);
+  await expect(
+    page.getByRole("navigation", { name: "Product" }).getByRole("link", { name: "Get grafta" }),
+  ).toHaveAttribute("href", "#get");
+  await expect(
+    page.getByRole("navigation", { name: "Product" }).getByRole("link", { name: "Examples" }),
+  ).toHaveAttribute("href", "#ask");
   const card = "https://n0ss4.github.io/grafta/assets/card.png";
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", card);
   await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute("content", card);

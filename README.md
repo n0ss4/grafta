@@ -41,7 +41,7 @@
 | **Rust** | `cargo install grafta` |
 
 Claude Desktop installs the bundle from *Settings → Extensions* when you open
-it; no terminal, nothing else to install. If macOS says it cannot check grafta
+it; no terminal and no Node.js. The binaries are not signed: if macOS says it cannot check grafta
 the first time it runs, allow it in *System Settings → Privacy & Security*.
 
 The Claude Code plugin registers the server and teaches the model how to use it.
@@ -63,7 +63,10 @@ Or, in a client configured with JSON:
 With grafta installed by the script, Homebrew or Cargo, `"command": "grafta", "args": ["mcp"]` does the same without npm.
 
 Prebuilt for macOS (Apple silicon and Intel), Linux (x86_64 and arm64) and
-Windows (x86_64). One self-contained binary; nothing else to install.
+Windows (x86_64). One self-contained binary. We have run it by hand on a Mac with
+Apple silicon; the tests also pass on Linux and Windows in CI. Claude Code, Cursor,
+VS Code, Windsurf and Codex start it with `npx`, which needs Node.js 18 or newer.
+We have tried Claude Code and Claude Desktop; the others use the same setup.
 
 ## Why
 
@@ -84,7 +87,7 @@ it, draw it to check, and save a new file that Figma opens.
 
 3. **Open the result.** Drag `checkout-dark.fig` into Figma's file browser.
 
-grafta never overwrites your file: it saves a new one, and reads it back before
+grafta does not write over your file: it saves a new one, and reads it back before
 it says it is done.
 
 ## Four products
@@ -156,7 +159,7 @@ lists them in a terminal.
 |---|---|
 | **Exact** | every figure is read from the file's bytes: no heuristics, no model, no network |
 | **Says what it left out** | a cut result names what is missing; a picture names what it drew approximately |
-| **Never overwrites** | `save_as` refuses an existing path and re-reads what it wrote |
+| **Does not write over your files** | `save_as` refuses an existing path, except the empty file `new_file` just made, and re-reads what it wrote |
 | **Survives restarts** | unsaved edits are journaled as they are made (`~/.grafta/journals`) and replayed on reopen |
 | **Refuses rather than breaks** | it will not delete a node something points into, or write what Figma would repair; it says why |
 
@@ -172,8 +175,8 @@ lists them in a terminal.
   Figma's width; without it, a
   stand-in is used and the caption says so. Install the
   font and restart the server.
-- **An open file costs memory**, far more than its size: a 25 MB file holds about
-  2.5 GB while open. Close what you
+- **An open file costs memory**, far more than its size: on one Mac, a 57 MB file took 1.3 GB
+  while open and an 86 MB one 5.5 GB. Close what you
   are done with.
 - **Not yet:** auto-layout grids, component slots, boolean operations,
   prototyping, Dev Mode annotations, and component properties on variants.
@@ -219,7 +222,7 @@ your disk. You need Figma only to save a local copy and to open the result.
 model reads through it is a tool result like any other, sent wherever your MCP
 client sends the conversation.
 
-**Can it break my file?** It never overwrites one: `save_as` refuses a path
+**Can it break my file?** It does not write over one: `save_as` refuses a path
 that exists and reads back what it wrote. It refuses what Figma would have to
 repair, and unsaved edits survive a restart.
 

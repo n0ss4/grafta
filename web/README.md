@@ -18,16 +18,16 @@ npm run lighthouse           # budgets: ≥ 95 in each category, ≤ 150 KB of s
 | --------------------------------------------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------- |
 | Products, prompts, FAQ, promises, limits, clients, stats, nav, footer | `src/content/*.ts`, typed by `src/content/types.ts`                        | hand; a stat without its source does not compile                 |
 | Every tool and its arguments                                          | `src/generated/tools.json`                                                 | `scripts/tool-reference.py`, checked in CI                       |
-| The showcase's sessions and pictures                                  | `src/generated/session-first.json`, `public/sessions/`, `public/showcase/` | `docs/showcase/transcripts_site.py`, from recordings             |
+| The guided image-to-Figma recording and result pictures               | `public/sessions/image.claude-code.json`, `public/showcase/`               | `docs/showcase/transcripts_site.py`, from recordings (spec 075)  |
 | The changelog                                                         | `../CHANGELOG.md`                                                          | hand; rendered at build time                                     |
 | Pictures, brand, install scripts, `snapshot.js`                       | `../docs/assets`, `../docs/brand`, `../install.*`, `../scripts/snapshot.*` | copied into `public/` by `scripts/sync-public.mjs` (git-ignored) |
 
-The highlighter (Shiki) and Markdown renderer run in route loaders, at build
-time only; nothing of them reaches the browser.
+The Markdown renderer runs in a route loader at build time only; it does not
+reach the browser.
 
 ## Adding a section
 
-Write its words in `src/content/` (`editorial.ts` for the home page's), its component in `src/components/home/` (sections), `src/components/editorial/` (the grid, labels, selection box, wordmark, nav) or `src/components/live/` (the order card, its layers, the session)
-(with a sidecar test when it has behaviour), and place it in
-`src/routes/home.tsx` inside a `Section`, which draws the hairline, the corner
-marks, the eyebrow and the title.
+Write its words in `src/content/` (`editorial.ts` for the home page's), its
+component in `src/components/home/`, its Figma-inspired decoration in
+`src/components/figma/`, and place it in `src/routes/home.tsx`. Add a sidecar
+test when it has behaviour.

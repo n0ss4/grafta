@@ -1,20 +1,14 @@
 import { expect, test } from "@playwright/test";
 
-// Run with JavaScript off: every page's content is in its HTML.
-test("home", async ({ page }) => {
+test("home tells the complete story without JavaScript", async ({ page }) => {
   await page.goto("./");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "Ask your agent. Get a Figma file back.",
-  );
-  const hero = page.locator("#client");
-  await expect(hero.getByRole("log", { name: "Conversation" })).toContainText(
-    "turn poster.png into a Figma file",
-  );
-  await expect(hero.getByText(/· poster-\w+\.fig/)).toBeVisible();
-  await expect(page.locator("#compare article")).toHaveCount(2);
-  await expect(page.locator("#faq details")).toHaveCount(8);
-  await page.locator("#faq summary").first().click();
-  await expect(page.locator("#faq details").first()).toHaveAttribute("open", "");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Ask your AI. Get a Figma file back.");
+  await expect(page.locator("#how [data-demo-step]")).toHaveCount(6);
+  await expect(page.locator("#how")).toContainText("poster-editable.fig");
+  await expect(page.locator("#ask article")).toHaveCount(6);
+  await expect(page.locator("#difference article")).toHaveCount(2);
+  await expect(page.locator("#trust")).toContainText("No account");
+  await expect(page.locator("#faq details")).toHaveCount(11);
 });
 
 test("tools", async ({ page }) => {

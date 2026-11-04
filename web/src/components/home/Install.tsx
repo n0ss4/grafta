@@ -1,74 +1,48 @@
-import type { ComponentType } from "react";
-import { cn } from "~/lib/cn";
-import {
-  ClaudeCodeMark,
-  ClaudeMark,
-  CodeXml,
-  CursorMark,
-  MessageCircle,
-  Terminal,
-  WindsurfMark,
-} from "../editorial/icons";
-import { Section } from "../editorial/Section";
-import { Wordmark } from "../editorial/Wordmark";
-import { Configurator } from "../install/Configurator";
+import { ArrowRight } from "../editorial/icons";
+import { Mark } from "../editorial/Mark";
+import { GetGraftaButton } from "../install/Picker";
+import { FrameName, Selection } from "../figma";
 
-type Glyph = ComponentType<{ size?: number; className?: string }>;
-/** Where the client has a mark grafta may show (simple-icons, CC0), it is shown; otherwise its name and a glyph. */
-const marks: Record<string, { Icon: Glyph; colour?: string }> = {
-  "claude-code": { Icon: ClaudeCodeMark, colour: "text-[#D97757]" },
-  codex: { Icon: Terminal, colour: "text-bud" },
-  "claude-desktop": { Icon: ClaudeMark, colour: "text-[#D97757]" },
-  cursor: { Icon: CursorMark },
-  vscode: { Icon: CodeXml, colour: "text-bud" },
-  windsurf: { Icon: WindsurfMark },
-};
-
-const glyphs = Object.fromEntries(
-  Object.entries(marks).map(([id, { Icon, colour }]) => [
-    id,
-    <Icon key={id} size={16} className={cn(colour ?? "text-current")} />,
-  ]),
-);
-
-/** 07: running in a minute; the wordmark again at the foot. */
-export function Install({
-  highlighted,
-  client,
-  onClient,
-}: {
-  highlighted: Record<string, string>;
-  client: string;
-  onClient: (id: string) => void;
-}) {
+/** The same uncomplicated action again, after the visitor has the answers. */
+export function Install() {
   return (
-    <Section id="install" index="07" label="Install" tone="ink" className="overflow-hidden pb-0 lg:pb-0">
-      <div className="mt-6 grid grid-cols-4 lg:grid-cols-8">
-        <h2
-          id="install-title"
-          className="col-span-4 text-[36px] leading-[1.1] font-normal tracking-[-0.03em] sm:text-[48px] lg:col-span-5 lg:col-start-2"
-        >
-          Running in a minute.
-        </h2>
-        <div className="col-span-4 mt-10 min-w-0 lg:col-span-6 lg:col-start-2">
-          <Configurator
-            highlighted={highlighted}
-            value={client}
-            onValueChange={onClient}
-            glyphs={glyphs}
-            after={
-              <span className="inline-flex items-center gap-2 rounded-full border border-dashed border-line px-3.5 py-1.5 text-[14px] font-medium text-muted">
-                <MessageCircle size={16} />
-                ChatGPT · soon
-              </span>
-            }
-          />
+    <section
+      id="get"
+      aria-labelledby="get-title"
+      className="tone-ink grid-lines overflow-hidden px-4 pt-24 pb-0 lg:px-0 lg:pt-32"
+    >
+      <div className="grid grid-cols-4 lg:grid-cols-8">
+        <div className="col-span-4 lg:col-span-6 lg:col-start-2">
+          <FrameName>Get grafta</FrameName>
+          <Selection label="Install" className="mt-8 max-w-[760px]">
+            <h2
+              id="get-title"
+              className="text-[44px] leading-[1.04] font-normal tracking-[-0.04em] sm:text-[64px]"
+            >
+              Give your AI a real Figma file.
+            </h2>
+          </Selection>
+          <p className="mt-12 max-w-[520px] text-[17px] leading-relaxed text-muted">
+            Pick the app you already use. You will get one download, command or configuration to copy.
+          </p>
+          <GetGraftaButton className="group mt-7 inline-flex items-center gap-2.5 rounded-full bg-button py-3 pr-4 pl-5 text-[15px] font-medium text-on-button">
+            Get grafta{" "}
+            <ArrowRight
+              size={16}
+              className="text-button-accent transition-transform group-hover:translate-x-1"
+            />
+          </GetGraftaButton>
+          <p className="mt-5 font-mono text-[11px] text-muted">
+            macOS · Linux · Windows · MIT · not affiliated with Figma
+          </p>
         </div>
-        <p className="micro col-span-4 mt-8 text-muted lg:col-start-2">
-          macOS · Linux · Windows · MIT · not affiliated with Figma
-        </p>
       </div>
-      <Wordmark className="mt-24 -mb-[9vw] -ml-[1vw] text-paper/[0.06]" />
-    </Section>
+      <div className="mt-20 flex items-center gap-5 border-t border-white/10 px-4 py-8 lg:px-[12.5%]">
+        <Mark size={34} />
+        <span className="font-mono text-[10px] tracking-[0.08em] text-muted uppercase">
+          local files · exact edits · open source
+        </span>
+      </div>
+    </section>
   );
 }

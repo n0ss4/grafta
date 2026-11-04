@@ -71,7 +71,7 @@ browser tool, `graftaSnapshot('<selector>')`, saved as JSON), then
   runs. If its caption says a font was missing, the fix is installing that font
   and restarting the server, not changing the design.
 - **Close large files** with `close_file` when done: an open file holds memory
-  roughly proportional to its size (about 2.5 GB for a 25 MB file).
+  which grows with its size (1.3 GB for a 57 MB file, 5.5 GB for an 86 MB one, as measured).
 - **Unsaved edits survive a restart.** If the server restarts, `open_file` the
   same path again and the result says how many edits it `recovered`.
 

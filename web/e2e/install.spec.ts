@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("from the top, Install then Copy puts the command on the clipboard (two actions)", async ({
+test("from the top, Get grafta then Copy line puts the command on the clipboard", async ({
   page,
   context,
   browserName,
@@ -8,23 +8,19 @@ test("from the top, Install then Copy puts the command on the clipboard (two act
   test.skip(browserName !== "chromium", "clipboard permissions");
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto("./");
-  await page.getByRole("navigation", { name: "Site" }).getByRole("link", { name: "Install" }).click();
-  await page
-    .locator("#install")
-    .getByRole("tabpanel", { name: "Claude Code" })
-    .getByRole("button", { name: "Copy" })
-    .click();
+  await page.getByRole("navigation", { name: "Site" }).getByRole("button", { name: "Get grafta" }).click();
+  const picker = page.getByRole("dialog", { name: "Get grafta" });
+  await picker.getByRole("button", { name: "Copy line" }).click();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
     "/plugin install grafta --marketplace n0ss4/grafta",
   );
 });
 
-test("a client's tab, with its mark, picks its configuration", async ({ page }) => {
+test("the picker lists every app and shows its file or line", async ({ page }) => {
   await page.goto("./");
-  await page.locator("#install").getByRole("tab", { name: "Cursor" }).click();
-  await expect(page.locator("#install").getByRole("tab", { name: "Cursor" })).toHaveAttribute(
-    "aria-selected",
-    "true",
-  );
-  await expect(page.locator("#install").getByText(".cursor/mcp.json")).toBeVisible();
+  await page.locator("#hero").getByRole("button", { name: "Get grafta" }).click();
+  const picker = page.getByRole("dialog", { name: "Get grafta" });
+  await expect(picker.getByRole("button", { name: "Claude Code" })).toBeVisible();
+  await picker.getByRole("button", { name: "Cursor" }).click();
+  await expect(picker.getByText(".cursor/mcp.json (or ~/.cursor/mcp.json)")).toBeVisible();
 });
