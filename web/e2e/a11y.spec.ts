@@ -7,14 +7,9 @@ for (const scheme of ["light", "dark"] as const) {
     test(`${path} in ${scheme}`, async ({ page }) => {
       await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
       await page.goto(path);
-      // The hero's client with a row of calls open.
+      // Exercise the modal as well as the page when JavaScript is available.
       if (path === "./") {
-        const hero = page.locator("#client");
-        await hero
-          .getByRole("button", { name: /Called grafta/ })
-          .first()
-          .click();
-        await hero.getByRole("button", { name: /Started a file the size of the picture/ }).click();
+        await page.locator("#hero").getByRole("button", { name: "Get grafta" }).click();
       }
       const results = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])

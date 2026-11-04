@@ -1,18 +1,21 @@
 import { faq } from "~/content/faq";
 import { Rich } from "../Rich";
-import { Section } from "../editorial/Section";
+import { FrameName } from "../figma";
 
-/** 08: questions, as details: open without a script. */
+/** Questions as native details: readable and operable without a script. */
 export function Questions() {
   return (
-    <Section id="faq" index="08" label="Questions">
-      <div className="mt-6 grid grid-cols-4 lg:grid-cols-8">
-        <h2
-          id="faq-title"
-          className="col-span-4 text-[36px] leading-[1.1] font-normal tracking-[-0.03em] sm:text-[48px] lg:col-span-3 lg:col-start-2"
-        >
-          Asked before installing.
-        </h2>
+    <section id="faq" aria-labelledby="faq-title" className="grid-lines px-4 py-24 lg:px-0 lg:py-32">
+      <div className="grid grid-cols-4 lg:grid-cols-8">
+        <div className="col-span-4 lg:col-span-3 lg:col-start-2">
+          <FrameName>Questions</FrameName>
+          <h2
+            id="faq-title"
+            className="mt-6 text-[36px] leading-[1.1] font-normal tracking-[-0.03em] sm:text-[48px]"
+          >
+            Asked before installing.
+          </h2>
+        </div>
         <div className="col-span-4 mt-10 lg:col-span-3 lg:col-start-5 lg:mt-0">
           {faq.map((entry) => (
             <details key={entry.question} className="group border-t border-line py-5 last:border-b">
@@ -29,6 +32,6 @@ export function Questions() {
           ))}
         </div>
       </div>
-    </Section>
+    </section>
   );
 }

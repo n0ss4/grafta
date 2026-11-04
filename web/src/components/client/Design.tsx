@@ -61,6 +61,82 @@ function Figure({ label, children, ring }: { label: string; children: React.Reac
   );
 }
 
+function FigmaFile({
+  picture,
+  reached,
+  compact,
+}: {
+  picture?: { src: string; width: number; height: number; alt: string } | undefined;
+  reached: (id: string) => boolean;
+  compact: boolean;
+}) {
+  const layers = [
+    ["▣", "Forma 27 Poster", "read"],
+    ["◇", "Header", "layout"],
+    ["○", "Sun", "layout"],
+    ["⌁", "Hill", "layout"],
+    ["T", "Forma / 27", "text"],
+    ["T", "Event details", "text"],
+    ["◇", "Get your pass", "text"],
+  ] as const;
+  return (
+    <div
+      className={cn(
+        "overflow-hidden rounded-xl border border-line bg-[#2C2C2C] shadow-xl",
+        compact ? "w-[260px]" : "w-[340px]",
+      )}
+    >
+      <div className="flex h-8 items-center justify-between border-b border-white/10 px-3 font-mono text-[8px] text-white/70">
+        <span>poster-editable.fig</span>
+        <span className="text-[#79D5A9]">local file</span>
+      </div>
+      <div className="grid grid-cols-[94px_1fr]">
+        <aside className="border-r border-white/10 bg-[#252525] p-2 text-left text-[7px] text-white/75">
+          <p className="mb-2 font-mono text-white/70 uppercase">Pages</p>
+          <p className="rounded bg-white/10 px-1.5 py-1 text-white/80"># Poster</p>
+          <p className="mt-3 mb-2 font-mono text-white/70 uppercase">Layers</p>
+          <ul className="space-y-1.5">
+            {layers.map(([icon, name, beat]) => (
+              <li key={name} className={cn("flex gap-1 truncate", !reached(beat) && "opacity-70")}>
+                <span className="w-3 flex-none text-center text-[#79D5A9]">{icon}</span>
+                <span className="truncate">{name}</span>
+              </li>
+            ))}
+          </ul>
+        </aside>
+        <div className="grid min-h-[270px] place-items-center bg-[#3A3A3A] p-4">
+          {picture ? (
+            <div className="relative">
+              <img
+                fetchPriority="low"
+                decoding="async"
+                src={`${import.meta.env.BASE_URL}${picture.src}`}
+                width={picture.width}
+                height={picture.height}
+                alt={picture.alt}
+                className="h-auto w-[154px] shadow-lg"
+              />
+              <span className="absolute -inset-1 border border-[#79D5A9]" aria-hidden="true" />
+            </div>
+          ) : (
+            <div className="grid aspect-[4/5] w-[154px] place-items-center border border-dashed border-white/30 bg-white/[0.04] p-4 text-center text-[9px] text-white/75">
+              {reached("text")
+                ? "Editable text and vectors…"
+                : reached("layout")
+                  ? "Frames and shapes…"
+                  : "1080 × 1350 frame"}
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="flex h-7 items-center justify-between border-t border-white/10 px-3 font-mono text-[7px] text-white/70">
+        <span>{reached("text") ? "7 named layers" : "building layers…"}</span>
+        <span>{reached("save") ? "saved ✓" : "unsaved changes"}</span>
+      </div>
+    </div>
+  );
+}
+
 /**
  * The Figma file beside the conversation, at the beat it has reached:
  * drawn from components, every value the model chose read from
@@ -82,9 +158,8 @@ export function Design({
   const all = recording.turns.flatMap((t) => (t.kind === "tools" && !t.other ? t.calls : []));
 
   if (spec.id === "image") {
-    // The picture the person gave, beside the file as grafta last drew it (render_node's own picture).
+    // The source picture beside the actual .fig structure and grafta's own render.
     const drawn = done.filter((s) => s.picture).at(-1)?.picture;
-    const box = compact ? "w-[150px]" : "w-[220px]";
     return (
       <div className="flex items-start justify-center gap-5">
         <Figure label="poster.png · the picture">
@@ -95,37 +170,13 @@ export function Design({
             width={440}
             height={550}
             alt="The poster the person gave: Forma 27, design days, 14–15 May"
-            className={cn(box, "h-auto rounded-xl border border-black/10")}
+            className={cn(compact ? "w-[130px]" : "w-[170px]", "h-auto rounded-xl border border-black/10")}
           />
         </Figure>
         <Figure
-          label={drawn ? "The Figma file · as grafta drew it" : "The Figma file · being built"}
-          ring={!!drawn}
+          label={drawn ? "poster-editable.fig · rendered from the file" : "poster-editable.fig · being built"}
         >
-          {drawn ? (
-            <img
-              fetchPriority="low"
-              decoding="async"
-              src={`${import.meta.env.BASE_URL}${drawn.src}`}
-              width={drawn.width}
-              height={drawn.height}
-              alt={drawn.alt}
-              className={cn(box, "h-auto rounded-xl")}
-            />
-          ) : (
-            <div
-              className={cn(
-                box,
-                "grid aspect-[4/5] place-items-center rounded-xl border border-dashed border-line p-4 text-center text-[13px] text-muted",
-              )}
-            >
-              {reached("text")
-                ? "Text and shapes as layers…"
-                : reached("read")
-                  ? "A frame the size of the picture…"
-                  : "Not started"}
-            </div>
-          )}
+          <FigmaFile picture={drawn} reached={reached} compact={compact} />
         </Figure>
       </div>
     );

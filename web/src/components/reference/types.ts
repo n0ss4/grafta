@@ -1,4 +1,4 @@
-// web/src/generated/tools.json.
+// web/src/generated/tools.json, as specs/067-react-website/contracts/tools.schema.json has it.
 
 export interface Argument {
   name: string;

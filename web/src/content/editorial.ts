@@ -28,8 +28,56 @@ export const comparison = [
   { aspect: "Source", grafta: "Open source, MIT", figma: "Figma's own" },
   {
     aspect: "Best for",
-    grafta: "Files on your disk, repeated edits, working with no Figma seat",
+    grafta: "Files on your disk, repeated edits, no Figma seat",
     figma: "Working live with a file open in Figma",
+  },
+] as const;
+
+export const asks = [
+  {
+    who: "Designers",
+    requests: [
+      {
+        prompt: "Add a High contrast mode to this Theme.",
+        image: "showcase/sessions/theme-claude-code-3.png",
+        alt: "Order screen rendered in High contrast",
+      },
+      {
+        prompt: "Check every text against WCAG AA and fix what fails.",
+        image: "showcase/sessions/contrast-claude-code-2.png",
+        alt: "Order screen after its contrast was fixed",
+      },
+    ],
+  },
+  {
+    who: "Developers",
+    requests: [
+      {
+        prompt: "Turn this screenshot into editable Figma layers.",
+        image: "showcase/sessions/image-claude-code-2.png",
+        alt: "A poster rebuilt as editable Figma layers",
+      },
+      {
+        prompt: "Bring this web page into the file as auto-layout.",
+        image: "showcase/sessions/html-claude-code-1.png",
+        alt: "Pricing cards imported from a web page",
+      },
+    ],
+  },
+  {
+    who: "Teams",
+    requests: [
+      {
+        prompt: "Audit the tokens, components and styles in this file.",
+        image: "showcase/sessions/audit-claude-code-1.png",
+        alt: "A design-system audit of an order screen",
+      },
+      {
+        prompt: "Make this card a component and fill it from our data.",
+        image: "showcase/sessions/data-claude-code-4.png",
+        alt: "Order cards filled from structured data",
+      },
+    ],
   },
 ] as const;
 

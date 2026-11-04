@@ -37,6 +37,11 @@ export const faq: FaqEntry[] = [
       "Yes. `grafta tool` calls any tool from a terminal, and `grafta tool --batch` runs a sequence of calls on one file: this site's pictures, sessions and social card are made that way.",
   },
   {
+    question: "What can't it do yet?",
+    answer:
+      "Auto-layout grids, component slots, boolean operations, prototyping, Dev Mode annotations and properties on variants. It edits only the variables and styles it made itself. It needs a `.fig` you have to start a new file, and an open file costs memory: 1.3 GB for a 57 MB file, 5.5 GB for an 86 MB one. See the [roadmap](https://github.com/n0ss4/grafta/blob/main/docs/ROADMAP.md).",
+  },
+  {
     question: "What if Figma changes its file format?",
     answer:
       "It may break. Figma does not document this format, and grafta was built by reading real files. A file carries its own schema, which helps, but a change could stop grafta reading a new file, or Figma accepting one it wrote. Report what you find in the issues.",

@@ -9,8 +9,8 @@ export const announcement: Announcement | undefined = {
 };
 
 export const nav: Link[] = [
-  { label: "Products", href: "#products" },
-  { label: "Examples", href: "#jobs" },
+  { label: "How it works", href: "#how" },
+  { label: "Examples", href: "#ask" },
   { label: "Tools", href: "tools/" },
   { label: "Changelog", href: "changelog/" },
 ];
@@ -19,8 +19,8 @@ export const footer: FooterColumn[] = [
   {
     title: "Product",
     links: [
-      { label: "Install", href: "#install" },
-      { label: "Examples", href: "#jobs" },
+      { label: "Get grafta", href: "#get" },
+      { label: "Examples", href: "#ask" },
       { label: "FAQ", href: "#faq" },
     ],
   },

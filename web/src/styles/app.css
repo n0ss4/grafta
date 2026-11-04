@@ -291,19 +291,6 @@
   letter-spacing: 0.04em;
 }
 
-/* The wordmark: its letters rise once, then rest bleeding off the edge. */
-@keyframes rise {
-  from {
-    transform: translateY(42%);
-    opacity: 0;
-  }
-}
-.wordmark span {
-  display: inline-block;
-  animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.1, 1) both;
-  animation-delay: calc(var(--i) * 40ms);
-}
-
 /* Figma's selection box drawing itself around what it selects. */
 @keyframes draw {
   from {
@@ -345,7 +332,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wordmark span,
   .selection-box,
   .selection-handle,
   .in-view .draw-rule,

@@ -31,7 +31,8 @@ export function meta({ title, description, path }: PageMeta): Descriptor[] {
     { property: "og:image:height", content: "630" },
     {
       property: "og:image:alt",
-      content: "grafta: Figma's file format, for your agent. A card in light and dark mode, drawn by grafta.",
+      content:
+        "grafta: your agent inside real Figma files. A local .fig with named, editable layers, drawn by grafta.",
     },
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: title },
