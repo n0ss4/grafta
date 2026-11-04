@@ -638,7 +638,7 @@ fn an_instance_is_drawn_as_figmas_cached_expansion_says() {
     assert!(picture.notes.iter().all(|n| !n.contains("resized")), "{:?}", picture.notes);
 }
 
-// ── 083: an instance's vectors at its size ──────────────────────────────────
+// ── an instance's vectors at its size ──────────────────────────────────
 
 /// A filled square from 0,0, as Figma stores an outline.
 fn square_blob(side: f32) -> Vec<u8> {
@@ -792,7 +792,7 @@ fn a_paragraph_breaks_with_its_first_line_narrower_by_its_indent() {
     assert_eq!(crate::text::break_paragraph(&chars, &advances, None, 20.0).len(), 1);
 }
 
-// ── 045: PDF ─────────────────────────────────────────────────────────────────
+// ── PDF ─────────────────────────────────────────────────────────────────
 
 /// Each page's `MediaBox`, as krilla writes it uncompressed.
 fn media_boxes(pdf: &[u8]) -> Vec<String> {
@@ -832,7 +832,7 @@ fn a_pdf_of_nothing_or_of_an_unknown_node_is_refused() {
     assert!(error.0.contains("9:9"), "{error}");
 }
 
-// ── 046: contrast ────────────────────────────────────────────────────────────
+// ── contrast ────────────────────────────────────────────────────────────
 
 /// A white 100×60 frame `1:1` holding a 60×20 text `1:3` at 10,10 in `colour`,
 /// at `size` px.

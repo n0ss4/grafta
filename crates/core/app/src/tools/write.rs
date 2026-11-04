@@ -175,7 +175,13 @@ impl Query for SaveAs {
         let path = self.path.as_path();
 
         let ports = &session.ports;
-        let path = crate::Location::new_file(ports.store.as_ref(), path, Some(&session.path))?.path();
+        // The empty file `new_file` wrote, untouched since, is the one file that
+        // can be saved over: nothing in it is anyone's yet.
+        let over_empty = session.made_empty.as_deref().is_some_and(|empty| {
+            ports.store.canonical(path).ok().as_deref() == Some(session.path.as_path())
+                && ports.store.read(path).is_ok_and(|on_disk| on_disk == empty)
+        });
+        let path = if over_empty { path } else { crate::Location::new_file(ports.store.as_ref(), path, Some(&session.path))?.path() };
         // A deck stays a deck and a board a board: Figma opens each by
         // its extension, and the container keeps its product's magic.
         let extension = session.fig.product.extension();
@@ -202,10 +208,14 @@ impl Query for SaveAs {
             return Err(WriteError::ChangedInTransit { at: difference.path.to_string() }.into());
         }
 
-        ports.store.create(path, &bytes).map_err(|creating| match creating {
-            Creating::Open(error) => DomainError::CannotCreate { path: path.into(), error: error.to_string() },
-            Creating::Write(error) => DomainError::CannotWrite { path: path.into(), error: error.to_string() },
-        })?;
+        if over_empty {
+            ports.store.write(path, &bytes).map_err(|error| DomainError::CannotWrite { path: path.into(), error: error.to_string() })?;
+        } else {
+            ports.store.create(path, &bytes).map_err(|creating| match creating {
+                Creating::Open(error) => DomainError::CannotCreate { path: path.into(), error: error.to_string() },
+                Creating::Write(error) => DomainError::CannotWrite { path: path.into(), error: error.to_string() },
+            })?;
+        }
 
         let created: Vec<Data> = session
             .created

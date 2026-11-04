@@ -24,5 +24,5 @@ test("tools", async ({ page }) => {
 
 test("changelog", async ({ page }) => {
   await page.goto("changelog/");
-  await expect(page.getByRole("heading", { name: "Unreleased" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "0.1.0" })).toBeVisible();
 });

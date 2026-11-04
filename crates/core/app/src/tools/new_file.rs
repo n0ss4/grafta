@@ -69,7 +69,9 @@ impl Command for NewFile {
             .write(path, &bytes)
             .map_err(|error| DomainError::CannotWrite { path: path.into(), error: error.to_string() })?;
 
-        let session = kit.open(path)?;
+        let handle = kit.open(path)?.handle.to_string();
+        kit.session_mut(&handle)?.made_empty = Some(bytes.clone());
+        let session = kit.session(&handle)?;
         let mut out = super::read::summary(session);
         out["handle"] = data!(session.handle);
         out["created_from"] = data!(from.display().to_string());

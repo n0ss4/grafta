@@ -107,6 +107,42 @@ fn saving_where_a_file_is_is_refused_by_what_the_store_holds() {
     assert!(own.to_string().contains("the file this session was opened from"), "{own}");
 }
 
+#[test]
+fn a_new_file_is_saved_where_it_was_made_while_it_is_still_empty() {
+    let Some(store) = fixture_in_memory() else { return };
+    let journal = Arc::new(MemoryJournal::default());
+    let mut kit = toolkit(&store, &journal);
+    let made = call(&mut kit, "new_file", json!({ "path": "/memory/made.fig", "from": FILE })).unwrap();
+    let handle = made["handle"].as_str().unwrap().to_string();
+    call(&mut kit, "create_page", json!({ "handle": handle, "name": "Mine" })).unwrap();
+    call(&mut kit, "save_as", json!({ "handle": handle, "path": "/memory/made.fig" })).unwrap();
+    let saved = crate::port::DocumentStore::read(&*store, Path::new("/memory/made.fig")).unwrap();
+    let graph = model::build_scene_graph(&figfile::parse_fig(&saved).unwrap()).unwrap();
+    assert_eq!(graph.nodes.values().filter(|n| n.name == "Mine").count(), 1, "the saved file holds the edit");
+
+    // Saved, it holds someone's work: the rule against overwriting is back.
+    let again = call(&mut kit, "save_as", json!({ "handle": handle, "path": "/memory/made.fig" })).unwrap_err();
+    assert!(again.to_string().contains("the file this session was opened from"), "{again}");
+
+    // A server started again finds the saved file, with the edit once.
+    let mut after = toolkit(&store, &journal);
+    let (reopened, _) = open(&mut after, "/memory/made.fig");
+    let found = call(&mut after, "search_nodes", json!({ "handle": reopened, "name": "Mine" })).unwrap();
+    assert_eq!(found["total"], 1, "{found}");
+}
+
+#[test]
+fn a_new_file_changed_by_anyone_else_is_not_saved_over() {
+    let Some(store) = fixture_in_memory() else { return };
+    let mut kit = toolkit(&store, &Arc::new(MemoryJournal::default()));
+    let made = call(&mut kit, "new_file", json!({ "path": "/memory/theirs.fig", "from": FILE })).unwrap();
+    let handle = made["handle"].as_str().unwrap().to_string();
+    store.write(Path::new("/memory/theirs.fig"), b"someone else's work").unwrap();
+    let error = call(&mut kit, "save_as", json!({ "handle": handle, "path": "/memory/theirs.fig" })).unwrap_err();
+    assert!(error.to_string().contains("will not write"), "{error}");
+    assert_eq!(crate::port::DocumentStore::read(&*store, Path::new("/memory/theirs.fig")).unwrap(), b"someone else's work");
+}
+
 /// The hand-built document, opened from memory with a fingerprint.
 fn start(journal: &Arc<MemoryJournal>, base: Base) -> (Toolkit, String, Option<Value>) {
     let mut kit = toolkit(&Arc::new(Memory::default()), journal);

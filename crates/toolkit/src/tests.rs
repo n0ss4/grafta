@@ -342,7 +342,7 @@ fn saving_over_an_existing_file_or_without_the_archive_entries_is_refused() {
     assert_eq!(stored(&kit, fresh), None);
 }
 
-// ── 005: styling ─────────────────────────────────────────────────────────────
+// ── styling ─────────────────────────────────────────────────────────────
 
 /// A frame grafta created on the first page, ready to style.
 fn created_frame(kit: &mut Toolkit, handle: &str) -> String {
@@ -526,7 +526,7 @@ fn the_files_own_frames_and_the_layers_of_its_components_can_be_styled() {
     assert!(error.to_string().contains("only frames, components, instances, text layers and vectors"), "{error}");
 }
 
-// ── 006: editing what you created ────────────────────────────────────────────
+// ── editing what you created ────────────────────────────────────────────
 
 #[test]
 fn geometry_name_visibility_and_clipping_read_back_as_set() {
@@ -827,7 +827,7 @@ fn a_node_cannot_be_moved_into_itself() {
     assert!(error.to_string().contains("is inside"), "{error}");
 }
 
-// ── 007: text ────────────────────────────────────────────────────────────────
+// ── text ────────────────────────────────────────────────────────────────
 
 fn text(kit: &mut Toolkit, handle: &str, args: Value) -> Result<Value, ToolError> {
     let mut args = args;
@@ -951,7 +951,7 @@ fn editing_a_text_drops_layout_data_that_would_be_stale() {
     assert!(raw.get("derivedTextData").is_none());
 }
 
-// ── 008: gradients ───────────────────────────────────────────────────────────
+// ── gradients ───────────────────────────────────────────────────────────
 
 fn two_stops() -> Value {
     json!([{ "position": 0, "color": "#8B5CF6" }, { "position": 1, "color": "#EC4899", "opacity": 0.5 }])
@@ -1027,7 +1027,7 @@ fn every_gradient_refusal_names_its_reason_and_changes_nothing() {
     }
 }
 
-// ── 009: instance overrides ──────────────────────────────────────────────────
+// ── instance overrides ──────────────────────────────────────────────────
 
 fn instance_of(kit: &mut Toolkit, handle: &str, component: &str) -> String {
     let frame = created_frame(kit, handle);
@@ -1146,7 +1146,7 @@ fn a_recolour_never_adds_paint_to_a_layer_that_had_none() {
     assert!(error.to_string().contains("drawn with fills"), "{error}");
 }
 
-// ── 010: auto-layout ─────────────────────────────────────────────────────────
+// ── auto-layout ─────────────────────────────────────────────────────────
 
 #[test]
 fn auto_layout_reads_back_as_set_and_defaults_are_left_out() {
@@ -1243,7 +1243,7 @@ fn resizing_the_files_own_frame_drops_geometry_figma_derived_for_the_old_size() 
     assert_eq!(raw["size"]["x"], 500.0);
 }
 
-// ── 012: seeing ──────────────────────────────────────────────────────────────
+// ── seeing ──────────────────────────────────────────────────────────────
 
 /// Draw a node, returning its PNG and caption.
 fn render(kit: &mut Toolkit, args: Value) -> Result<(Vec<u8>, Value), ToolError> {
@@ -1308,7 +1308,7 @@ fn a_change_is_drawn_before_it_is_saved() {
     assert!(caption["notes"][0].as_str().unwrap().contains("laid out"), "{caption}");
 }
 
-// ── 014: a new file ──────────────────────────────────────────────────────────
+// ── a new file ──────────────────────────────────────────────────────────
 
 /// The hand-built document as a template: with the two entries Figma needs,
 /// a blob and an image.
@@ -1369,7 +1369,7 @@ fn a_template_figma_would_refuse_and_a_path_that_exists_are_refused() {
     assert!(matches!(error, ToolError::BadArgument(_)), "{error}");
 }
 
-// ── 016: incremental edits ───────────────────────────────────────────────────
+// ── Incremental edits ───────────────────────────────────────────────────
 
 /// Every kind of edit, one after another, kept up to date incrementally, must
 /// leave the same graph and index a full rebuild of the file gives.
@@ -1405,7 +1405,7 @@ fn edits_kept_up_to_date_incrementally_match_a_full_rebuild() {
     }
 }
 
-// ── 017: layer order ─────────────────────────────────────────────────────────
+// ── layer order ─────────────────────────────────────────────────────────
 
 /// A frame holding three squares, "Back", "Middle" and "Front", in that order.
 fn three_layers(kit: &mut Toolkit, handle: &str) -> (String, [String; 3]) {
@@ -1492,7 +1492,7 @@ fn a_move_that_names_no_place_or_itself_or_its_own_inside_is_refused() {
     assert!(matches!(to, ToolError::BadArgument(_)), "{to}");
 }
 
-// ── 018: vectors ─────────────────────────────────────────────────────────────
+// ── vectors ─────────────────────────────────────────────────────────────
 
 /// Lucide's "check", 24 units, drawn at 48 px with a 4 px round stroke.
 fn lucide_check(kit: &mut Toolkit, handle: &str) -> Value {
@@ -1580,7 +1580,7 @@ fn each_path_in_a_list_starts_afresh_as_an_svg_path_element_does() {
     assert!(network.vertices.contains(&(21.0, 21.0)), "{:?}", network.vertices);
 }
 
-// ── 020: components ──────────────────────────────────────────────────────────
+// ── components ──────────────────────────────────────────────────────────
 
 /// A violet chip frame with a label, turned into a component.
 fn chip_component(kit: &mut Toolkit, handle: &str) -> (String, String) {
@@ -1653,7 +1653,7 @@ fn an_instance_takes_its_components_opacity_stroke_and_clip_rather_than_defaults
     assert_eq!((raw["opacity"].clone(), raw["strokeWeight"].clone(), raw["frameMaskDisabled"].clone()), (json!(0.5), json!(3), json!(false)), "{raw}");
 }
 
-// ── 024: editing components ─────────────────────────────────────────────────
+// ── editing components ─────────────────────────────────────────────────
 
 /// Plant a cached expansion on an instance, as Figma writes one.
 fn cache(kit: &mut Toolkit, handle: &str, id: &str) {
@@ -1733,7 +1733,7 @@ fn instances_follow_their_components_new_size_unless_they_had_their_own() {
     assert_eq!(width(&kit, &own), 150.0);
 }
 
-// ── 025: variant sets ────────────────────────────────────────────────────────
+// ── variant sets ────────────────────────────────────────────────────────
 
 /// Two chips made components, side by side: "Exacto" (100 wide) and
 /// "Sustituto" (120 wide), grouped into a set by "Estado".
@@ -2979,7 +2979,7 @@ fn every_sizing_refusal_names_its_reason_and_changes_nothing() {
     assert_eq!(kit.session(&handle).unwrap().fig.node_changes, before);
 }
 
-// ── 034: rich text ───────────────────────────────────────────────────────────
+// ── rich text ───────────────────────────────────────────────────────────
 
 fn rich(kit: &mut Toolkit, handle: &str, extra: Value) -> String {
     let mut args = json!({ "parent": "1:1", "fontFamily": "Inter", "fontStyle": "Regular", "fontSize": 16 });
@@ -3207,7 +3207,7 @@ fn runs_read_back_can_be_written_back_unchanged() {
     assert_eq!(after, before);
 }
 
-// ── 035: text sized when it changes ─────────────────────────────────────────
+// ── text sized when it changes ─────────────────────────────────────────
 
 /// A button that hugs its label, as the ninth session drew them.
 fn hugging_button(kit: &mut Toolkit, handle: &str) -> (String, String) {
@@ -3355,7 +3355,7 @@ fn a_bound_size_revalued_or_shown_in_another_mode_is_estimated_again() {
     assert_eq!(at_of(&mut kit, &handle, &title).3, 40.0);
 }
 
-// ── 036: instance fills and dashed strokes ──────────────────────────────────
+// ── instance fills and dashed strokes ──────────────────────────────────
 
 /// A card component: white, a grey stroke inside, radius 12. Optionally
 /// filled from a colour style.
@@ -3490,7 +3490,7 @@ fn every_paint_and_dash_refusal_names_its_reason_and_changes_nothing() {
     assert_eq!(kit.session(&handle).unwrap().fig.node_changes, before);
 }
 
-// ── 037: modes in the picture ───────────────────────────────────────────────
+// ── modes in the picture ───────────────────────────────────────────────
 
 /// Theme (Light, Dark) with a surface colour and a radius, and a card
 /// component bound to both. Returns the card.
@@ -3595,7 +3595,7 @@ fn a_bound_size_drawn_as_stored_is_named() {
     assert!(notes.contains("width bound to a variable is drawn as the component stores it, 100"), "{notes}");
 }
 
-// ── 039: rich text in the picture ───────────────────────────────────────────
+// ── rich text in the picture ───────────────────────────────────────────
 
 /// The columns and rows where a picture has ink matching `is`, as
 /// (first x, last x, first y, last y) within the rows `rows`.
@@ -3694,7 +3694,7 @@ fn paragraph_spacing_moves_the_next_paragraph_down() {
     assert_eq!(spaced - tight, 16);
 }
 
-// ── 040: text measured when estimated ───────────────────────────────────────
+// ── text measured when estimated ───────────────────────────────────────
 
 /// The distances from a button's edges to its label's ink, left and right.
 fn ink_gaps(kit: &mut Toolkit, handle: &str, button: &str) -> (u32, u32) {
@@ -3738,7 +3738,7 @@ fn a_font_not_installed_is_measured_in_its_stand_in_and_named() {
     assert!(out["measured_in_stand_in"].as_str().is_some_and(|n| n.contains("No Such Font in")), "{out}");
 }
 
-// ── 041: instance names that stick ──────────────────────────────────────────
+// ── instance names that stick ──────────────────────────────────────────
 
 #[test]
 fn a_named_instance_carries_its_name_in_the_entry_addressed_to_its_component() {
@@ -3786,7 +3786,7 @@ fn an_instance_of_a_component_from_another_file_is_named_on_itself_and_says_so()
     assert_eq!(read(&mut kit, &handle, "1:5")["name"], "Elsewhere");
 }
 
-// ── 044: font faces that exist ───────────────────────────────────────────────
+// ── font faces that exist ───────────────────────────────────────────────
 
 /// A family installed on this machine, with its faces; `None` on a machine
 /// with no fonts, where there is nothing to check against.
@@ -3903,7 +3903,7 @@ fn a_face_the_file_uses_is_written_as_the_file_spells_it() {
     assert!(out["font_faces"]["missing"][0]["in_this_file"].as_array().unwrap().contains(&json!(figmas)), "{out}");
 }
 
-// ── 045: PDF export ──────────────────────────────────────────────────────────
+// ── PDF export ──────────────────────────────────────────────────────────
 
 #[test]
 fn frames_export_to_a_new_pdf_a_page_each_and_never_over_a_file() {
@@ -3936,7 +3936,7 @@ fn frames_export_to_a_new_pdf_a_page_each_and_never_over_a_file() {
     }
 }
 
-// ── 046: contrast ────────────────────────────────────────────────────────────
+// ── contrast ────────────────────────────────────────────────────────────
 
 #[test]
 fn check_contrast_lists_what_fails_counts_the_rest_and_lists_all_on_request() {
@@ -3961,7 +3961,7 @@ fn check_contrast_lists_what_fails_counts_the_rest_and_lists_all_on_request() {
     assert_eq!(out["results"][1]["verdict"], "passes", "the worst first");
 }
 
-// ── 047: templates filled from data ──────────────────────────────────────────
+// ── templates filled from data ──────────────────────────────────────────
 
 /// A row container and the button of 029 with its three properties.
 fn template_kit() -> (Toolkit, String, String, [String; 6]) {
@@ -4078,7 +4078,7 @@ fn csv_reads_quotes_commas_line_breaks_and_leaves_empty_fields_out() {
     assert!(crate::tools::template::csv_rows("a,b\n1\n").unwrap_err().contains("line 2"));
 }
 
-// ── 048: HTML into design layers ─────────────────────────────────────────────
+// ── HTML into design layers ─────────────────────────────────────────────
 
 /// A snapshot as scripts/snapshot.js writes one: a 300-wide column with 20
 /// padding holding a heading and a row that spreads two labels.
@@ -4172,7 +4172,7 @@ fn css_colours_and_shadow_lists_read_as_chrome_writes_them() {
     assert_eq!(effects[1]["type"], "INNER_SHADOW");
 }
 
-// ── 049: Figma Slides files ──────────────────────────────────────────────────
+// ── Figma Slides files ──────────────────────────────────────────────────
 
 #[test]
 fn a_design_file_is_saved_as_fig_and_a_new_file_is_never_a_deck() {
@@ -4267,7 +4267,7 @@ fn slides_duplicated_moved_and_deleted_keep_the_decks_next_links_in_order() {
     assert!(error.to_string().contains("a slide goes in a row of slides"), "{error}");
 }
 
-// ── 050: FigJam boards ───────────────────────────────────────────────────────
+// ── FigJam boards ───────────────────────────────────────────────────────
 
 /// The maintainer's board, open; `None` where it is not.
 fn board() -> Option<(Toolkit, String)> {
@@ -4325,7 +4325,7 @@ fn a_stickys_text_and_colour_are_written_where_figjam_generates_them() {
     assert!(error.to_string().contains("text, characters, fills"), "{error}");
 }
 
-// ── 051: slide transitions kept with their slides ────────────────────────────
+// ── slide transitions kept with their slides ────────────────────────────
 
 #[test]
 fn speaker_notes_are_written_as_the_deck_holds_them_and_read_back_as_text() {
@@ -4413,7 +4413,7 @@ fn slides_keep_their_own_transitions_through_a_move_a_duplicate_a_delete_and_a_s
     assert!(out["set"].as_array().unwrap().iter().any(|k| k == "fills") && out["set"].as_array().unwrap().iter().any(|k| k == "speakerNotes"), "{out}");
 }
 
-// ── 052: slide transitions and object animations written ─────────────────────
+// ── slide transitions and object animations written ─────────────────────
 
 /// A refused call leaves the file as it was. Before the unit of work, the
 /// slide's own keys stayed written when the frame's refused one failed it.
@@ -4510,7 +4510,7 @@ fn slides_duplicated_again_and_again_are_searched_linked_and_placed_in_the_decks
     }
 }
 
-// ── 053: FigJam boards written ───────────────────────────────────────────────
+// ── FigJam boards written ───────────────────────────────────────────────
 
 #[test]
 fn a_sticky_and_a_shape_move_resize_and_take_their_texts_colour() {

@@ -96,6 +96,9 @@ pub struct Session {
     /// How many node changes `raw_index` covers, so appended ones can be
     /// indexed without reindexing the rest.
     indexed: usize,
+    /// The bytes `new_file` wrote, while this session is the one that made the
+    /// file: only those may be saved over, as they hold nothing of anyone's.
+    pub made_empty: Option<Vec<u8>>,
     pub opened_at: u64,
     pub open_seconds: f64,
     /// How much the process's resident memory grew while opening, in MB.
@@ -345,6 +348,7 @@ impl Session {
             pending_images: Vec::new(),
             undo: model::author::Undo::default(),
             indexed: 0,
+            made_empty: None,
             opened_at: SystemTime::now().duration_since(UNIX_EPOCH).map_or(0, |d| d.as_secs()),
             open_seconds,
             opened_delta_mb,
