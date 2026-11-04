@@ -123,8 +123,16 @@ jobs:
         run: |
           gh release download "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --dir dist
           scripts/npm-packages.sh dist npm/out
-          for package in npm/out/*/; do npm publish --access public "$package"; done
-          npm publish --access public npm/grafta
+          # A path needs its `./`: `npm/grafta` alone means a GitHub repository.
+          # npm never takes a version twice, so what is there is skipped.
+          for package in ./npm/out/*/ ./npm/grafta/; do
+            spec="$(node -p "const p = require('$package/package.json'); p.name + '@' + p.version")"
+            if npm view "$spec" version >/dev/null 2>&1; then
+              echo "$spec is already published"
+            else
+              npm publish --access public "$package"
+            fi
+          done
 
   homebrew:
     needs: release
@@ -145,7 +153,8 @@ jobs:
           mkdir -p tap/Formula && cp grafta.rb tap/Formula/grafta.rb
           cd tap
           git config user.name "grafta release" && git config user.email "release@grafta.invalid"
-          git add Formula/grafta.rb && git commit -m "grafta ${GITHUB_REF_NAME}" && git push
+          git add Formula/grafta.rb
+          git diff --cached --quiet || { git commit -m "grafta ${GITHUB_REF_NAME}" && git push; }
 
   crates:
     # After npm: crates.io cannot be taken back, so it goes only once npm is out.
