@@ -110,6 +110,8 @@ def main():
     if len(sys.argv) != 4:
         sys.exit(__doc__)
     macos, windows, out = sys.argv[1:]
+    # A bare name would be looked for on PATH, not here.
+    macos, windows = os.path.abspath(macos), os.path.abspath(windows)
     runnable = next((b for b in (macos, windows) if os.access(b, os.X_OK) and probe(b)), None)
     if not runnable:
         sys.exit("neither binary runs on this machine, so its tools cannot be asked")
