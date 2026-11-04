@@ -1,0 +1,18 @@
+[package]
+name = "grafta-kiwi"
+description = "Kiwi binary schema and message decoder."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../../README.md"
+
+[lib]
+name = "kiwi"
+
+[dependencies]
+indexmap.workspace = true
+thiserror.workspace = true

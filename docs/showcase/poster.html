@@ -1,0 +1,53 @@
+<!doctype html>
+<!--
+  A made-up poster: the picture the "From an image" session turns
+  into a Figma file. Every name, date and place on it is invented. Drawn to a
+  flat PNG, as a person would have it, with:
+
+    cd web && node -e "const{chromium}=require('@playwright/test');(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1080,height:1350}});await p.goto('file://'+require('path').resolve('../docs/showcase/poster.html'));await p.screenshot({path:'../docs/showcase/poster.png'});await b.close()})()"
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      * { box-sizing: border-box; margin: 0; }
+      body { width: 1080px; height: 1350px; font-family: Inter, sans-serif; background: #f3efe6; color: #1b1a17; overflow: hidden; }
+      .poster { position: relative; width: 100%; height: 100%; padding: 72px 80px; }
+      .sun { position: absolute; right: -140px; top: 120px; width: 620px; height: 620px; border-radius: 50%;
+        background: radial-gradient(circle at 35% 35%, #ffb36b 0%, #f06b3c 55%, #c8442a 100%); }
+      .stripe { position: absolute; left: 0; right: 0; bottom: 0; height: 330px; background: #1f3b37; }
+      .wave { position: absolute; left: -40px; right: -40px; bottom: 300px; height: 90px; border-radius: 50%; background: #2f5e57; }
+      .top { position: relative; display: flex; justify-content: space-between; align-items: center; font-size: 22px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
+      .mark { display: flex; align-items: center; gap: 14px; }
+      .mark i { width: 34px; height: 34px; border: 6px solid #1b1a17; border-radius: 9px; transform: rotate(45deg); display: block; }
+      h1 { position: relative; margin-top: 150px; font-size: 220px; line-height: 0.86; letter-spacing: -0.06em; font-weight: 800; }
+      h1 span { color: #c8442a; }
+      .sub { position: relative; margin-top: 34px; font-size: 40px; font-weight: 500; letter-spacing: -0.01em; max-width: 620px; line-height: 1.15; }
+      .facts { position: absolute; left: 80px; right: 80px; bottom: 96px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; color: #f3efe6; }
+      .fact { border-top: 2px solid #f3efe6aa; padding-top: 20px; }
+      .fact b { display: block; font-size: 18px; letter-spacing: 0.14em; text-transform: uppercase; color: #ffb36b; font-weight: 700; }
+      .fact p { margin-top: 10px; font-size: 30px; font-weight: 600; line-height: 1.2; }
+      .cta { position: absolute; right: 80px; bottom: 380px; display: inline-flex; align-items: center; gap: 14px;
+        background: #1b1a17; color: #f3efe6; padding: 22px 34px; border-radius: 999px; font-size: 26px; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <div class="poster">
+      <div class="sun"></div>
+      <div class="wave"></div>
+      <div class="stripe"></div>
+      <div class="top">
+        <div class="mark"><i></i> Forma</div>
+        <div>Design days · 2027</div>
+      </div>
+      <h1>Forma<br /><span>27</span></h1>
+      <p class="sub">Two days of talks on type, colour and the tools in between.</p>
+      <div class="cta">Get your pass →</div>
+      <div class="facts">
+        <div class="fact"><b>When</b><p>14–15 May</p></div>
+        <div class="fact"><b>Where</b><p>Harbour Hall, Portvale</p></div>
+        <div class="fact"><b>Speakers</b><p>12 studios, 3 workshops</p></div>
+      </div>
+    </div>
+  </body>
+</html>

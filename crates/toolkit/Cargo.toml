@@ -1,0 +1,40 @@
+[package]
+name = "grafta-toolkit"
+description = "Figma's own language, as tools a model calls: open a .fig, read it exactly, create in it, save."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../README.md"
+
+[lib]
+name = "toolkit"
+
+[dependencies]
+app.workspace = true
+design.workspace = true
+disk.workspace = true
+figjam.workspace = true
+sites.workspace = true
+slides.workspace = true
+domain.workspace = true
+edge.workspace = true
+memory.workspace = true
+figfile.workspace = true
+kiwi.workspace = true
+model.workspace = true
+schema.workspace = true
+render.workspace = true
+
+indexmap.workspace = true
+zmij.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha1.workspace = true
+
+[dev-dependencies]
+testkit.workspace = true
+resvg.workspace = true

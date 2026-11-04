@@ -1,0 +1,29 @@
+[package]
+name = "grafta-edge"
+description = "Where a call's JSON meets grafta: each tool's name, description and schema, its arguments read into a command or a query, the results written as JSON, the journal."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../../README.md"
+
+[lib]
+name = "edge"
+
+[dependencies]
+app.workspace = true
+disk.workspace = true
+domain.workspace = true
+figfile.workspace = true
+kiwi.workspace = true
+model.workspace = true
+schema.workspace = true
+
+serde.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+indexmap.workspace = true

@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 250" width="880" height="250" role="img" aria-label="The loop: open a file, find your way, read, write, look at a picture of it, and save to a new file that Figma opens. Writing and looking repeat until it is right.">
+  <style>
+    .bg { fill: #F6F4EE; }
+    .ink { fill: #15171C; }
+    .ink-s { stroke: #15171C; }
+    .dim { fill: #5C5F66; }
+    .line { stroke: #B9B5AA; }
+    .back { stroke: #1F9D6B; }
+    .back-text { fill: #13704B; }
+    .step { fill: #FFFFFF; stroke: #D9D5CA; }
+    .num { fill: #15171C; }
+    .num-text { fill: #F6F4EE; }
+    .write { fill: #1F9D6B; }
+    .write-text { fill: #FFFFFF; }
+    text { font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #0D1117; }
+      .ink { fill: #F6F4EE; }
+      .ink-s { stroke: #F6F4EE; }
+      .dim { fill: #9DA3AB; }
+      .line { stroke: #30363D; }
+      .back { stroke: #C6F26B; }
+      .back-text { fill: #C6F26B; }
+      .step { fill: #161B22; stroke: #30363D; }
+      .num { fill: #F6F4EE; }
+      .num-text { fill: #15171C; }
+    }
+  </style>
+  <defs>
+    <marker id="tip" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" class="back-text"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="880" height="250" rx="20"/>
+
+  <!-- the track -->
+  <line class="line" x1="80" y1="120" x2="800" y2="120" stroke-width="3" stroke-dasharray="1 9" stroke-linecap="round"/>
+
+  <!-- write ⇄ look -->
+  <path class="back" d="M630 83 C 615 36, 525 36, 510 78" fill="none" stroke-width="2.5" marker-end="url(#tip)"/>
+  <text class="back-text" x="570" y="34" text-anchor="middle" font-size="12" font-weight="600">not right yet? change it</text>
+
+  <!-- 1 open -->
+  <g transform="translate(80 120)">
+    <circle class="step" r="38" stroke-width="1.5"/>
+    <circle class="num" cx="-26" cy="-26" r="11"/><text class="num-text" x="-26" y="-22" text-anchor="middle" font-size="12" font-weight="700">1</text>
+    <path class="ink" d="M-14 -8 h10 l4 4 h14 a2 2 0 0 1 2 2 v16 a2 2 0 0 1 -2 2 h-28 a2 2 0 0 1 -2 -2 v-20 a2 2 0 0 1 2 -2 z"/>
+    <text class="ink" y="64" text-anchor="middle" font-size="15" font-weight="600">Open</text>
+    <text class="dim mono" y="84" text-anchor="middle" font-size="11">open_file</text>
+  </g>
+
+  <!-- 2 find -->
+  <g transform="translate(220 120)">
+    <circle class="step" r="38" stroke-width="1.5"/>
+    <circle class="num" cx="-26" cy="-26" r="11"/><text class="num-text" x="-26" y="-22" text-anchor="middle" font-size="12" font-weight="700">2</text>
+    <circle class="ink-s" cx="-3" cy="-3" r="10" fill="none" stroke-width="4"/>
+    <path class="ink" d="M4 4 l10 10 l-3.5 3.5 l-10 -10 z"/>
+    <text class="ink" y="64" text-anchor="middle" font-size="15" font-weight="600">Find</text>
+    <text class="dim mono" y="84" text-anchor="middle" font-size="11">summarize</text>
+    <text class="dim mono" y="99" text-anchor="middle" font-size="11">search_nodes</text>
+  </g>
+
+  <!-- 3 read -->
+  <g transform="translate(360 120)">
+    <circle class="step" r="38" stroke-width="1.5"/>
+    <circle class="num" cx="-26" cy="-26" r="11"/><text class="num-text" x="-26" y="-22" text-anchor="middle" font-size="12" font-weight="700">3</text>
+    <text class="ink mono" y="7" text-anchor="middle" font-size="20" font-weight="700">{ }</text>
+    <text class="ink" y="64" text-anchor="middle" font-size="15" font-weight="600">Read</text>
+    <text class="dim mono" y="84" text-anchor="middle" font-size="11">read_node</text>
+    <text class="dim mono" y="99" text-anchor="middle" font-size="11">list_variables</text>
+  </g>
+
+  <!-- 4 write -->
+  <g transform="translate(500 120)">
+    <circle class="write" r="38"/>
+    <circle class="num" cx="-26" cy="-26" r="11"/><text class="num-text" x="-26" y="-22" text-anchor="middle" font-size="12" font-weight="700">4</text>
+    <path class="write-text" d="M-12 10 l2 -8 l16 -16 l6 6 l-16 16 z M-12 10 l8 -2"/>
+    <text class="ink" y="64" text-anchor="middle" font-size="15" font-weight="600">Write</text>
+    <text class="dim mono" y="84" text-anchor="middle" font-size="11">create_*</text>
+    <text class="dim mono" y="99" text-anchor="middle" font-size="11">set_properties</text>
+  </g>
+
+  <!-- 5 look -->
+  <g transform="translate(640 120)">
+    <circle class="step" r="38" stroke-width="1.5"/>
+    <circle class="num" cx="-26" cy="-26" r="11"/><text class="num-text" x="-26" y="-22" text-anchor="middle" font-size="12" font-weight="700">5</text>
+    <path class="ink" d="M-18 0 C -10 -12, 10 -12, 18 0 C 10 12, -10 12, -18 0 z"/>
+    <circle class="step" r="6" stroke="none"/>
+    <text class="ink" y="64" text-anchor="middle" font-size="15" font-weight="600">Look</text>
+    <text class="dim mono" y="84" text-anchor="middle" font-size="11">render_node</text>
+  </g>
+
+  <!-- 6 save -->
+  <g transform="translate(780 120)">
+    <circle class="step" r="38" stroke-width="1.5"/>
+    <circle class="num" cx="-26" cy="-26" r="11"/><text class="num-text" x="-26" y="-22" text-anchor="middle" font-size="12" font-weight="700">6</text>
+    <path class="ink" d="M-13 -14 h20 l6 6 v20 a2 2 0 0 1 -2 2 h-24 a2 2 0 0 1 -2 -2 v-24 a2 2 0 0 1 2 -2 z"/>
+    <rect class="step" x="-8" y="-14" width="12" height="8" stroke="none"/>
+    <rect class="step" x="-8" y="2" width="16" height="10" rx="1" stroke="none"/>
+    <text class="ink" y="64" text-anchor="middle" font-size="15" font-weight="600">Save</text>
+    <text class="dim mono" y="84" text-anchor="middle" font-size="11">save_as</text>
+    <text class="dim mono" y="99" text-anchor="middle" font-size="11">→ a new file</text>
+  </g>
+</svg>

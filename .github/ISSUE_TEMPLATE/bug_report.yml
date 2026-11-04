@@ -1,0 +1,41 @@
+name: Bug report
+description: A tool returned something wrong, refused what it should do, or Figma could not open a file grafta saved.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for the report. A file you cannot share can be described instead; never attach a file you have no right to share.
+  - type: input
+    id: version
+    attributes:
+      label: grafta version
+      description: "`grafta --version`, or the release you installed"
+    validations:
+      required: true
+  - type: dropdown
+    id: product
+    attributes:
+      label: File
+      options: [Figma Design (.fig), Figma Slides (.deck), FigJam (.jam), Figma Sites (.site), a new file, not file-specific]
+    validations:
+      required: true
+  - type: input
+    id: client
+    attributes:
+      label: Client and platform
+      placeholder: Claude Desktop on macOS 15, Apple silicon
+  - type: textarea
+    id: call
+    attributes:
+      label: The call
+      description: The tool and its arguments, as a model or `grafta tool` sent them.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: What happened, and what you expected
+      description: The result or refusal, word for word. If Figma showed a repair notice or a different picture, say what it showed.
+    validations:
+      required: true

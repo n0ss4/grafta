@@ -1,0 +1,53 @@
+# Rust build artifacts
+/target/
+**/*.rs.bk
+*.pdb
+
+# Generated spec bundles
+/out/
+*-spec/
+
+# Figma source files (Design, Slides, FigJam), and pictures drawn from them
+*.fig
+*.deck
+*.jam
+*.site
+/ladder/*.png
+/ladder/*.pdf
+/ladder/*.pptx
+
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# npm packages built from a release
+/npm/out/
+node_modules/
+
+# Golden corpus results: per machine, recorded before a refactor
+/fixtures/golden/
+__pycache__/
+
+# The website: dependencies, builds, and copies made by web/scripts/sync-public.mjs
+/web/node_modules/
+/web/build/
+/web/.react-router/
+/web/playwright-report/
+/web/test-results/
+/web/.lighthouseci/
+/web/public/assets/
+/web/public/brand/
+/web/public/install.sh
+/web/public/install.ps1
+/web/public/snapshot.js
+/web/public/snapshot.sh
+# Tracked even where a global ignore names lib/ directories.
+!/web/src/lib/
+
+# Raw session recordings: transcripts with local paths, imported by docs/showcase/transcripts_site.py
+docs/showcase/recordings/

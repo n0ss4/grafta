@@ -1,0 +1,251 @@
+{
+  "image": {
+    "claude-code": [
+      {
+        "to": 2,
+        "beat": "read",
+        "label": "Started a file the size of the picture"
+      },
+      {
+        "to": 7,
+        "beat": "layout",
+        "label": "Painted the background and shapes"
+      },
+      {
+        "to": 8,
+        "beat": "layout",
+        "label": "Drew the logo mark"
+      },
+      {
+        "to": 13,
+        "beat": "text",
+        "label": "Set the headline and tagline"
+      },
+      {
+        "to": 17,
+        "beat": "text",
+        "label": "Built the button"
+      },
+      {
+        "to": 32,
+        "beat": "text",
+        "label": "Built the three info columns"
+      },
+      {
+        "to": 33,
+        "beat": "check",
+        "label": "Rendered it to compare"
+      },
+      {
+        "to": 36,
+        "beat": "check",
+        "label": "Moved the sun's light and tightened the headline"
+      },
+      {
+        "to": 37,
+        "beat": "check",
+        "label": "Rendered it again"
+      },
+      {
+        "to": 38,
+        "beat": "save",
+        "label": "Grouped the logo"
+      },
+      {
+        "to": 39,
+        "beat": "save",
+        "label": "Tried to save over the starting file: refused"
+      },
+      {
+        "to": 40,
+        "beat": "save",
+        "label": "Saved a new file"
+      }
+    ]
+  },
+  "theme": {
+    "claude-code": [
+      {
+        "to": 3,
+        "beat": "read",
+        "label": "Read the file and its Theme"
+      },
+      {
+        "to": 4,
+        "beat": "mode",
+        "label": "Added a High contrast mode"
+      },
+      {
+        "to": 13,
+        "beat": "colours",
+        "label": "Gave each of the 9 colours a value"
+      },
+      {
+        "to": 14,
+        "beat": "colours",
+        "label": "Read the Order screen"
+      },
+      {
+        "to": 18,
+        "beat": "render",
+        "label": "Made a copy of the screen per mode"
+      },
+      {
+        "to": 23,
+        "beat": "render",
+        "label": "Rendered all three and checked contrast"
+      },
+      {
+        "to": 24,
+        "beat": "save",
+        "label": "Saved a new file"
+      }
+    ]
+  },
+  "audit": {
+    "claude-code": [
+      {
+        "to": 1,
+        "beat": "read",
+        "label": "Opened the file"
+      },
+      {
+        "to": 2,
+        "beat": "system",
+        "label": "Listed its variables"
+      },
+      {
+        "to": 3,
+        "beat": "text",
+        "label": "Read every layer"
+      },
+      {
+        "to": 4,
+        "beat": "system",
+        "label": "Listed its styles"
+      },
+      {
+        "to": 5,
+        "beat": "look",
+        "label": "Rendered the screen"
+      },
+      {
+        "to": 6,
+        "beat": "look",
+        "label": "Checked every text's contrast"
+      }
+    ]
+  },
+  "contrast": {
+    "claude-code": [
+      {
+        "to": 3,
+        "beat": "read",
+        "label": "Found the screen and its colours"
+      },
+      {
+        "to": 5,
+        "beat": "check",
+        "label": "Checked every text"
+      },
+      {
+        "to": 7,
+        "beat": "check",
+        "label": "Read the text that fails"
+      },
+      {
+        "to": 8,
+        "beat": "fix",
+        "label": "Bound it to the file's own colour"
+      },
+      {
+        "to": 10,
+        "beat": "again",
+        "label": "Checked again"
+      },
+      {
+        "to": 11,
+        "beat": "save",
+        "label": "Saved a new file"
+      }
+    ]
+  },
+  "data": {
+    "claude-code": [
+      {
+        "to": 1,
+        "beat": "read",
+        "label": "Opened the file"
+      },
+      {
+        "to": 4,
+        "beat": "read",
+        "label": "Found the card"
+      },
+      {
+        "to": 5,
+        "beat": "component",
+        "label": "Made it a component"
+      },
+      {
+        "to": 7,
+        "beat": "component",
+        "label": "Gave it an order-number property"
+      },
+      {
+        "to": 11,
+        "beat": "rows",
+        "label": "Placed one card per order"
+      },
+      {
+        "to": 12,
+        "beat": "save",
+        "label": "Tried to save: grafta refused"
+      },
+      {
+        "to": 14,
+        "beat": "save",
+        "label": "Removed the link and saved"
+      },
+      {
+        "to": 15,
+        "beat": "save",
+        "label": "Looked at the result"
+      },
+      {
+        "to": 18,
+        "beat": "save",
+        "label": "Set each card's order number"
+      },
+      {
+        "to": 19,
+        "beat": "save",
+        "label": "Saved a new file"
+      }
+    ]
+  },
+  "html": {
+    "claude-code": [
+      {
+        "to": 2,
+        "beat": "read",
+        "label": "Opened the file and added a page"
+      },
+      {
+        "to": 3,
+        "beat": "import",
+        "label": "Imported the web page"
+      },
+      {
+        "to": 4,
+        "beat": "import",
+        "label": "Rendered it"
+      },
+      {
+        "to": 5,
+        "beat": "save",
+        "label": "Saved a new file"
+      }
+    ]
+  }
+}

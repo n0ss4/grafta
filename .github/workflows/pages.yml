@@ -1,0 +1,44 @@
+# The website: web/, built and pre-rendered, with the README's pictures
+# and the install scripts beside it, on GitHub Pages.
+name: pages
+
+on:
+  push:
+    branches: [main]
+    paths: [web/**, docs/assets/**, docs/brand/**, CHANGELOG.md, install.sh, install.ps1, scripts/snapshot.*, .github/workflows/pages.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: web/.nvmrc
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      # npm run build copies the pictures, brand and install scripts into the
+      # site (web/scripts/sync-public.mjs) and lays it out as Pages serves it
+      # (web/scripts/pages-layout.mjs).
+      - name: Build
+        working-directory: web
+        run: npm ci && npm run build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/build/client
+      - id: deployment
+        uses: actions/deploy-pages@v4

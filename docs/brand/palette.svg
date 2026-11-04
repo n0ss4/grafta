@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 48" width="520" height="48" role="img" aria-label="grafta">
+  <rect x="0" width="80" height="48" rx="10" fill="#15171C" stroke="#8885" />
+  <rect x="88" width="80" height="48" rx="10" fill="#F6F4EE" stroke="#8885" />
+  <rect x="176" width="80" height="48" rx="10" fill="#1F9D6B" stroke="#8885" />
+  <rect x="264" width="80" height="48" rx="10" fill="#13704B" stroke="#8885" />
+  <rect x="352" width="80" height="48" rx="10" fill="#C6F26B" stroke="#8885" />
+  <rect x="440" width="80" height="48" rx="10" fill="#E5603A" stroke="#8885" />
+</svg>

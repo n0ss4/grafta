@@ -1,0 +1,94 @@
+[
+ {
+  "tool": "open_file",
+  "args": {
+   "path": "{fixtures}/Figma Deck Transitions.deck"
+  }
+ },
+ {
+  "tool": "summarize",
+  "args": {
+   "handle": "$0.handle"
+  }
+ },
+ {
+  "tool": "read_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "1:539",
+   "depth": 1
+  }
+ },
+ {
+  "tool": "read_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "1:45",
+   "depth": 0
+  }
+ },
+ {
+  "tool": "set_properties",
+  "args": {
+   "handle": "$0.handle",
+   "id": "1:539",
+   "properties": {
+    "transition": {
+     "style": "DISSOLVE",
+     "duration": 0.4,
+     "curve": "EASE_OUT",
+     "timing": {
+      "type": "ON_CLICK"
+     }
+    }
+   }
+  }
+ },
+ {
+  "tool": "set_properties",
+  "args": {
+   "handle": "$0.handle",
+   "id": "1:45",
+   "properties": {
+    "isSkippedSlide": true,
+    "speakerNotes": "Golden notes"
+   }
+  }
+ },
+ {
+  "tool": "duplicate_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "1:322"
+  }
+ },
+ {
+  "tool": "read_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "$6.id",
+   "depth": 0
+  }
+ },
+ {
+  "tool": "delete_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "1:346"
+  }
+ },
+ {
+  "tool": "render_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "1:539"
+  }
+ },
+ {
+  "tool": "save_as",
+  "args": {
+   "handle": "$0.handle",
+   "path": "{tmp}/deck.deck"
+  }
+ }
+]

@@ -1,0 +1,23 @@
+[package]
+name = "grafta-schema"
+description = "The .fig format's field names, enum values and ids, each named once, and typed access to a decoded message."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../../README.md"
+
+[lib]
+name = "schema"
+
+[dependencies]
+kiwi.workspace = true
+
+serde.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+figfile.workspace = true

@@ -1,0 +1,20 @@
+[package]
+name = "grafta-testkit"
+description = "Scene graphs and fixture loading shared by the workspace's tests. Not published."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+publish = false
+
+[lib]
+name = "testkit"
+
+[dependencies]
+figfile.workspace = true
+kiwi.workspace = true
+model.workspace = true
+schema.workspace = true
+
+indexmap.workspace = true

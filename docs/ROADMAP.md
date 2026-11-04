@@ -1,0 +1,30 @@
+# Roadmap
+
+What grafta does today is in the [README](../README.md) and the
+[changelog](../CHANGELOG.md). This is what comes next, in no promised order.
+Tell us what you need in the [issues](https://github.com/n0ss4/grafta/issues).
+
+## Drawing
+
+- `LINEAR_BURN` and `LINEAR_DODGE` blend modes. Today they are drawn as normal,
+  and the picture's notes say so.
+- Noise and grain effects, which are not drawn yet.
+- An instance laid out again when an overridden text changes its width.
+
+## PDF
+
+- Gradients inside a layer with opacity, a mask or a blend, which Apple's PDF
+  renderer misplaces, Preview included. They read right in Adobe Reader and
+  others, and the page's notes say so.
+- Soft masks in Preview, which may come out wrong at some zooms.
+
+## Editing
+
+- Saving over the file `new_file` made, instead of leaving an empty one beside it.
+- `create_shape` taking an image paint.
+- A file saved elsewhere no longer recovered when its source is opened again.
+- A file carrying only what it uses, after deletes.
+
+## Reach
+
+- Serving over HTTP, for clients that only connect to remote servers.

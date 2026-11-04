@@ -1,0 +1,11 @@
+# The format is reached by name through `schema` alone.
+disallowed-methods = [
+  { path = "kiwi::Value::get", reason = "read a field through schema::Wire" },
+  { path = "kiwi::Fields::get", reason = "read a field through schema::Wire" },
+  { path = "kiwi::Fields::get_mut", reason = "write a field through schema::WireMut" },
+  { path = "kiwi::Fields::contains_key", reason = "use schema::Wire::has" },
+  { path = "kiwi::Fields::insert", reason = "write a field through schema::WireMut" },
+  { path = "kiwi::Fields::get_or_insert_with", reason = "use schema::WireMut::field_or_insert_with" },
+  { path = "kiwi::Fields::remove", reason = "use schema::WireMut::take" },
+  { path = "kiwi::Fields::shift_remove", reason = "use schema::WireMut::take" },
+]

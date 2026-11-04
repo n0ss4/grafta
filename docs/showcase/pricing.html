@@ -1,0 +1,28 @@
+<!doctype html>
+<!-- The page the website's "From a web page" session imports: a browser lays
+     it out, scripts/snapshot.sh records the boxes, and import_layout writes them. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; font-family: Inter, sans-serif; background: #F6F4EE; }
+  .plans { display: flex; gap: 16px; padding: 32px; width: 640px; }
+  .plan { flex: 1; display: flex; flex-direction: column; gap: 12px; padding: 24px; background: #FFFFFF; border: 1px solid #E6E2D8; border-radius: 20px; }
+  .plan.pro { background: #15171C; border-color: #15171C; }
+  .name { font-size: 15px; font-weight: 600; color: #6B6F76; margin: 0; }
+  .pro .name { color: #C6F26B; }
+  .price { font-size: 40px; font-weight: 700; color: #15171C; margin: 0; letter-spacing: -1px; }
+  .pro .price { color: #F6F4EE; }
+  .note { font-size: 14px; color: #6B6F76; margin: 0; }
+  .pro .note { color: #9DA3AB; }
+  .cta { display: flex; justify-content: center; padding: 12px; border-radius: 12px; background: #ECE8DE; color: #15171C; font-size: 15px; font-weight: 600; }
+  .pro .cta { background: #C6F26B; }
+</style>
+</head>
+<body>
+  <main class="plans">
+    <section class="plan"><p class="name">Starter</p><p class="price">$0</p><p class="note">One file at a time, offline.</p><div class="cta">Get started</div></section>
+    <section class="plan pro"><p class="name">Team</p><p class="price">$12</p><p class="note">Shared tokens and components.</p><div class="cta">Start a trial</div></section>
+  </main>
+</body>
+</html>

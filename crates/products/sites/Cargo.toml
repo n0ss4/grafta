@@ -1,0 +1,22 @@
+[package]
+name = "grafta-sites"
+description = "Figma Sites for grafta: a site's pages, each holding its breakpoints."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../../README.md"
+
+[lib]
+name = "sites"
+
+[dependencies]
+app.workspace = true
+domain.workspace = true
+figfile.workspace = true
+kiwi.workspace = true
+model.workspace = true
+schema.workspace = true

@@ -1,0 +1,980 @@
+{
+ "id": "image",
+ "client": "claude-code",
+ "clientVersion": "2.1.316",
+ "model": "claude-opus-5-5",
+ "recordedOn": "2026-10-31",
+ "file": "poster-editable.fig",
+ "edits": {
+  "paths": true,
+  "cut": 1,
+  "otherTools": 5,
+  "pictures": 0
+ },
+ "turns": [
+  {
+   "kind": "user",
+   "text": "Using grafta, turn poster.png into a Figma file. Make it editable."
+  },
+  {
+   "kind": "tools",
+   "label": "Used another tool",
+   "beat": "read",
+   "other": true,
+   "calls": [
+    {
+     "tool": "Read",
+     "args": {
+      "file_path": "poster.png"
+     },
+     "result": "",
+     "omitted": "the client's own tool: its result is not kept"
+    },
+    {
+     "tool": "ToolSearch",
+     "args": {
+      "query": "select:mcp__grafta__new_file,mcp__grafta__create_frame,mcp__grafta__create_text,mcp__grafta__create_shape,mcp__grafta__create_vector,mcp__grafta__render_node,mcp__grafta__save_as,mcp__grafta__import_layout,mcp__grafta__set_properties,mcp__grafta__group_nodes",
+      "max_results": 10
+     },
+     "result": "",
+     "omitted": "the client's own tool: its result is not kept"
+    },
+    {
+     "tool": "Bash",
+     "args": {
+      "command": "ls -la && sips -g pixelWidth -g pixelHeight poster.png",
+      "description": "List files and get poster dimensions"
+     },
+     "result": "",
+     "omitted": "the client's own tool: its result is not kept"
+    },
+    {
+     "tool": "Bash",
+     "args": {
+      "command": "ls -la .; find ~/rec-075 -name \"*.fig\" 2>/dev/null | head",
+      "description": "List files and find existing .fig files"
+     },
+     "result": "",
+     "omitted": "the client's own tool: its result is not kept"
+    },
+    {
+     "tool": "Bash",
+     "args": {
+      "command": "ls -la .",
+      "description": "List files in designs folder"
+     },
+     "result": "",
+     "omitted": "the client's own tool: its result is not kept"
+    }
+   ]
+  },
+  {
+   "kind": "tools",
+   "label": "Started a file the size of the picture",
+   "beat": "read",
+   "calls": [
+    {
+     "tool": "new_file",
+     "args": {
+      "path": "poster.fig",
+      "from": "checkout.fig",
+      "page": "Poster"
+     },
+     "result": "{\"bytes\": 26688, \"component_sets\": 0, \"components\": 0, \"created_from\": \"checkout.fig\", \"file\": \"poster.fig\", \"handle\": \"poster-0a02\", \"images\": 0, \"instances\": 0, \"nodes\": 2, \"pages\": [{\"id\": \"1735549286:34\", \"name\": \"Poster\", \"nodes\": 1, \"top_level\": 0}], \"product\": \"design\", \"styles\": 0, \"text_nodes\": 0, \"unsaved_edits\": 0, \"variable_collections\": 0, \"variables\": 0}"
+    },
+    {
+     "tool": "create_frame",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:34",
+      "name": "Forma 27 Poster",
+      "width": 1080,
+      "height": 1350,
+      "x": 0,
+      "y": 0
+     },
+     "result": "{\"id\": \"1735549286:35\", \"name\": \"Forma 27 Poster\", \"type\": \"FRAME\", \"unsaved_edits\": 1}"
+    }
+   ]
+  },
+  {
+   "kind": "reply",
+   "text": "I've created the file and the 1080×1350 poster frame. Next I'll add the background, shapes and text layers."
+  },
+  {
+   "kind": "tools",
+   "label": "Painted the background and shapes",
+   "beat": "layout",
+   "calls": [
+    {
+     "tool": "set_properties",
+     "args": {
+      "handle": "poster-0a02",
+      "id": "1735549286:35",
+      "properties": {
+       "fills": [
+        {
+         "type": "SOLID",
+         "color": "#F3EFE7"
+        }
+       ],
+       "clipsContent": true
+      }
+     },
+     "result": "{\"id\": \"1735549286:35\", \"set\": [\"clipsContent\", \"fills\"], \"unsaved_edits\": 2}"
+    },
+    {
+     "tool": "create_shape",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:35",
+      "type": "ELLIPSE",
+      "name": "Sun",
+      "x": 600,
+      "y": 120,
+      "width": 620,
+      "height": 620,
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#F07A45"
+       }
+      ]
+     },
+     "result": "{\"id\": \"1735549286:36\", \"name\": \"Sun\", \"type\": \"ELLIPSE\", \"unsaved_edits\": 3}"
+    },
+    {
+     "tool": "create_vector",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:35",
+      "name": "Hill",
+      "path": "M0 990 Q540 930 1080 990 L1080 1030 L0 1030 Z",
+      "x": 0,
+      "y": 960,
+      "width": 1080,
+      "height": 70,
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#2E5E57"
+       }
+      ]
+     },
+     "result": "{\"id\": \"1735549286:37\", \"name\": \"Hill\", \"size\": {\"height\": 70, \"width\": 1080}, \"subpaths\": 1, \"type\": \"VECTOR\", \"unsaved_edits\": 4}"
+    },
+    {
+     "tool": "create_shape",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:35",
+      "type": "RECTANGLE",
+      "name": "Info band",
+      "x": 0,
+      "y": 1020,
+      "width": 1080,
+      "height": 330,
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#213A37"
+       }
+      ]
+     },
+     "result": "{\"id\": \"1735549286:38\", \"name\": \"Info band\", \"type\": \"RECTANGLE\", \"unsaved_edits\": 5}"
+    },
+    {
+     "tool": "set_properties",
+     "args": {
+      "handle": "poster-0a02",
+      "id": "1735549286:36",
+      "properties": {
+       "fills": [
+        {
+         "type": "GRADIENT_RADIAL",
+         "gradientStops": [
+          {
+           "position": 0,
+           "color": "#FFB46C"
+          },
+          {
+           "position": 0.55,
+           "color": "#F37E48"
+          },
+          {
+           "position": 1,
+           "color": "#E05332"
+          }
+         ],
+         "gradientTransform": [
+          [
+           0.9,
+           0,
+           -0.1
+          ],
+          [
+           0,
+           0.9,
+           -0.1
+          ]
+         ]
+        }
+       ]
+      }
+     },
+     "result": "{\"id\": \"1735549286:36\", \"set\": [\"fills\"], \"unsaved_edits\": 6}"
+    }
+   ]
+  },
+  {
+   "kind": "tools",
+   "label": "Drew the logo mark",
+   "beat": "layout",
+   "calls": [
+    {
+     "tool": "create_vector",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:35",
+      "name": "Logo mark",
+      "path": "M19 3.5 L34.5 19 L19 34.5 L3.5 19 Z",
+      "viewBox": [
+       0,
+       0,
+       38,
+       38
+      ],
+      "x": 78,
+      "y": 70,
+      "width": 38,
+      "height": 38,
+      "strokes": [
+       {
+        "type": "SOLID",
+        "color": "#1C1A17"
+       }
+      ],
+      "strokeWeight": 5.5,
+      "strokeJoin": "ROUND"
+     },
+     "result": "{\"id\": \"1735549286:39\", \"name\": \"Logo mark\", \"size\": {\"height\": 38, \"width\": 38}, \"subpaths\": 1, \"type\": \"VECTOR\", \"unsaved_edits\": 7}"
+    }
+   ]
+  },
+  {
+   "kind": "tools",
+   "label": "Set the headline and tagline",
+   "beat": "text",
+   "calls": [
+    {
+     "tool": "create_text",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:35",
+      "name": "Brand",
+      "characters": "FORMA",
+      "fontFamily": "Inter",
+      "fontStyle": "Medium",
+      "fontSize": 22,
+      "letterSpacing": {
+       "value": 12,
+       "unit": "PERCENT"
+      },
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#1C1A17"
+       }
+      ],
+      "x": 128,
+      "y": 76
+     },
+     "result": "{\"font\": {\"family\": \"Inter\", \"size\": 22, \"style\": \"Medium\"}, \"id\": \"1735549286:40\", \"name\": \"Brand\", \"size\": {\"height\": 22, \"provisional\": \"measured by grafta as render_node draws it; Figma lays the text out and sets the real size when the file is opened\", \"width\": 92.96}, \"type\": \"TEXT\", \"unsaved_edits\": 8}"
+    },
+    {
+     "tool": "create_text",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:35",
+      "name": "Event label",
+      "characters": "DESIGN DAYS · 2027",
+      "fontFamily": "Inter",
+      "fontStyle": "Semi Bold",
+      "fontSize": 22,
+      "letterSpacing": {
+       "value": 12,
+       "unit": "PERCENT"
+      },
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#1C1A17"
+       }
+      ],
+      "textAlignHorizontal": "RIGHT",
+      "width": 400,
+      "x": 600,
+      "y": 76
+     },
+     "result": "{\"font\": {\"family\": \"Inter\", \"size\": 22, \"style\": \"Semi Bold\"}, \"id\": \"1735549286:41\", \"name\": \"Event label\", \"size\": {\"height\": 22, \"provisional\": \"measured by grafta as render_node draws it; Figma lays the text out and sets the real size when the file is opened\", \"width\": 400}, \"type\": \"TEXT\", \"unsaved_edits\": 9}"
+    },
+    {
+     "tool": "create_text",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:35",
+      "name": "Title",
+      "characters": "Forma",
+      "fontFamily": "Inter",
+      "fontStyle": "Bold",
+      "fontSize": 228,
+      "lineHeight": {
+       "value": 100,
+       "unit": "PERCENT"
+      },
+      "letterSpacing": {
+       "value": -5,
+       "unit": "PERCENT"
+      },
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#1C1A17"
+       }
+      ],
+      "x": 80,
+      "y": 238
+     },
+     "result": "{\"font\": {\"family\": \"Inter\", \"size\": 228, \"style\": \"Bold\"}, \"id\": \"1735549286:42\", \"name\": \"Title\", \"size\": {\"height\": 228, \"provisional\": \"measured by grafta as render_node draws it; Figma lays the text out and sets the real size when the file is opened\", \"width\": 649.93}, \"type\": \"TEXT\", \"unsaved_edits\": 10}"
+    },
+    {
+     "tool": "create_text",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:35",
+      "name": "Year",
+      "characters": "27",
+      "fontFamily": "Inter",
+      "fontStyle": "Bold",
+      "fontSize": 228,
+      "lineHeight": {
+       "value": 100,
+       "unit": "PERCENT"
+      },
+      "letterSpacing": {
+       "value": -5,
+       "unit": "PERCENT"
+      },
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#C8432B"
+       }
+      ],
+      "x": 80,
+      "y": 425
+     },
+     "result": "{\"font\": {\"family\": \"Inter\", \"size\": 228, \"style\": \"Bold\"}, \"id\": \"1735549286:43\", \"name\": \"Year\", \"size\": {\"height\": 228, \"provisional\": \"measured by grafta as render_node draws it; Figma lays the text out and sets the real size when the file is opened\", \"width\": 253.41}, \"type\": \"TEXT\", \"unsaved_edits\": 11}"
+    },
+    {
+     "tool": "create_text",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:35",
+      "name": "Tagline",
+      "characters": "Two days of talks on type, colour and the tools in between.",
+      "fontFamily": "Inter",
+      "fontStyle": "Medium",
+      "fontSize": 40,
+      "lineHeight": 46,
+      "letterSpacing": {
+       "value": -1,
+       "unit": "PERCENT"
+      },
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#1C1A17"
+       }
+      ],
+      "width": 640,
+      "x": 80,
+      "y": 668
+     },
+     "result": "{\"font\": {\"family\": \"Inter\", \"size\": 40, \"style\": \"Medium\"}, \"id\": \"1735549286:44\", \"name\": \"Tagline\", \"size\": {\"height\": 92, \"provisional\": \"measured by grafta as render_node draws it; Figma lays the text out and sets the real size when the file is opened\", \"width\": 640}, \"type\": \"TEXT\", \"unsaved_edits\": 12}"
+    }
+   ]
+  },
+  {
+   "kind": "reply",
+   "text": "Now the button and the three info columns."
+  },
+  {
+   "kind": "tools",
+   "label": "Built the button",
+   "beat": "text",
+   "calls": [
+    {
+     "tool": "create_frame",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:35",
+      "name": "Button / Get your pass",
+      "x": 727,
+      "y": 895,
+      "width": 273,
+      "height": 75
+     },
+     "result": "{\"id\": \"1735549286:45\", \"name\": \"Button / Get your pass\", \"type\": \"FRAME\", \"unsaved_edits\": 13}"
+    },
+    {
+     "tool": "create_text",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:45",
+      "name": "Label",
+      "characters": "Get your pass",
+      "fontFamily": "Inter",
+      "fontStyle": "Semi Bold",
+      "fontSize": 26,
+      "letterSpacing": {
+       "value": -1,
+       "unit": "PERCENT"
+      },
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#FFFFFF"
+       }
+      ]
+     },
+     "result": "{\"font\": {\"family\": \"Inter\", \"size\": 26, \"style\": \"Semi Bold\"}, \"id\": \"1735549286:46\", \"name\": \"Label\", \"size\": {\"height\": 26, \"provisional\": \"measured by grafta as render_node draws it; Figma lays the text out and sets the real size when the file is opened\", \"width\": 170.84}, \"type\": \"TEXT\", \"unsaved_edits\": 14}"
+    },
+    {
+     "tool": "create_vector",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:45",
+      "name": "Arrow",
+      "path": [
+       "M5 12h14",
+       "m12 5 7 7-7 7"
+      ],
+      "viewBox": [
+       0,
+       0,
+       24,
+       24
+      ],
+      "width": 24,
+      "height": 24,
+      "strokes": [
+       {
+        "type": "SOLID",
+        "color": "#FFFFFF"
+       }
+      ],
+      "strokeWeight": 3,
+      "strokeCap": "ROUND",
+      "strokeJoin": "ROUND"
+     },
+     "result": "{\"id\": \"1735549286:47\", \"name\": \"Arrow\", \"size\": {\"height\": 24, \"width\": 24}, \"subpaths\": 2, \"type\": \"VECTOR\", \"unsaved_edits\": 15}"
+    },
+    {
+     "tool": "set_properties",
+     "args": {
+      "handle": "poster-0a02",
+      "id": "1735549286:45",
+      "properties": {
+       "fills": [
+        {
+         "type": "SOLID",
+         "color": "#1C1A17"
+        }
+       ],
+       "cornerRadius": 38,
+       "layoutMode": "HORIZONTAL",
+       "primaryAxisAlignItems": "CENTER",
+       "counterAxisAlignItems": "CENTER",
+       "itemSpacing": 10,
+       "paddingLeft": 34,
+       "paddingRight": 34,
+       "primaryAxisSizingMode": "AUTO",
+       "counterAxisSizingMode": "FIXED"
+      }
+     },
+     "result": "{\"id\": \"1735549286:45\", \"set\": [\"cornerRadius\", \"counterAxisAlignItems\", \"counterAxisSizingMode\", \"fills\", \"itemSpacing\", \"layoutMode\", \"paddingLeft\", \"paddingRight\", \"primaryAxisAlignItems\", \"primaryAxisSizingMode\"], \"unsaved_edits\": 16}"
+    }
+   ]
+  },
+  {
+   "kind": "tools",
+   "label": "Built the three info columns",
+   "beat": "text",
+   "calls": [
+    {
+     "tool": "create_frame",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:35",
+      "name": "Info / When",
+      "x": 80,
+      "y": 1128,
+      "width": 285,
+      "height": 140
+     },
+     "result": "{\"id\": \"1735549286:48\", \"name\": \"Info / When\", \"type\": \"FRAME\", \"unsaved_edits\": 17}"
+    },
+    {
+     "tool": "create_frame",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:35",
+      "name": "Info / Where",
+      "x": 397,
+      "y": 1128,
+      "width": 285,
+      "height": 140
+     },
+     "result": "{\"id\": \"1735549286:49\", \"name\": \"Info / Where\", \"type\": \"FRAME\", \"unsaved_edits\": 18}"
+    },
+    {
+     "tool": "create_frame",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:35",
+      "name": "Info / Speakers",
+      "x": 715,
+      "y": 1128,
+      "width": 285,
+      "height": 140
+     },
+     "result": "{\"id\": \"1735549286:50\", \"name\": \"Info / Speakers\", \"type\": \"FRAME\", \"unsaved_edits\": 19}"
+    },
+    {
+     "tool": "create_shape",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:48",
+      "type": "RECTANGLE",
+      "name": "Divider",
+      "width": 285,
+      "height": 2,
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#F3EFE7",
+        "opacity": 0.45
+       }
+      ]
+     },
+     "result": "{\"id\": \"1735549286:51\", \"name\": \"Divider\", \"type\": \"RECTANGLE\", \"unsaved_edits\": 20}"
+    },
+    {
+     "tool": "create_text",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:48",
+      "name": "Label",
+      "characters": "WHEN",
+      "fontFamily": "Inter",
+      "fontStyle": "Bold",
+      "fontSize": 18,
+      "lineHeight": 44,
+      "letterSpacing": {
+       "value": 14,
+       "unit": "PERCENT"
+      },
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#F2A65A"
+       }
+      ]
+     },
+     "result": "{\"font\": {\"family\": \"Inter\", \"size\": 18, \"style\": \"Bold\"}, \"id\": \"1735549286:52\", \"name\": \"Label\", \"size\": {\"height\": 44, \"provisional\": \"measured by grafta as render_node draws it; Figma lays the text out and sets the real size when the file is opened\", \"width\": 66.86}, \"type\": \"TEXT\", \"unsaved_edits\": 21}"
+    },
+    {
+     "tool": "create_text",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:48",
+      "name": "Value",
+      "characters": "14–15 May",
+      "fontFamily": "Inter",
+      "fontStyle": "Semi Bold",
+      "fontSize": 30,
+      "lineHeight": 36,
+      "letterSpacing": {
+       "value": -1,
+       "unit": "PERCENT"
+      },
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#F3EFE7"
+       }
+      ],
+      "width": 285
+     },
+     "result": "{\"font\": {\"family\": \"Inter\", \"size\": 30, \"style\": \"Semi Bold\"}, \"id\": \"1735549286:53\", \"name\": \"Value\", \"size\": {\"height\": 36, \"provisional\": \"measured by grafta as render_node draws it; Figma lays the text out and sets the real size when the file is opened\", \"width\": 285}, \"type\": \"TEXT\", \"unsaved_edits\": 22}"
+    },
+    {
+     "tool": "create_shape",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:49",
+      "type": "RECTANGLE",
+      "name": "Divider",
+      "width": 285,
+      "height": 2,
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#F3EFE7",
+        "opacity": 0.45
+       }
+      ]
+     },
+     "result": "{\"id\": \"1735549286:54\", \"name\": \"Divider\", \"type\": \"RECTANGLE\", \"unsaved_edits\": 23}"
+    },
+    {
+     "tool": "create_text",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:49",
+      "name": "Label",
+      "characters": "WHERE",
+      "fontFamily": "Inter",
+      "fontStyle": "Bold",
+      "fontSize": 18,
+      "lineHeight": 44,
+      "letterSpacing": {
+       "value": 14,
+       "unit": "PERCENT"
+      },
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#F2A65A"
+       }
+      ]
+     },
+     "result": "{\"font\": {\"family\": \"Inter\", \"size\": 18, \"style\": \"Bold\"}, \"id\": \"1735549286:55\", \"name\": \"Label\", \"size\": {\"height\": 44, \"provisional\": \"measured by grafta as render_node draws it; Figma lays the text out and sets the real size when the file is opened\", \"width\": 78.41}, \"type\": \"TEXT\", \"unsaved_edits\": 24}"
+    },
+    {
+     "tool": "create_text",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:49",
+      "name": "Value",
+      "characters": "Harbour Hall, Portvale",
+      "fontFamily": "Inter",
+      "fontStyle": "Semi Bold",
+      "fontSize": 30,
+      "lineHeight": 36,
+      "letterSpacing": {
+       "value": -1,
+       "unit": "PERCENT"
+      },
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#F3EFE7"
+       }
+      ],
+      "width": 220
+     },
+     "result": "{\"font\": {\"family\": \"Inter\", \"size\": 30, \"style\": \"Semi Bold\"}, \"id\": \"1735549286:56\", \"name\": \"Value\", \"size\": {\"height\": 72, \"provisional\": \"measured by grafta as render_node draws it; Figma lays the text out and sets the real size when the file is opened\", \"width\": 220}, \"type\": \"TEXT\", \"unsaved_edits\": 25}"
+    },
+    {
+     "tool": "create_shape",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:50",
+      "type": "RECTANGLE",
+      "name": "Divider",
+      "width": 285,
+      "height": 2,
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#F3EFE7",
+        "opacity": 0.45
+       }
+      ]
+     },
+     "result": "{\"id\": \"1735549286:57\", \"name\": \"Divider\", \"type\": \"RECTANGLE\", \"unsaved_edits\": 26}"
+    },
+    {
+     "tool": "create_text",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:50",
+      "name": "Label",
+      "characters": "SPEAKERS",
+      "fontFamily": "Inter",
+      "fontStyle": "Bold",
+      "fontSize": 18,
+      "lineHeight": 44,
+      "letterSpacing": {
+       "value": 14,
+       "unit": "PERCENT"
+      },
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#F2A65A"
+       }
+      ]
+     },
+     "result": "{\"font\": {\"family\": \"Inter\", \"size\": 18, \"style\": \"Bold\"}, \"id\": \"1735549286:58\", \"name\": \"Label\", \"size\": {\"height\": 44, \"provisional\": \"measured by grafta as render_node draws it; Figma lays the text out and sets the real size when the file is opened\", \"width\": 115.47}, \"type\": \"TEXT\", \"unsaved_edits\": 27}"
+    },
+    {
+     "tool": "create_text",
+     "args": {
+      "handle": "poster-0a02",
+      "parent": "1735549286:50",
+      "name": "Value",
+      "characters": "12 studios, 3 workshops",
+      "fontFamily": "Inter",
+      "fontStyle": "Semi Bold",
+      "fontSize": 30,
+      "lineHeight": 36,
+      "letterSpacing": {
+       "value": -1,
+       "unit": "PERCENT"
+      },
+      "fills": [
+       {
+        "type": "SOLID",
+        "color": "#F3EFE7"
+       }
+      ],
+      "width": 220
+     },
+     "result": "{\"font\": {\"family\": \"Inter\", \"size\": 30, \"style\": \"Semi Bold\"}, \"id\": \"1735549286:59\", \"name\": \"Value\", \"size\": {\"height\": 72, \"provisional\": \"measured by grafta as render_node draws it; Figma lays the text out and sets the real size when the file is opened\", \"width\": 220}, \"type\": \"TEXT\", \"unsaved_edits\": 28}"
+    },
+    {
+     "tool": "set_properties",
+     "args": {
+      "handle": "poster-0a02",
+      "id": "1735549286:48",
+      "properties": {
+       "layoutMode": "VERTICAL",
+       "itemSpacing": 6,
+       "primaryAxisSizingMode": "AUTO",
+       "counterAxisSizingMode": "FIXED"
+      }
+     },
+     "result": "{\"id\": \"1735549286:48\", \"set\": [\"counterAxisSizingMode\", \"itemSpacing\", \"layoutMode\", \"primaryAxisSizingMode\"], \"unsaved_edits\": 29}"
+    },
+    {
+     "tool": "set_properties",
+     "args": {
+      "handle": "poster-0a02",
+      "id": "1735549286:49",
+      "properties": {
+       "layoutMode": "VERTICAL",
+       "itemSpacing": 6,
+       "primaryAxisSizingMode": "AUTO",
+       "counterAxisSizingMode": "FIXED"
+      }
+     },
+     "result": "{\"id\": \"1735549286:49\", \"set\": [\"counterAxisSizingMode\", \"itemSpacing\", \"layoutMode\", \"primaryAxisSizingMode\"], \"unsaved_edits\": 30}"
+    },
+    {
+     "tool": "set_properties",
+     "args": {
+      "handle": "poster-0a02",
+      "id": "1735549286:50",
+      "properties": {
+       "layoutMode": "VERTICAL",
+       "itemSpacing": 6,
+       "primaryAxisSizingMode": "AUTO",
+       "counterAxisSizingMode": "FIXED"
+      }
+     },
+     "result": "{\"id\": \"1735549286:50\", \"set\": [\"counterAxisSizingMode\", \"itemSpacing\", \"layoutMode\", \"primaryAxisSizingMode\"], \"unsaved_edits\": 31}"
+    }
+   ]
+  },
+  {
+   "kind": "tools",
+   "label": "Rendered it to compare",
+   "beat": "check",
+   "calls": [
+    {
+     "tool": "render_node",
+     "args": {
+      "handle": "poster-0a02",
+      "id": "1735549286:35"
+     },
+     "result": "[Image]\n{\"height\":1350,\"id\":\"1735549286:35\",\"name\":\"Forma 27 Poster\",\"notes\":[\"text without Figma's layout data is laid out by grafta in Inter, without kerning: widths within about 2% of Figma's, measured\"],\"scale\":1,\"width\":1080}",
+     "picture": {
+      "src": "showcase/sessions/image-claude-code-1.png",
+      "width": 1080,
+      "height": 1350,
+      "alt": "From a picture: what grafta drew at “Rendered it to compare”"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "reply",
+   "text": "Very close. I'll fix the sun's highlight position (it should sit upper-left) and tighten the headline a little."
+  },
+  {
+   "kind": "tools",
+   "label": "Moved the sun's light and tightened the headline",
+   "beat": "check",
+   "calls": [
+    {
+     "tool": "set_properties",
+     "args": {
+      "handle": "poster-0a02",
+      "id": "1735549286:36",
+      "properties": {
+       "fills": [
+        {
+         "type": "GRADIENT_RADIAL",
+         "gradientStops": [
+          {
+           "position": 0,
+           "color": "#FFB46C"
+          },
+          {
+           "position": 0.5,
+           "color": "#F37E48"
+          },
+          {
+           "position": 1,
+           "color": "#E05332"
+          }
+         ],
+         "gradientTransform": [
+          [
+           0.6,
+           0,
+           0.29
+          ],
+          [
+           0,
+           0.6,
+           0.3
+          ]
+         ]
+        }
+       ]
+      }
+     },
+     "result": "{\"id\": \"1735549286:36\", \"set\": [\"fills\"], \"unsaved_edits\": 32}"
+    },
+    {
+     "tool": "set_properties",
+     "args": {
+      "handle": "poster-0a02",
+      "id": "1735549286:42",
+      "properties": {
+       "fontSize": 222,
+       "y": 244
+      }
+     },
+     "result": "{\"id\": \"1735549286:42\", \"set\": [\"fontSize\", \"y\"], \"size\": {\"height\": 222, \"provisional\": \"measured by grafta as render_node draws it; Figma lays the text out and sets the real size when the file is opened\", \"width\": 632.83}, \"unsaved_edits\": 33}"
+    },
+    {
+     "tool": "set_properties",
+     "args": {
+      "handle": "poster-0a02",
+      "id": "1735549286:43",
+      "properties": {
+       "fontSize": 222,
+       "y": 430
+      }
+     },
+     "result": "{\"id\": \"1735549286:43\", \"set\": [\"fontSize\", \"y\"], \"size\": {\"height\": 222, \"provisional\": \"measured by grafta as render_node draws it; Figma lays the text out and sets the real size when the file is opened\", \"width\": 246.74}, \"unsaved_edits\": 34}"
+    }
+   ]
+  },
+  {
+   "kind": "tools",
+   "label": "Rendered it again",
+   "beat": "check",
+   "calls": [
+    {
+     "tool": "render_node",
+     "args": {
+      "handle": "poster-0a02",
+      "id": "1735549286:35",
+      "max_size": 800
+     },
+     "result": "[Image]\n{\"height\":800,\"id\":\"1735549286:35\",\"name\":\"Forma 27 Poster\",\"notes\":[\"text without Figma's layout data is laid out by grafta in Inter, without kerning: widths within about 2% of Figma's, measured\"],\"scale\":0.5925926,\"width\":640}",
+     "picture": {
+      "src": "showcase/sessions/image-claude-code-2.png",
+      "width": 640,
+      "height": 800,
+      "alt": "From a picture: what grafta drew at “Rendered it again”"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "reply",
+   "text": "Matches the original well. I'll group the header and save."
+  },
+  {
+   "kind": "tools",
+   "label": "Grouped the logo",
+   "beat": "save",
+   "calls": [
+    {
+     "tool": "group_nodes",
+     "args": {
+      "handle": "poster-0a02",
+      "ids": [
+       "1735549286:39",
+       "1735549286:40"
+      ],
+      "name": "Logo"
+     },
+     "result": "{\"children\": [\"1735549286:39\", \"1735549286:40\"], \"id\": \"1735549286:60\", \"name\": \"Logo\", \"type\": \"GROUP\", \"unsaved_edits\": 35}"
+    }
+   ]
+  },
+  {
+   "kind": "tools",
+   "label": "Tried to save over the starting file: refused",
+   "beat": "save",
+   "calls": [
+    {
+     "tool": "save_as",
+     "args": {
+      "handle": "poster-0a02",
+      "path": "poster.fig"
+     },
+     "result": "will not write poster.fig: it is the file this session was opened from. The toolkit never overwrites; choose a new path"
+    }
+   ]
+  },
+  {
+   "kind": "tools",
+   "label": "Saved a new file",
+   "beat": "save",
+   "calls": [
+    {
+     "tool": "save_as",
+     "args": {
+      "handle": "poster-0a02",
+      "path": "poster-editable.fig"
+     },
+     "result": "{\"bytes\": 27982, \"created\": [{\"id\": \"1735549286:35\", \"name\": \"Forma 27 Poster\", \"type\": \"FRAME\"}, {\"id\": \"1735549286:36\", \"name\": \"Sun\", \"type\": \"ELLIPSE\"}, {\"id\": \"1735549286:37\", \"name\": \"Hill\", \"type\": \"VECTOR\"}, {\"id\": \"1735549286:38\", \"name\": \"Info band\", \"type\": \"RECTANGLE\"}, {\"id\": \"1735549286:39\", \"name\": \"Logo mark\", \"type\": \"VECTOR\"}, {\"id\": \"1735549286:40\", \"name\": \"Brand\", \"type\": \"TEXT\"}, {\"id\": \"1735549286:41\", \"name\": \"Event label\", \"type\": \"TEXT\"}, {\"id\": \"1735549286:42\", \"name\": \"Title\", \"type\": \"TEXT\"}, {\"id\": \"1735549286:43\", \"name\": \"Year\", \"type\": \"TEXT\"}, {\"id\": \"17355492",
+     "omitted": "…cut here: 1191 more characters"
+    }
+   ]
+  },
+  {
+   "kind": "reply",
+   "text": "I rebuilt the poster as a Figma file at `designs/poster-editable.fig`. Everything is real Figma layers, so nothing is a flattened image. grafta's offline render matches the original closely, but I haven't opened it in Figma yet, and that's the real check.\n\n**What's in the 1080×1350 frame \"Forma 27 Poster\":**\n- **Text you can edit:** \"FORMA\", \"DESIGN DAYS · 2027\", the \"Forma\" and \"27\" headline, the tagline, and the three info columns (When, Where, Speakers).\n- **Shapes:** the orange \"Sun\" circle has a radial gradient you can adjust. The green \"Hill\" curve and the dark \"Info band\" are vector shapes, and the diamond logo is a stroked vector grouped with its wordmark.\n- **Button:** \"Get your pass →\" is an auto-layout pill, so it resizes when you change the label. Because it hugs its content and is pinned at the left, a longer label makes it grow to the right.\n- **Info columns:** each is a vertical auto-layout stack of a divider line, a label and a value.\n\n**Worth knowing:**\n- **Font:** I used Inter, which looked closest to the original. Figma will measure the text again when you open the file, so line breaks may move by a pixel or two. The headline sizes and gradient were set by eye to match the image.\n- **Extra file:** grafta created an empty `poster.fig` first and won't overwrite the file it started from, so the result had to go to a new name. You can delete `poster.fig`."
+  }
+ ]
+}

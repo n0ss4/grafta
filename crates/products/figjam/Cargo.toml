@@ -1,0 +1,22 @@
+[package]
+name = "grafta-figjam"
+description = "FigJam for grafta: a board's stickies, shapes, tables and connectors."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../../README.md"
+
+[lib]
+name = "figjam"
+
+[dependencies]
+app.workspace = true
+domain.workspace = true
+figfile.workspace = true
+kiwi.workspace = true
+model.workspace = true
+schema.workspace = true

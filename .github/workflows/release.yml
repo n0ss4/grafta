@@ -1,0 +1,165 @@
+# A release, from a version tag: five binaries, the Claude Desktop bundle,
+# their checksums, and every channel that installs them.
+#
+# The release is created only once all five built. The channels after it each
+# run only when their secret is set, so a first release can go out before the
+# accounts exist:
+#   NPM_TOKEN             npm, packages grafta and grafta-<os>-<cpu>
+#   HOMEBREW_TAP_TOKEN    push access to n0ss4/homebrew-tap
+#   CARGO_REGISTRY_TOKEN  crates.io
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  version:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: The tag, the workspace and every channel name one version
+        run: scripts/set-version.sh --check "${GITHUB_REF_NAME#v}"
+
+  build:
+    needs: version
+    strategy:
+      matrix:
+        include:
+          # The Linux binaries are built on the oldest supported Ubuntu, 22.04: a
+          # binary needs the glibc it was built against or newer (2.35 here), so a
+          # newer image would stop it starting on older distributions.
+          - { target: aarch64-apple-darwin, os: macos-26, npm: darwin-arm64 }
+          - { target: x86_64-apple-darwin, os: macos-26, npm: darwin-x64 }
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-22.04, npm: linux-x64 }
+          - { target: aarch64-unknown-linux-gnu, os: ubuntu-22.04-arm, npm: linux-arm64 }
+          - { target: x86_64-pc-windows-msvc, os: windows-2025, npm: win32-x64 }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - run: cargo build --release --locked -p grafta --target ${{ matrix.target }}
+      - name: Archive (unix)
+        if: runner.os != 'Windows'
+        run: tar -czf grafta-${{ matrix.target }}.tar.gz -C target/${{ matrix.target }}/release grafta
+      - name: Archive (windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path target/${{ matrix.target }}/release/grafta.exe -DestinationPath grafta-${{ matrix.target }}.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: grafta-${{ matrix.target }}
+          path: grafta-${{ matrix.target }}.*
+
+  mcpb:
+    # The Claude Desktop bundle: one macOS binary for both CPUs, since a
+    # bundle varies its command per OS and not per CPU, and the Windows one.
+    needs: build
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Universal macOS binary
+        run: |
+          mkdir -p arm intel win
+          tar -xzf dist/grafta-aarch64-apple-darwin.tar.gz -C arm
+          tar -xzf dist/grafta-x86_64-apple-darwin.tar.gz -C intel
+          unzip -q dist/grafta-x86_64-pc-windows-msvc.zip -d win
+          lipo -create arm/grafta intel/grafta -output grafta-universal
+          lipo -archs grafta-universal
+      - run: python3 scripts/mcpb.py grafta-universal win/grafta.exe grafta.mcpb
+      - name: The bundle names the tag's version
+        run: |
+          unzip -p grafta.mcpb manifest.json | python3 -c 'import json, sys; v = json.load(sys.stdin)["version"]; sys.exit(v != sys.argv[1] and f"bundle says {v}")' "${GITHUB_REF_NAME#v}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: grafta-mcpb
+          path: grafta.mcpb
+
+  release:
+    needs: [build, mcpb]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum grafta-* grafta.mcpb > SHA256SUMS && cat SHA256SUMS
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --title "grafta $GITHUB_REF_NAME" --generate-notes
+
+  npm:
+    needs: release
+    runs-on: ubuntu-24.04
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        if: env.NODE_AUTH_TOKEN != ''
+      - uses: actions/setup-node@v4
+        if: env.NODE_AUTH_TOKEN != ''
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+      - name: Platform packages, then the launcher
+        if: env.NODE_AUTH_TOKEN != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --dir dist
+          scripts/npm-packages.sh dist npm/out
+          for package in npm/out/*/; do npm publish --access public "$package"; done
+          npm publish --access public npm/grafta
+
+  homebrew:
+    needs: release
+    runs-on: ubuntu-24.04
+    env:
+      TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        if: env.TAP_TOKEN != ''
+      - name: Render the formula and push it to the tap
+        if: env.TAP_TOKEN != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --pattern SHA256SUMS
+          scripts/homebrew-formula.sh "${GITHUB_REF_NAME#v}" SHA256SUMS > grafta.rb
+          git clone "https://x-access-token:${TAP_TOKEN}@github.com/n0ss4/homebrew-tap.git" tap
+          mkdir -p tap/Formula && cp grafta.rb tap/Formula/grafta.rb
+          cd tap
+          git config user.name "grafta release" && git config user.email "release@grafta.invalid"
+          git add Formula/grafta.rb && git commit -m "grafta ${GITHUB_REF_NAME}" && git push
+
+  crates:
+    needs: release
+    runs-on: ubuntu-24.04
+    env:
+      CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        if: env.CARGO_REGISTRY_TOKEN != ''
+      - uses: dtolnay/rust-toolchain@stable
+        if: env.CARGO_REGISTRY_TOKEN != ''
+      - name: Publish, dependencies first
+        if: env.CARGO_REGISTRY_TOKEN != ''
+        run: |
+          for crate in grafta-kiwi grafta-figfile grafta-model grafta-render grafta-toolkit grafta-mcp grafta; do
+            cargo publish --locked -p "$crate"
+          done

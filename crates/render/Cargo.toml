@@ -1,0 +1,33 @@
+[package]
+name = "grafta-render"
+description = "Draw a node of a .fig as an image, so a model can see what it read or made."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../README.md"
+
+[lib]
+name = "render"
+
+[dependencies]
+domain.workspace = true
+figfile.workspace = true
+kiwi.workspace = true
+model.workspace = true
+schema.workspace = true
+
+indexmap.workspace = true
+resvg.workspace = true
+skrifa.workspace = true
+krilla.workspace = true
+krilla-svg.workspace = true
+
+[dev-dependencies]
+kiwi.workspace = true
+model.workspace = true
+testkit.workspace = true
+indexmap.workspace = true

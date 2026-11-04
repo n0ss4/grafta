@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://n0ss4.github.io/grafta/sitemap.xml

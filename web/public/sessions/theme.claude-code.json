@@ -1,0 +1,380 @@
+{
+ "id": "theme",
+ "client": "claude-code",
+ "clientVersion": "2.1.316",
+ "model": "claude-opus-5-5",
+ "recordedOn": "2026-10-31",
+ "file": "order-themes.fig",
+ "edits": {
+  "paths": true,
+  "cut": 7,
+  "otherTools": 2,
+  "pictures": 0
+ },
+ "turns": [
+  {
+   "kind": "user",
+   "text": "Open order.fig with grafta. Add a High contrast mode to its Theme, render the Order screen in Light, Dark and High contrast, and save the result."
+  },
+  {
+   "kind": "tools",
+   "label": "Used another tool",
+   "beat": "read",
+   "other": true,
+   "calls": [
+    {
+     "tool": "ToolSearch",
+     "args": {
+      "query": "select:mcp__grafta__open_file,mcp__grafta__summarize,mcp__grafta__list_variables,mcp__grafta__set_variable_collection,mcp__grafta__set_variable,mcp__grafta__render_node,mcp__grafta__duplicate_node,mcp__grafta__set_properties,mcp__grafta__save_as,mcp__grafta__search_nodes,mcp__grafta__read_node,mcp__grafta__check_contrast",
+      "max_results": 12
+     },
+     "result": "",
+     "omitted": "the client's own tool: its result is not kept"
+    }
+   ]
+  },
+  {
+   "kind": "tools",
+   "label": "Read the file and its Theme",
+   "beat": "read",
+   "calls": [
+    {
+     "tool": "open_file",
+     "args": {
+      "path": "order.fig"
+     },
+     "result": "{\"component_sets\": 0, \"components\": 0, \"file\": \"order.fig\", \"handle\": \"order-75aa\", \"images\": 0, \"instances\": 0, \"nodes\": 23, \"open_seconds\": 0.0, \"pages\": [{\"id\": \"1735549286:0\", \"name\": \"Showcase\", \"nodes\": 21, \"top_level\": 1}, {\"id\": \"1735549286:9\", \"internalOnly\": true, \"name\": \"Internal Only Canvas\", \"nodes\": 1, \"top_level\": 0}], \"product\": \"design\", \"styles\": 0, \"text_nodes\": 9, \"unsaved_edits\": 0, \"variable_collections\": 1, \"variables\": 9}"
+    },
+    {
+     "tool": "list_variables",
+     "args": {
+      "handle": "order-75aa"
+     },
+     "result": "{\"collections\": [{\"id\": \"1735549286:10\", \"modes\": [\"Light\", \"Dark\"], \"name\": \"Theme\", \"variables\": 9}], \"results\": [{\"collection\": \"Theme\", \"id\": \"1735549286:13\", \"name\": \"Background\", \"type\": \"COLOR\", \"values\": {\"Dark\": \"#0D1117\", \"Light\": \"#F6F4EE\"}}, {\"collection\": \"Theme\", \"id\": \"1735549286:14\", \"name\": \"Surface\", \"type\": \"COLOR\", \"values\": {\"Dark\": \"#161B22\", \"Light\": \"#FFFFFF\"}}, {\"collection\": \"Theme\", \"id\": \"1735549286:15\", \"name\": \"Ink\", \"type\": \"COLOR\", \"values\": {\"Dark\": \"#F6F4EE\", \"Light\": \"#15171C\"}}, {\"collection\": \"Theme\", \"id\": \"1735549286:16\", \"name\": \"Muted\", \"type\": \"COLOR\",",
+     "omitted": "…cut here: 742 more characters"
+    },
+    {
+     "tool": "search_nodes",
+     "args": {
+      "handle": "order-75aa",
+      "within": "1735549286:0"
+     },
+     "result": "{\"results\": [{\"id\": \"1735549286:1\", \"name\": \"Order\", \"path\": \"Showcase / Order\", \"type\": \"FRAME\"}, {\"id\": \"1735549286:2\", \"name\": \"My order\", \"path\": \"Showcase / Order / My order\", \"type\": \"TEXT\"}, {\"id\": \"1735549286:22\", \"name\": \"Placed 2 Oct · 3 items\", \"path\": \"Showcase / Order / Placed 2 Oct · 3 items\", \"type\": \"TEXT\"}, {\"id\": \"1735549286:3\", \"name\": \"Card\", \"path\": \"Showcase / Order / Card\", \"type\": \"FRAME\"}, {\"id\": \"1735549286:23\", \"name\": \"Header\", \"path\": \"Showcase / Order / Card / Header\", \"type\": \"FRAME\"}, {\"id\": \"1735549286:24\", \"name\": \"Icon\", \"path\": \"Showcase / Order / Card / Hea",
+     "omitted": "…cut here: 1734 more characters"
+    }
+   ]
+  },
+  {
+   "kind": "tools",
+   "label": "Added a High contrast mode",
+   "beat": "mode",
+   "calls": [
+    {
+     "tool": "set_variable_collection",
+     "args": {
+      "handle": "order-75aa",
+      "id": "Theme",
+      "add_mode": "High contrast"
+     },
+     "result": "{\"id\": \"1735549286:10\", \"modes\": [{\"id\": \"1735549286:11\", \"name\": \"Light\"}, {\"id\": \"1735549286:12\", \"name\": \"Dark\"}, {\"id\": \"1735549286:34\", \"name\": \"High contrast\"}], \"name\": \"Theme\", \"unsaved_edits\": 1, \"variables\": 9}"
+    }
+   ]
+  },
+  {
+   "kind": "tools",
+   "label": "Used another tool",
+   "beat": "mode",
+   "other": true,
+   "calls": [
+    {
+     "tool": "Bash",
+     "args": {
+      "command": "echo",
+      "description": "No-op placeholder"
+     },
+     "result": "",
+     "omitted": "the client's own tool: its result is not kept"
+    }
+   ]
+  },
+  {
+   "kind": "reply",
+   "text": "The High contrast mode has been added to the Theme collection. Next I'll set its colour values."
+  },
+  {
+   "kind": "tools",
+   "label": "Gave each of the 9 colours a value",
+   "beat": "colours",
+   "calls": [
+    {
+     "tool": "set_variable",
+     "args": {
+      "handle": "order-75aa",
+      "id": "Background",
+      "values": {
+       "High contrast": "#000000"
+      }
+     },
+     "result": "{\"collection\": \"Theme\", \"id\": \"1735549286:13\", \"name\": \"Background\", \"type\": \"COLOR\", \"unsaved_edits\": 2, \"values\": {\"Dark\": \"#0D1117\", \"High contrast\": \"#000000\", \"Light\": \"#F6F4EE\"}}"
+    },
+    {
+     "tool": "set_variable",
+     "args": {
+      "handle": "order-75aa",
+      "id": "Surface",
+      "values": {
+       "High contrast": "#0A0A0A"
+      }
+     },
+     "result": "{\"collection\": \"Theme\", \"id\": \"1735549286:14\", \"name\": \"Surface\", \"type\": \"COLOR\", \"unsaved_edits\": 3, \"values\": {\"Dark\": \"#161B22\", \"High contrast\": \"#0A0A0A\", \"Light\": \"#FFFFFF\"}}"
+    },
+    {
+     "tool": "set_variable",
+     "args": {
+      "handle": "order-75aa",
+      "id": "Ink",
+      "values": {
+       "High contrast": "#FFFFFF"
+      }
+     },
+     "result": "{\"collection\": \"Theme\", \"id\": \"1735549286:15\", \"name\": \"Ink\", \"type\": \"COLOR\", \"unsaved_edits\": 4, \"values\": {\"Dark\": \"#F6F4EE\", \"High contrast\": \"#FFFFFF\", \"Light\": \"#15171C\"}}"
+    },
+    {
+     "tool": "set_variable",
+     "args": {
+      "handle": "order-75aa",
+      "id": "Muted",
+      "values": {
+       "High contrast": "#E0E0E0"
+      }
+     },
+     "result": "{\"collection\": \"Theme\", \"id\": \"1735549286:16\", \"name\": \"Muted\", \"type\": \"COLOR\", \"unsaved_edits\": 5, \"values\": {\"Dark\": \"#9DA3AB\", \"High contrast\": \"#E0E0E0\", \"Light\": \"#6B6F76\"}}"
+    },
+    {
+     "tool": "set_variable",
+     "args": {
+      "handle": "order-75aa",
+      "id": "Border",
+      "values": {
+       "High contrast": "#FFFFFF"
+      }
+     },
+     "result": "{\"collection\": \"Theme\", \"id\": \"1735549286:17\", \"name\": \"Border\", \"type\": \"COLOR\", \"unsaved_edits\": 6, \"values\": {\"Dark\": \"#30363D\", \"High contrast\": \"#FFFFFF\", \"Light\": \"#E6E2D8\"}}"
+    },
+    {
+     "tool": "set_variable",
+     "args": {
+      "handle": "order-75aa",
+      "id": "Accent",
+      "values": {
+       "High contrast": "#FFE500"
+      }
+     },
+     "result": "{\"collection\": \"Theme\", \"id\": \"1735549286:18\", \"name\": \"Accent\", \"type\": \"COLOR\", \"unsaved_edits\": 7, \"values\": {\"Dark\": \"#C6F26B\", \"High contrast\": \"#FFE500\", \"Light\": \"#13704B\"}}"
+    },
+    {
+     "tool": "set_variable",
+     "args": {
+      "handle": "order-75aa",
+      "id": "Accent soft",
+      "values": {
+       "High contrast": "#000000"
+      }
+     },
+     "result": "{\"collection\": \"Theme\", \"id\": \"1735549286:19\", \"name\": \"Accent soft\", \"type\": \"COLOR\", \"unsaved_edits\": 8, \"values\": {\"Dark\": \"#1C2B23\", \"High contrast\": \"#000000\", \"Light\": \"#E3F4EA\"}}"
+    },
+    {
+     "tool": "set_variable",
+     "args": {
+      "handle": "order-75aa",
+      "id": "On accent",
+      "values": {
+       "High contrast": "#000000"
+      }
+     },
+     "result": "{\"collection\": \"Theme\", \"id\": \"1735549286:20\", \"name\": \"On accent\", \"type\": \"COLOR\", \"unsaved_edits\": 9, \"values\": {\"Dark\": \"#15171C\", \"High contrast\": \"#000000\", \"Light\": \"#FFFFFF\"}}"
+    },
+    {
+     "tool": "set_variable",
+     "args": {
+      "handle": "order-75aa",
+      "id": "Track",
+      "values": {
+       "High contrast": "#6E6E6E"
+      }
+     },
+     "result": "{\"collection\": \"Theme\", \"id\": \"1735549286:21\", \"name\": \"Track\", \"type\": \"COLOR\", \"unsaved_edits\": 10, \"values\": {\"Dark\": \"#21262D\", \"High contrast\": \"#6E6E6E\", \"Light\": \"#ECE8DE\"}}"
+    }
+   ]
+  },
+  {
+   "kind": "tools",
+   "label": "Read the Order screen",
+   "beat": "colours",
+   "calls": [
+    {
+     "tool": "read_node",
+     "args": {
+      "handle": "order-75aa",
+      "id": "1735549286:1",
+      "depth": 0
+     },
+     "result": "{\"childCount\": 5, \"childrenOmitted\": true, \"counterAxisAlignItems\": \"MIN\", \"counterAxisSizingMode\": \"FIXED\", \"explicitVariableModes\": {\"Theme\": \"Light\"}, \"fills\": [{\"color\": \"#F6F4EE\", \"type\": \"SOLID\", \"variable\": \"Background\"}], \"height\": 365, \"id\": \"1735549286:1\", \"itemSpacing\": 20, \"layoutMode\": \"VERTICAL\", \"layoutSizingHorizontal\": \"FIXED\", \"layoutSizingVertical\": \"HUG\", \"name\": \"Order\", \"paddingBottom\": 24, \"paddingLeft\": 24, \"paddingRight\": 24, \"paddingTop\": 24, \"path\": \"Showcase / Order\", \"primaryAxisAlignItems\": \"MIN\", \"primaryAxisSizingMode\": \"AUTO\", \"type\": \"FRAME\", \"undecoded\": [\"st",
+     "omitted": "…cut here: 41 more characters"
+    }
+   ]
+  },
+  {
+   "kind": "reply",
+   "text": "Now duplicating the Order screen for Dark and High contrast, side by side."
+  },
+  {
+   "kind": "tools",
+   "label": "Made a copy of the screen per mode",
+   "beat": "render",
+   "calls": [
+    {
+     "tool": "duplicate_node",
+     "args": {
+      "handle": "order-75aa",
+      "id": "1735549286:1",
+      "name": "Order — Dark",
+      "x": 400,
+      "y": 0
+     },
+     "result": "{\"copies\": [{\"from\": \"1735549286:1\", \"id\": \"1735549286:35\"}, {\"from\": \"1735549286:2\", \"id\": \"1735549286:36\"}, {\"from\": \"1735549286:3\", \"id\": \"1735549286:37\"}, {\"from\": \"1735549286:7\", \"id\": \"1735549286:38\"}, {\"from\": \"1735549286:22\", \"id\": \"1735549286:39\"}, {\"from\": \"1735549286:33\", \"id\": \"1735549286:40\"}, {\"from\": \"1735549286:6\", \"id\": \"1735549286:41\"}, {\"from\": \"1735549286:23\", \"id\": \"1735549286:42\"}, {\"from\": \"1735549286:28\", \"id\": \"1735549286:43\"}, {\"from\": \"1735549286:8\", \"id\": \"1735549286:44\"}, {\"from\": \"1735549286:32\", \"id\": \"1735549286:45\"}, {\"from\": \"1735549286:27\", \"id\": \"1735549286:",
+     "omitted": "…cut here: 526 more characters"
+    },
+    {
+     "tool": "duplicate_node",
+     "args": {
+      "handle": "order-75aa",
+      "id": "1735549286:1",
+      "name": "Order — High contrast",
+      "x": 800,
+      "y": 0
+     },
+     "result": "{\"copies\": [{\"from\": \"1735549286:1\", \"id\": \"1735549286:55\"}, {\"from\": \"1735549286:2\", \"id\": \"1735549286:56\"}, {\"from\": \"1735549286:3\", \"id\": \"1735549286:57\"}, {\"from\": \"1735549286:7\", \"id\": \"1735549286:58\"}, {\"from\": \"1735549286:22\", \"id\": \"1735549286:59\"}, {\"from\": \"1735549286:33\", \"id\": \"1735549286:60\"}, {\"from\": \"1735549286:6\", \"id\": \"1735549286:61\"}, {\"from\": \"1735549286:23\", \"id\": \"1735549286:62\"}, {\"from\": \"1735549286:28\", \"id\": \"1735549286:63\"}, {\"from\": \"1735549286:8\", \"id\": \"1735549286:64\"}, {\"from\": \"1735549286:32\", \"id\": \"1735549286:65\"}, {\"from\": \"1735549286:27\", \"id\": \"1735549286:",
+     "omitted": "…cut here: 535 more characters"
+    },
+    {
+     "tool": "set_properties",
+     "args": {
+      "handle": "order-75aa",
+      "id": "1735549286:35",
+      "properties": {
+       "explicitVariableModes": {
+        "Theme": "Dark"
+       }
+      }
+     },
+     "result": "{\"id\": \"1735549286:35\", \"set\": [\"explicitVariableModes\"], \"unsaved_edits\": 13}"
+    },
+    {
+     "tool": "set_properties",
+     "args": {
+      "handle": "order-75aa",
+      "id": "1735549286:55",
+      "properties": {
+       "explicitVariableModes": {
+        "Theme": "High contrast"
+       }
+      }
+     },
+     "result": "{\"id\": \"1735549286:55\", \"set\": [\"explicitVariableModes\"], \"unsaved_edits\": 14}"
+    }
+   ]
+  },
+  {
+   "kind": "tools",
+   "label": "Rendered all three and checked contrast",
+   "beat": "render",
+   "calls": [
+    {
+     "tool": "render_node",
+     "args": {
+      "handle": "order-75aa",
+      "id": "1735549286:0"
+     },
+     "result": "1735549286:0 \"Showcase\" has no area to draw (0×0)"
+    },
+    {
+     "tool": "check_contrast",
+     "args": {
+      "handle": "order-75aa",
+      "id": "1735549286:55",
+      "all": true
+     },
+     "result": "{\"checked\": 9, \"failed\": 0, \"passed\": 9, \"results\": [{\"background\": \"#0D0D0D\", \"characters\": \"Arriving tomorrow, 9–12\", \"colour\": \"#E0E0E0\", \"id\": \"1735549286:74\", \"name\": \"Arriving tomorrow\", \"ratio\": 14.72, \"required\": 4.5, \"verdict\": \"passes\"}, {\"background\": \"#0D0D0D\", \"characters\": \"Packed\", \"colour\": \"#E0E0E0\", \"id\": \"1735549286:69\", \"name\": \"Packed\", \"ratio\": 14.72, \"required\": 4.5, \"verdict\": \"passes\"}, {\"background\": \"#0D0D0D\", \"characters\": \"Shipped\", \"colour\": \"#E0E0E0\", \"id\": \"1735549286:70\", \"name\": \"Shipped\", \"ratio\": 14.72, \"required\": 4.5, \"verdict\": \"passes\"}, {\"background\": \"",
+     "omitted": "…cut here: 1280 more characters"
+    },
+    {
+     "tool": "render_node",
+     "args": {
+      "handle": "order-75aa",
+      "id": "1735549286:1"
+     },
+     "result": "[Image]\n{\"height\":365,\"id\":\"1735549286:1\",\"name\":\"Order\",\"notes\":[\"text without Figma's layout data is laid out by grafta in Inter, without kerning: widths within about 2% of Figma's, measured\"],\"scale\":1,\"width\":360}",
+     "picture": {
+      "src": "showcase/sessions/theme-claude-code-1.png",
+      "width": 360,
+      "height": 365,
+      "alt": "Theme it: what grafta drew at “Rendered all three and checked contrast”"
+     }
+    },
+    {
+     "tool": "render_node",
+     "args": {
+      "handle": "order-75aa",
+      "id": "1735549286:35"
+     },
+     "result": "[Image]\n{\"height\":365,\"id\":\"1735549286:35\",\"name\":\"Order — Dark\",\"notes\":[\"text without Figma's layout data is laid out by grafta in Inter, without kerning: widths within about 2% of Figma's, measured\"],\"scale\":1,\"width\":360}",
+     "picture": {
+      "src": "showcase/sessions/theme-claude-code-2.png",
+      "width": 360,
+      "height": 365,
+      "alt": "Theme it: what grafta drew at “Rendered all three and checked contrast”"
+     }
+    },
+    {
+     "tool": "render_node",
+     "args": {
+      "handle": "order-75aa",
+      "id": "1735549286:55"
+     },
+     "result": "[Image]\n{\"height\":365,\"id\":\"1735549286:55\",\"name\":\"Order — High contrast\",\"notes\":[\"text without Figma's layout data is laid out by grafta in Inter, without kerning: widths within about 2% of Figma's, measured\"],\"scale\":1,\"width\":360}",
+     "picture": {
+      "src": "showcase/sessions/theme-claude-code-3.png",
+      "width": 360,
+      "height": 365,
+      "alt": "Theme it: what grafta drew at “Rendered all three and checked contrast”"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "reply",
+   "text": "All three look right. Saving."
+  },
+  {
+   "kind": "tools",
+   "label": "Saved a new file",
+   "beat": "save",
+   "calls": [
+    {
+     "tool": "save_as",
+     "args": {
+      "handle": "order-75aa",
+      "path": "order-themes.fig"
+     },
+     "result": "{\"bytes\": 29130, \"created\": [{\"id\": \"1735549286:35\", \"name\": \"Order — Dark\", \"type\": \"FRAME\"}, {\"id\": \"1735549286:36\", \"name\": \"My order\", \"type\": \"TEXT\"}, {\"id\": \"1735549286:37\", \"name\": \"Card\", \"type\": \"FRAME\"}, {\"id\": \"1735549286:38\", \"name\": \"Button\", \"type\": \"FRAME\"}, {\"id\": \"1735549286:39\", \"name\": \"Placed 2 Oct · 3 items\", \"type\": \"TEXT\"}, {\"id\": \"1735549286:40\", \"name\": \"Delivered to the door · no signature\", \"type\": \"TEXT\"}, {\"id\": \"1735549286:41\", \"name\": \"Progress\", \"type\": \"FRAME\"}, {\"id\": \"1735549286:42\", \"name\": \"Header\", \"type\": \"FRAME\"}, {\"id\": \"1735549286:43\", \"name\": \"Steps\",",
+     "omitted": "…cut here: 2171 more characters"
+    }
+   ]
+  },
+  {
+   "kind": "reply",
+   "text": "The Theme collection now has a High contrast mode. The Showcase page shows the Order screen three times, side by side: the original in Light, a copy in Dark and a copy in High contrast. I saved it as `order-themes.fig` next to `order.fig`, which is unchanged. grafta read the saved file back and it matched, but I haven't opened it in Figma, so that's the remaining check.\n\n**High contrast values** (a black base with white text and a yellow accent):\n\n| Variable | High contrast |\n|---|---|\n| Background | `#000000` |\n| Surface | `#0A0A0A` |\n| Ink | `#FFFFFF` |\n| Muted | `#E0E0E0` |\n| Border | `#FFFFFF` (makes the card's outline stand out) |\n| Accent | `#FFE500` |\n| Accent soft | `#000000` |\n| On accent | `#000000` |\n| Track | `#6E6E6E` (keeps the unfilled part of the progress bar visible) |\n\n**Checks:**\n- I rendered all three screens and each looked right, with nothing missing or broken in the layout.\n- All 9 text layers on the High contrast screen pass WCAG AA contrast. Ratios run from 14.7:1 to 21:1 against a 4.5:1 minimum. The lowest is the grey secondary text on the card.\n\nThese were my own colour choices, so tell me if you want different ones, such as a light high-contrast theme instead."
+  }
+ ]
+}

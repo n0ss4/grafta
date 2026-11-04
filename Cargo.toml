@@ -1,0 +1,111 @@
+[workspace]
+resolver = "2"
+members = [
+    # Read side — a .fig file becomes a typed scene graph.
+    "crates/decode/kiwi",
+    "crates/decode/schema",
+    "crates/decode/figfile",
+    "crates/decode/model",
+
+    # The toolkit a model calls, by layer, and the server that exposes it.
+    "crates/core/domain",
+    "crates/core/app",
+    "crates/products/design",
+    "crates/products/slides",
+    "crates/products/figjam",
+    "crates/products/sites",
+    "crates/adapters/disk",
+    "crates/adapters/edge",
+    "crates/adapters/memory",
+    "crates/toolkit",
+    "crates/render",
+    "crates/mcp",
+
+    # Front end.
+    "crates/cli",
+
+    # Test-only helpers.
+    "crates/testkit",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/n0ss4/grafta"
+homepage = "https://n0ss4.github.io/grafta"
+keywords = ["figma", "mcp", "design", "fig", "agent"]
+categories = ["command-line-utilities", "parser-implementations", "graphics"]
+
+[workspace.dependencies]
+# Internal crates live here, so moving or renaming one is a one-line change.
+#
+# Each is published under a `grafta-` package name, because `model` and
+# `render` are long gone on crates.io — but keeps its short lib name, so every
+# `use model::…` in the workspace reads the same as it always did.
+kiwi = { package = "grafta-kiwi", version = "0.1.0", path = "crates/decode/kiwi" }
+schema = { package = "grafta-schema", version = "0.1.0", path = "crates/decode/schema" }
+figfile = { package = "grafta-figfile", version = "0.1.0", path = "crates/decode/figfile" }
+model = { package = "grafta-model", version = "0.1.0", path = "crates/decode/model" }
+domain = { package = "grafta-domain", version = "0.1.0", path = "crates/core/domain" }
+app = { package = "grafta-app", version = "0.1.0", path = "crates/core/app" }
+design = { package = "grafta-design", version = "0.1.0", path = "crates/products/design" }
+slides = { package = "grafta-slides", version = "0.1.0", path = "crates/products/slides" }
+figjam = { package = "grafta-figjam", version = "0.1.0", path = "crates/products/figjam" }
+sites = { package = "grafta-sites", version = "0.1.0", path = "crates/products/sites" }
+disk = { package = "grafta-disk", version = "0.1.0", path = "crates/adapters/disk" }
+edge = { package = "grafta-edge", version = "0.1.0", path = "crates/adapters/edge" }
+memory = { package = "grafta-memory", version = "0.1.0", path = "crates/adapters/memory" }
+testkit = { package = "grafta-testkit", path = "crates/testkit" }
+toolkit = { package = "grafta-toolkit", version = "0.1.0", path = "crates/toolkit" }
+render = { package = "grafta-render", version = "0.1.0", path = "crates/render" }
+mcp = { package = "grafta-mcp", version = "0.1.0", path = "crates/mcp" }
+
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+flate2 = "1"
+indexmap = { version = "2", features = ["serde"] }
+# SVG to pixels, pure Rust. Text uses the machine's fonts, read from disk.
+# Held at krilla-svg's version.
+resvg = "0.47"
+# Glyph advances, for laying text out to its width. Already resvg's.
+skrifa = "0.42"
+# Variant property ids are SHA-1 of the property's name.
+sha1 = "0.10"
+# PDF from the same drawing as render_node. krilla-svg reads a
+# usvg tree, so resvg and skrifa stay on the versions krilla uses: one copy of
+# each, one font database.
+krilla = "0.8"
+krilla-svg = "0.8"
+# Only the server and stdio transport: no HTTP client, no auth.
+rmcp = { version = "3.4", default-features = false, features = ["server", "transport-io"] }
+ruzstd = "0.7"
+# A float written as serde_json writes it, by its formatter.
+zmij = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+tokio = { version = "1", features = ["rt", "macros", "io-std", "sync"] }
+zip = "2"
+# zip's xz support links liblzma; built in, not found on the system, so CI does
+# not depend on what an image installs and the binaries need no liblzma.so.
+lzma-sys = { version = "0.1", features = ["static"] }
+
+# Tests read real .fig files of up to 82 MB (fixtures/). Unoptimised, decoding
+# one takes minutes and the round-trip suite never seems to finish, so the
+# crates that decode and write a file, and every dependency, are optimised even
+# in a debug build. The rest of the workspace keeps fast, debuggable builds.
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.dev.package.grafta-kiwi]
+opt-level = 3
+
+[profile.dev.package.grafta-figfile]
+opt-level = 3
+
+[profile.dev.package.grafta-schema]
+opt-level = 3
+
+[profile.dev.package.grafta-model]
+opt-level = 3

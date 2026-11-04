@@ -1,0 +1,504 @@
+[
+ {
+  "tool": "list_open",
+  "args": {}
+ },
+ {
+  "tool": "summarize",
+  "args": {
+   "handle": "{handle}"
+  }
+ },
+ {
+  "tool": "search_nodes",
+  "args": {
+   "handle": "{handle}",
+   "name": "Card"
+  }
+ },
+ {
+  "tool": "read_node",
+  "args": {
+   "handle": "{handle}",
+   "id": "1:2",
+   "depth": 2
+  }
+ },
+ {
+  "tool": "read_raw",
+  "args": {
+   "handle": "{handle}",
+   "id": "1:3"
+  }
+ },
+ {
+  "tool": "list_components",
+  "args": {
+   "handle": "{handle}"
+  }
+ },
+ {
+  "tool": "component_instances",
+  "args": {
+   "handle": "{handle}",
+   "id": "1:4"
+  }
+ },
+ {
+  "tool": "list_variables",
+  "args": {
+   "handle": "{handle}"
+  }
+ },
+ {
+  "tool": "list_styles",
+  "args": {
+   "handle": "{handle}"
+  }
+ },
+ {
+  "tool": "get_image",
+  "args": {
+   "handle": "{handle}",
+   "hash": "abc123"
+  }
+ },
+ {
+  "tool": "render_node",
+  "args": {
+   "handle": "{handle}",
+   "id": "1:2"
+  }
+ },
+ {
+  "tool": "check_contrast",
+  "args": {
+   "handle": "{handle}",
+   "id": "1:2",
+   "all": true
+  }
+ },
+ {
+  "tool": "create_page",
+  "args": {
+   "handle": "{handle}",
+   "name": "Golden"
+  }
+ },
+ {
+  "tool": "create_frame",
+  "args": {
+   "handle": "{handle}",
+   "parent": "1:1",
+   "name": "Panel",
+   "x": 0,
+   "y": 300,
+   "width": 240,
+   "height": 160
+  }
+ },
+ {
+  "tool": "set_properties",
+  "args": {
+   "handle": "{handle}",
+   "id": "$13.id",
+   "properties": {
+    "fills": [
+     {
+      "type": "SOLID",
+      "color": "#2563EB"
+     }
+    ],
+    "cornerRadius": 12,
+    "layoutMode": "VERTICAL",
+    "itemSpacing": 8,
+    "paddingLeft": 16
+   }
+  }
+ },
+ {
+  "tool": "create_text",
+  "args": {
+   "handle": "{handle}",
+   "parent": "$13.id",
+   "characters": "Hola mundo"
+  }
+ },
+ {
+  "tool": "set_properties",
+  "args": {
+   "handle": "{handle}",
+   "id": "$15.id",
+   "properties": {
+    "fontSize": 20,
+    "textDecoration": "UNDERLINE"
+   }
+  }
+ },
+ {
+  "tool": "create_vector",
+  "args": {
+   "handle": "{handle}",
+   "parent": "$13.id",
+   "path": "M0 0H10V10H0Z",
+   "fills": [
+    {
+     "type": "SOLID",
+     "color": "#FF0000"
+    }
+   ],
+   "width": 20
+  }
+ },
+ {
+  "tool": "create_shape",
+  "args": {
+   "handle": "{handle}",
+   "parent": "1:1",
+   "type": "RECTANGLE",
+   "width": 40,
+   "height": 40,
+   "x": 300,
+   "y": 300
+  }
+ },
+ {
+  "tool": "create_shape",
+  "args": {
+   "handle": "{handle}",
+   "parent": "1:1",
+   "type": "ELLIPSE",
+   "width": 40,
+   "height": 40,
+   "x": 360,
+   "y": 300
+  }
+ },
+ {
+  "tool": "group_nodes",
+  "args": {
+   "handle": "{handle}",
+   "ids": [
+    "$18.id",
+    "$19.id"
+   ],
+   "name": "Pair"
+  }
+ },
+ {
+  "tool": "ungroup",
+  "args": {
+   "handle": "{handle}",
+   "id": "$20.id"
+  }
+ },
+ {
+  "tool": "create_section",
+  "args": {
+   "handle": "{handle}",
+   "parent": "1:1",
+   "name": "Area",
+   "x": 600,
+   "y": 0,
+   "width": 400,
+   "height": 300
+  }
+ },
+ {
+  "tool": "duplicate_node",
+  "args": {
+   "handle": "{handle}",
+   "id": "1:2",
+   "x": 0,
+   "y": 600,
+   "name": "Card 2"
+  }
+ },
+ {
+  "tool": "move_node",
+  "args": {
+   "handle": "{handle}",
+   "id": "$23.id",
+   "parent": "1:6",
+   "x": 10,
+   "y": 10
+  }
+ },
+ {
+  "tool": "create_instance",
+  "args": {
+   "handle": "{handle}",
+   "parent": "$13.id",
+   "component": "1:4"
+  }
+ },
+ {
+  "tool": "override_instance",
+  "args": {
+   "handle": "{handle}",
+   "id": "1:5",
+   "properties": {
+    "fills": [
+     {
+      "type": "SOLID",
+      "color": "#00FF00"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "tool": "create_component",
+  "args": {
+   "handle": "{handle}",
+   "id": "$13.id"
+  }
+ },
+ {
+  "tool": "add_component_property",
+  "args": {
+   "handle": "{handle}",
+   "component": "$27.id",
+   "name": "Label",
+   "type": "TEXT",
+   "default": "Hola"
+  }
+ },
+ {
+  "tool": "create_frame",
+  "args": {
+   "handle": "{handle}",
+   "parent": "1:1",
+   "name": "State=On",
+   "x": 0,
+   "y": 900,
+   "width": 80,
+   "height": 32
+  }
+ },
+ {
+  "tool": "create_frame",
+  "args": {
+   "handle": "{handle}",
+   "parent": "1:1",
+   "name": "State=Off",
+   "x": 100,
+   "y": 900,
+   "width": 80,
+   "height": 32
+  }
+ },
+ {
+  "tool": "create_component",
+  "args": {
+   "handle": "{handle}",
+   "id": "$29.id"
+  }
+ },
+ {
+  "tool": "create_component",
+  "args": {
+   "handle": "{handle}",
+   "id": "$30.id"
+  }
+ },
+ {
+  "tool": "create_variant_set",
+  "args": {
+   "handle": "{handle}",
+   "name": "Toggle",
+   "variants": [
+    {
+     "id": "$31.id",
+     "values": {
+      "State": "On"
+     }
+    },
+    {
+     "id": "$32.id",
+     "values": {
+      "State": "Off"
+     }
+    }
+   ]
+  }
+ },
+ {
+  "tool": "create_instance",
+  "args": {
+   "handle": "{handle}",
+   "parent": "1:1",
+   "component": "$31.id",
+   "x": 0,
+   "y": 960
+  }
+ },
+ {
+  "tool": "set_variant",
+  "args": {
+   "handle": "{handle}",
+   "id": "$34.id",
+   "values": {
+    "State": "Off"
+   }
+  }
+ },
+ {
+  "tool": "create_variable_collection",
+  "args": {
+   "handle": "{handle}",
+   "name": "Theme",
+   "modes": [
+    "Light",
+    "Dark"
+   ]
+  }
+ },
+ {
+  "tool": "create_variable",
+  "args": {
+   "handle": "{handle}",
+   "collection": "$36.id",
+   "name": "Brand/Primary",
+   "type": "COLOR",
+   "values": {
+    "Light": "#7C3AED",
+    "Dark": "#A78BFA"
+   }
+  }
+ },
+ {
+  "tool": "set_variable",
+  "args": {
+   "handle": "{handle}",
+   "id": "Brand/Primary",
+   "values": {
+    "Dark": "#C4B5FD"
+   }
+  }
+ },
+ {
+  "tool": "set_variable_collection",
+  "args": {
+   "handle": "{handle}",
+   "id": "$36.id",
+   "name": "Theme 2",
+   "add_mode": "High contrast"
+  }
+ },
+ {
+  "tool": "create_style",
+  "args": {
+   "handle": "{handle}",
+   "name": "Brand/Fill",
+   "type": "FILL",
+   "fills": [
+    {
+     "type": "SOLID",
+     "color": "#16A34A"
+    }
+   ]
+  }
+ },
+ {
+  "tool": "set_style",
+  "args": {
+   "handle": "{handle}",
+   "id": "Brand/Fill",
+   "name": "Brand/Main",
+   "fills": [
+    {
+     "type": "SOLID",
+     "color": "#15803D"
+    }
+   ]
+  }
+ },
+ {
+  "tool": "create_frame",
+  "args": {
+   "handle": "{handle}",
+   "parent": "1:1",
+   "name": "List",
+   "x": 0,
+   "y": 1000,
+   "width": 300,
+   "height": 400
+  }
+ },
+ {
+  "tool": "fill_template",
+  "args": {
+   "handle": "{handle}",
+   "component": "1:4",
+   "parent": "$42.id",
+   "rows": [
+    {
+     "name": "One"
+    },
+    {
+     "name": "Two"
+    }
+   ]
+  }
+ },
+ {
+  "tool": "import_layout",
+  "args": {
+   "handle": "{handle}",
+   "parent": "1:1",
+   "snapshot": "{tmp}/missing-snapshot.json"
+  }
+ },
+ {
+  "tool": "delete_node",
+  "args": {
+   "handle": "{handle}",
+   "id": "$17.id"
+  }
+ },
+ {
+  "tool": "render_node",
+  "args": {
+   "handle": "{handle}",
+   "id": "$13.id"
+  }
+ },
+ {
+  "tool": "export_pdf",
+  "args": {
+   "handle": "{handle}",
+   "ids": [
+    "1:2",
+    "$13.id"
+   ],
+   "path": "{tmp}/golden.pdf"
+  }
+ },
+ {
+  "tool": "save_as",
+  "args": {
+   "handle": "{handle}",
+   "path": "{tmp}/golden.fig"
+  }
+ },
+ {
+  "tool": "open_file",
+  "args": {
+   "path": "{tmp}/does-not-exist.fig"
+  }
+ },
+ {
+  "tool": "new_file",
+  "args": {
+   "path": "{tmp}/new.fig",
+   "from": "{tmp}/does-not-exist.fig"
+  }
+ },
+ {
+  "tool": "close_file",
+  "args": {
+   "handle": "{handle}"
+  }
+ }
+]

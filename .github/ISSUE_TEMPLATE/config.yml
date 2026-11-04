@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/n0ss4/grafta/security/advisories/new
+    about: Report it privately, as SECURITY.md says.
+  - name: Tool reference
+    url: https://n0ss4.github.io/grafta/tools/
+    about: Every tool and its arguments.

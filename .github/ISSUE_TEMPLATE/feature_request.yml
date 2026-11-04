@@ -1,0 +1,21 @@
+name: Feature request
+description: Something a model could not do with grafta's tools.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What the model was trying to do
+      description: The task in words, and where it got stuck or what it worked around.
+    validations:
+      required: true
+  - type: textarea
+    id: figma
+    attributes:
+      label: How Figma names it
+      description: The plugin API's names for what is missing, if you know them (node types, properties).
+  - type: textarea
+    id: evidence
+    attributes:
+      label: A session or a file
+      description: A transcript excerpt, or a description of a file that holds it. Rows of the roadmap are ordered by what sessions asked for.

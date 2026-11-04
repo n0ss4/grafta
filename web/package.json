@@ -1,0 +1,58 @@
+{
+  "name": "grafta-web",
+  "private": true,
+  "type": "module",
+  "description": "grafta's website: React and TypeScript, pre-rendered per route.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "sync": "node scripts/sync-public.mjs",
+    "predev": "npm run sync",
+    "dev": "react-router dev",
+    "prebuild": "npm run sync",
+    "build": "react-router build",
+    "preview": "vite preview --outDir build/client --base /grafta/ --strictPort --port 4173",
+    "typecheck": "react-router typegen && tsc",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "lighthouse": "lhci autorun",
+    "postbuild": "node scripts/pages-layout.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "isbot": "^5",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router": "^8.5.1"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@eslint/js": "^9.39.5",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.64.1",
+    "@react-router/dev": "^8.5.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
+    "jsdom": "^29.1.1",
+    "marked": "^18.1.2",
+    "prettier": "^3.9.10",
+    "shiki": "^4.5.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "5.9",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^8.3.5",
+    "vitest": "^4.1.12"
+  }
+}

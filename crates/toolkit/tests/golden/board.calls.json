@@ -1,0 +1,194 @@
+[
+ {
+  "tool": "open_file",
+  "args": {
+   "path": "{fixtures}/Roadmap review template (Copy).jam"
+  }
+ },
+ {
+  "tool": "summarize",
+  "args": {
+   "handle": "$0.handle"
+  }
+ },
+ {
+  "tool": "duplicate_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "13709:3272",
+   "x": 0,
+   "y": -800
+  }
+ },
+ {
+  "tool": "set_properties",
+  "args": {
+   "handle": "$0.handle",
+   "id": "$2.id",
+   "properties": {
+    "text": {
+     "characters": "Golden one"
+    },
+    "fills": [
+     {
+      "type": "SOLID",
+      "color": "#FFC943"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "tool": "duplicate_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "13709:3272",
+   "x": 600,
+   "y": -800
+  }
+ },
+ {
+  "tool": "set_properties",
+  "args": {
+   "handle": "$0.handle",
+   "id": "$4.id",
+   "properties": {
+    "characters": "Golden two",
+    "x": 700
+   }
+  }
+ },
+ {
+  "tool": "duplicate_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "13709:3296",
+   "x": 1200,
+   "y": -800
+  }
+ },
+ {
+  "tool": "set_properties",
+  "args": {
+   "handle": "$0.handle",
+   "id": "$6.id",
+   "properties": {
+    "text": {
+     "characters": "Shape",
+     "fills": [
+      {
+       "type": "SOLID",
+       "color": "#FFFFFF"
+      }
+     ]
+    },
+    "width": 300,
+    "fontSize": 24,
+    "textAlignHorizontal": "CENTER"
+   }
+  }
+ },
+ {
+  "tool": "duplicate_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "14610:2007",
+   "x": 0,
+   "y": -2000
+  }
+ },
+ {
+  "tool": "set_properties",
+  "args": {
+   "handle": "$0.handle",
+   "id": "$8.id",
+   "properties": {
+    "cells": [
+     [
+      "A",
+      "B"
+     ],
+     [
+      "1",
+      "2"
+     ],
+     [
+      "3",
+      "4"
+     ],
+     [
+      "5",
+      "6"
+     ],
+     [
+      "7",
+      "8"
+     ]
+    ]
+   }
+  }
+ },
+ {
+  "tool": "duplicate_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "13709:3649"
+  }
+ },
+ {
+  "tool": "set_properties",
+  "args": {
+   "handle": "$0.handle",
+   "id": "$10.id",
+   "properties": {
+    "connectorStart": {
+     "endpointNodeId": "$2.id",
+     "magnet": "RIGHT"
+    },
+    "connectorEnd": {
+     "endpointNodeId": "$4.id",
+     "magnet": "LEFT"
+    },
+    "connectorEndStrokeCap": "ARROW_LINES",
+    "connectorLineType": "STRAIGHT"
+   }
+  }
+ },
+ {
+  "tool": "read_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "$8.id",
+   "depth": 0
+  }
+ },
+ {
+  "tool": "read_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "$10.id",
+   "depth": 0
+  }
+ },
+ {
+  "tool": "render_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "$2.id"
+  }
+ },
+ {
+  "tool": "render_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "$8.id"
+  }
+ },
+ {
+  "tool": "save_as",
+  "args": {
+   "handle": "$0.handle",
+   "path": "{tmp}/board.jam"
+  }
+ }
+]

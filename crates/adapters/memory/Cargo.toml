@@ -1,0 +1,23 @@
+[package]
+name = "grafta-memory"
+description = "grafta's ports in memory, so a tool, a save or a journal's replay is tested with no file on disk."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../../README.md"
+
+[lib]
+name = "memory"
+
+[dependencies]
+disk.workspace = true
+domain.workspace = true
+edge.workspace = true
+figfile.workspace = true
+model.workspace = true
+render.workspace = true
+schema.workspace = true

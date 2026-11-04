@@ -1,0 +1,27 @@
+[package]
+name = "grafta-app"
+description = "grafta's application: each tool's command or query over typed inputs, and the unit of work a command runs in."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../../README.md"
+
+[lib]
+name = "app"
+
+[dependencies]
+domain.workspace = true
+figfile.workspace = true
+kiwi.workspace = true
+model.workspace = true
+schema.workspace = true
+
+indexmap.workspace = true
+sha1.workspace = true
+
+[dev-dependencies]
+testkit.workspace = true

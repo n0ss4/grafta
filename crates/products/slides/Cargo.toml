@@ -1,0 +1,22 @@
+[package]
+name = "grafta-slides"
+description = "Figma Slides for grafta: a deck's slides, transitions, animations and notes."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../../README.md"
+
+[lib]
+name = "slides"
+
+[dependencies]
+app.workspace = true
+domain.workspace = true
+figfile.workspace = true
+kiwi.workspace = true
+model.workspace = true
+schema.workspace = true

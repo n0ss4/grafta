@@ -1,0 +1,27 @@
+[package]
+name = "grafta-model"
+description = "Typed scene graph: nodes, variables, shared styles, component definitions."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../../README.md"
+
+[lib]
+name = "model"
+
+[dependencies]
+figfile.workspace = true
+kiwi.workspace = true
+schema.workspace = true
+
+indexmap.workspace = true
+serde.workspace = true
+sha1.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+testkit.workspace = true

@@ -1,0 +1,24 @@
+[package]
+name = "grafta-domain"
+description = "grafta's domain: open files, their ports, the products that read their nodes, and the values a call takes and returns."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../../README.md"
+
+[lib]
+name = "domain"
+
+[dependencies]
+figfile.workspace = true
+kiwi.workspace = true
+model.workspace = true
+schema.workspace = true
+
+indexmap.workspace = true
+serde.workspace = true
+zmij.workspace = true

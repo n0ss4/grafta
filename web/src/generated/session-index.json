@@ -1,0 +1,23 @@
+{
+ "image": [
+  "claude-code"
+ ],
+ "theme": [
+  "claude-code"
+ ],
+ "audit": [
+  "claude-code"
+ ],
+ "contrast": [
+  "claude-code"
+ ],
+ "data": [
+  "claude-code"
+ ],
+ "html": [
+  "claude-code"
+ ],
+ "theme-without": [
+  "claude-code"
+ ]
+}

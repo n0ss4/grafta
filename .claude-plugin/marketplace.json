@@ -1,0 +1,17 @@
+{
+  "name": "grafta",
+  "owner": { "name": "Nossair Ghazouani", "url": "https://github.com/n0ss4" },
+  "metadata": {
+    "description": "grafta: Figma's file format for your agent."
+  },
+  "plugins": [
+    {
+      "name": "grafta",
+      "source": "./plugin",
+      "version": "0.1.0",
+      "description": "Read and write Figma .fig files, exactly and offline: an MCP server with 43 tools, and a skill for using them well.",
+      "category": "design",
+      "homepage": "https://n0ss4.github.io/grafta"
+    }
+  ]
+}

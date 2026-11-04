@@ -1,0 +1,22 @@
+[package]
+name = "grafta-design"
+description = "Figma Design for grafta: the base product every other extends."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../../README.md"
+
+[lib]
+name = "design"
+
+[dependencies]
+app.workspace = true
+domain.workspace = true
+figfile.workspace = true
+kiwi.workspace = true
+model.workspace = true
+schema.workspace = true

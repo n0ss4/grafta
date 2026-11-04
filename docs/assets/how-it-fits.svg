@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 300" width="880" height="300" role="img" aria-label="You ask a model; the model calls grafta's tools; grafta reads and writes the .fig file exactly, offline; Figma opens the file.">
+  <style>
+    .bg { fill: #F6F4EE; }
+    .card { fill: #FFFFFF; stroke: #D9D5CA; }
+    .ink { fill: #15171C; }
+    .dim { fill: #5C5F66; }
+    .line { stroke: #8A8D93; }
+    .head { fill: #8A8D93; }
+    .grafta { fill: #13704B; }
+    .grafta-text { fill: #FFFFFF; }
+    .grafta-dim { fill: #D7F5E6; }
+    .tag { fill: #EAF7EF; }
+    .tag-text { fill: #13704B; }
+    text { font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #0D1117; }
+      .card { fill: #161B22; stroke: #30363D; }
+      .ink { fill: #F6F4EE; }
+      .dim { fill: #9DA3AB; }
+      .line { stroke: #6E7681; }
+      .head { fill: #6E7681; }
+      .tag { fill: #1C2B23; }
+      .tag-text { fill: #C6F26B; }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" class="head"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="880" height="300" rx="20"/>
+
+  <!-- You -->
+  <rect class="card" x="24" y="70" width="128" height="120" rx="14"/>
+  <circle class="ink" cx="88" cy="104" r="11"/>
+  <path class="ink" d="M68 136 a20 16 0 0 1 40 0 z"/>
+  <text class="ink" x="88" y="164" text-anchor="middle" font-size="16" font-weight="600">You</text>
+  <text class="dim" x="88" y="182" text-anchor="middle" font-size="12">ask in words</text>
+
+  <line class="line" x1="156" y1="130" x2="196" y2="130" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Model -->
+  <rect class="card" x="200" y="70" width="168" height="120" rx="14"/>
+  <text class="ink" x="284" y="104" text-anchor="middle" font-size="16" font-weight="600">Your model</text>
+  <text class="dim" x="284" y="124" text-anchor="middle" font-size="12">Claude, or any MCP client</text>
+  <text class="dim" x="284" y="152" text-anchor="middle" font-size="12">reads intent, decides</text>
+  <text class="dim" x="284" y="170" text-anchor="middle" font-size="12">what to build</text>
+
+  <!-- tools, both ways -->
+  <line class="line" x1="372" y1="116" x2="420" y2="116" stroke-width="2" marker-end="url(#arrow)"/>
+  <line class="line" x1="420" y1="144" x2="372" y2="144" stroke-width="2" marker-end="url(#arrow)"/>
+  <text class="dim mono" x="396" y="104" text-anchor="middle" font-size="10">tools</text>
+  <text class="dim mono" x="396" y="162" text-anchor="middle" font-size="10">answers</text>
+
+  <!-- grafta -->
+  <rect class="grafta" x="424" y="54" width="184" height="152" rx="16"/>
+  <g transform="translate(440 70) scale(0.5)">
+    <path d="M14 46 L32 18 L50 46" fill="none" stroke="#F6F4EE" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="14" cy="46" r="8" fill="#F6F4EE"/>
+    <circle cx="32" cy="18" r="8" fill="#F6F4EE"/>
+    <circle cx="50" cy="46" r="8" fill="#C6F26B"/>
+  </g>
+  <text class="grafta-text" x="478" y="92" font-size="18" font-weight="700">grafta</text>
+  <text class="grafta-dim" x="440" y="126" font-size="12">reads every node, colour,</text>
+  <text class="grafta-dim" x="440" y="143" font-size="12">variable and component;</text>
+  <text class="grafta-dim" x="440" y="160" font-size="12">writes what it is told;</text>
+  <text class="grafta-dim" x="440" y="177" font-size="12">draws it to check</text>
+  <text class="grafta-text" x="440" y="196" font-size="11" font-weight="600">exact · offline · no account</text>
+
+  <!-- bytes, both ways -->
+  <line class="line" x1="612" y1="116" x2="660" y2="116" stroke-width="2" marker-end="url(#arrow)"/>
+  <line class="line" x1="660" y1="144" x2="612" y2="144" stroke-width="2" marker-end="url(#arrow)"/>
+  <text class="dim mono" x="636" y="104" text-anchor="middle" font-size="10">writes</text>
+  <text class="dim mono" x="636" y="162" text-anchor="middle" font-size="10">reads</text>
+
+  <!-- .fig -->
+  <rect class="card" x="664" y="70" width="88" height="120" rx="14"/>
+  <path class="ink" d="M690 88 h26 l12 12 v40 a4 4 0 0 1 -4 4 h-34 a4 4 0 0 1 -4 -4 v-48 a4 4 0 0 1 4 -4 z" opacity="0.9"/>
+  <path class="bg" d="M716 88 v12 h12 z"/>
+  <text class="ink mono" x="708" y="166" text-anchor="middle" font-size="14" font-weight="600">.fig</text>
+  <text class="dim" x="708" y="182" text-anchor="middle" font-size="11">on your disk</text>
+
+  <line class="line" x1="756" y1="130" x2="784" y2="130" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Figma -->
+  <rect class="card" x="788" y="70" width="72" height="120" rx="14"/>
+  <rect class="line" x="804" y="90" width="40" height="32" rx="5" fill="none" stroke-width="2"/>
+  <line class="line" x1="804" y1="99" x2="844" y2="99" stroke-width="2"/>
+  <rect class="ink" x="810" y="104" width="12" height="12" rx="2" opacity="0.8"/>
+  <rect class="ink" x="826" y="104" width="12" height="5" rx="1.5" opacity="0.5"/>
+  <rect class="ink" x="826" y="111" width="9" height="5" rx="1.5" opacity="0.5"/>
+  <text class="ink" x="824" y="166" text-anchor="middle" font-size="14" font-weight="600">Figma</text>
+  <text class="dim" x="824" y="182" text-anchor="middle" font-size="11">opens it</text>
+
+  <!-- the split -->
+  <rect class="tag" x="200" y="226" width="168" height="44" rx="10"/>
+  <text class="tag-text" x="284" y="244" text-anchor="middle" font-size="12" font-weight="600">interprets</text>
+  <text class="tag-text" x="284" y="260" text-anchor="middle" font-size="11">is good at intent</text>
+  <rect class="tag" x="424" y="226" width="184" height="44" rx="10"/>
+  <text class="tag-text" x="516" y="244" text-anchor="middle" font-size="12" font-weight="600">never guesses</text>
+  <text class="tag-text" x="516" y="260" text-anchor="middle" font-size="11">is exact about bytes</text>
+</svg>

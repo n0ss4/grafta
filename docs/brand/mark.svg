@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="grafta">
+  <style>@media (prefers-color-scheme: dark) { .line { stroke: #F6F4EE } .node { fill: #F6F4EE } .anchor { fill: #C6F26B } }</style>
+  <path class="line" d="M14 46 L32 18 L50 46" fill="none" stroke="#15171C" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path class="node" d="M22 46 A8 8 0 1 1 6 46 A8 8 0 1 1 22 46 Z" fill="#15171C"/>
+  <path class="node" d="M40 18 A8 8 0 1 1 24 18 A8 8 0 1 1 40 18 Z" fill="#15171C"/>
+  <path class="anchor" d="M58 46 A8 8 0 1 1 42 46 A8 8 0 1 1 58 46 Z" fill="#1F9D6B"/>
+</svg>

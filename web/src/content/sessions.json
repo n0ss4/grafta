@@ -1,0 +1,224 @@
+[
+  {
+    "id": "image",
+    "title": "From a picture",
+    "prompt": "Using grafta, turn poster.png into a Figma file. Make it editable.",
+    "beats": [
+      {
+        "id": "read",
+        "title": "Starts the file",
+        "says": "A new Figma file, the size of the picture.",
+        "needs": ["new_file|open_file"]
+      },
+      {
+        "id": "layout",
+        "title": "Draws the layout",
+        "says": "Frames and shapes where the picture has them.",
+        "needs": ["create_frame|create_shape"]
+      },
+      {
+        "id": "text",
+        "title": "Sets the text",
+        "says": "Real text layers, in the picture's type and colours.",
+        "needs": ["create_text"]
+      },
+      {
+        "id": "check",
+        "title": "Checks it against the picture",
+        "says": "Renders the file to compare.",
+        "needs": ["render_node"]
+      },
+      {
+        "id": "save",
+        "title": "Saves a new file",
+        "says": "Read back and compared equal.",
+        "needs": ["save_as"]
+      }
+    ],
+    "outcome": {
+      "summary": "The poster as layers: text, shapes and frames you can edit in Figma.",
+      "writes": true
+    }
+  },
+  {
+    "id": "theme",
+    "title": "Theme it",
+    "prompt": "Open order.fig with grafta. Add a High contrast mode to its Theme, render the Order screen in Light, Dark and High contrast, and save the result.",
+    "beats": [
+      {
+        "id": "read",
+        "title": "Reads the file",
+        "says": "Finds the Order screen and the Theme's Light and Dark modes.",
+        "needs": ["open_file"]
+      },
+      {
+        "id": "mode",
+        "title": "Adds a mode",
+        "says": "A High contrast mode on the Theme collection.",
+        "needs": ["set_variable_collection"]
+      },
+      {
+        "id": "colours",
+        "title": "Fills in its colours",
+        "says": "A value per colour, in the new mode.",
+        "needs": ["set_variable"]
+      },
+      {
+        "id": "render",
+        "title": "Renders each mode",
+        "says": "The screen in Light, Dark and High contrast.",
+        "needs": ["render_node"]
+      },
+      {
+        "id": "save",
+        "title": "Saves a new file",
+        "says": "Read back and compared equal.",
+        "needs": ["save_as"]
+      }
+    ],
+    "outcome": {
+      "summary": "A third theme mode, its colours filled in, the screen rendered in all three.",
+      "writes": true
+    }
+  },
+  {
+    "id": "audit",
+    "title": "Audit it",
+    "prompt": "Open order.fig with grafta and audit its design system: its tokens, components and styles, and whether its text is bound to them.",
+    "beats": [
+      {
+        "id": "read",
+        "title": "Opens the file",
+        "says": "Its pages and what it holds.",
+        "needs": ["open_file"]
+      },
+      {
+        "id": "system",
+        "title": "Lists its system",
+        "says": "Its variables, components and styles.",
+        "needs": ["list_variables"]
+      },
+      {
+        "id": "text",
+        "title": "Checks its text",
+        "says": "Whether each text is bound to a variable.",
+        "needs": ["read_node|search_nodes"]
+      },
+      {
+        "id": "look",
+        "title": "Looks at the screen",
+        "says": "Renders it to check what it read.",
+        "needs": ["render_node"]
+      }
+    ],
+    "outcome": {
+      "summary": "A report of the file's tokens, components and styles, and the text bound to them.",
+      "writes": false
+    }
+  },
+  {
+    "id": "contrast",
+    "title": "Fix contrast",
+    "prompt": "Open checkout.fig with grafta, check the Order screen's text against WCAG AA, fix what fails with the file's own colours, and show me before and after.",
+    "beats": [
+      {
+        "id": "read",
+        "title": "Finds the screen",
+        "says": "Opens checkout.fig and finds the Order frame.",
+        "needs": ["open_file"]
+      },
+      {
+        "id": "check",
+        "title": "Checks every text",
+        "says": "Against WCAG AA, on what is drawn behind it.",
+        "needs": ["check_contrast"]
+      },
+      {
+        "id": "fix",
+        "title": "Fixes it",
+        "says": "With one of the file's own colours.",
+        "needs": ["set_properties"]
+      },
+      {
+        "id": "again",
+        "title": "Checks again",
+        "says": "Every text passes.",
+        "needs": ["check_contrast"]
+      },
+      {
+        "id": "save",
+        "title": "Saves a new file",
+        "says": "Read back and compared equal.",
+        "needs": ["save_as"]
+      }
+    ],
+    "outcome": {
+      "summary": "The text that failed WCAG AA fixed with the file's own colour, checked again.",
+      "writes": true
+    }
+  },
+  {
+    "id": "data",
+    "title": "Fill from data",
+    "prompt": "Open order.fig with grafta. Make the order card a component, and place it once per order, for orders 4821, 4907 and 5013, in a new list.",
+    "beats": [
+      {
+        "id": "read",
+        "title": "Finds the card",
+        "says": "Opens order.fig and finds the Card frame.",
+        "needs": ["open_file"]
+      },
+      {
+        "id": "component",
+        "title": "Makes it a component",
+        "says": "The card becomes reusable.",
+        "needs": ["create_component"]
+      },
+      {
+        "id": "rows",
+        "title": "Places one per order",
+        "says": "A list, each card with its own order number.",
+        "needs": ["fill_template|create_instance"]
+      },
+      {
+        "id": "save",
+        "title": "Saves a new file",
+        "says": "Read back and compared equal.",
+        "needs": ["save_as"]
+      }
+    ],
+    "outcome": {
+      "summary": "The card made a component, placed once per order in a new list.",
+      "writes": true
+    }
+  },
+  {
+    "id": "html",
+    "title": "Bring in a web page",
+    "prompt": "Import pricing.json, a browser's snapshot of our pricing cards, into a new page of order.fig with grafta, as layers the design team can edit.",
+    "beats": [
+      {
+        "id": "read",
+        "title": "Opens the file",
+        "says": "order.fig, and a new page for the import.",
+        "needs": ["open_file"]
+      },
+      {
+        "id": "import",
+        "title": "Imports the web page",
+        "says": "Frames, texts and auto-layout the team can edit.",
+        "needs": ["import_layout"]
+      },
+      {
+        "id": "save",
+        "title": "Saves a new file",
+        "says": "Read back and compared equal.",
+        "needs": ["save_as"]
+      }
+    ],
+    "outcome": {
+      "summary": "The pricing page as editable frames, text and auto-layout.",
+      "writes": true
+    }
+  }
+]

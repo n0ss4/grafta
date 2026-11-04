@@ -1,0 +1,21 @@
+[package]
+name = "grafta-disk"
+description = "grafta's ports on the machine: the file system, figfile, the journal on disk and render."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../../README.md"
+
+[lib]
+name = "disk"
+
+[dependencies]
+domain.workspace = true
+figfile.workspace = true
+model.workspace = true
+render.workspace = true
+schema.workspace = true

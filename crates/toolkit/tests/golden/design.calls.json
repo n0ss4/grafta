@@ -1,0 +1,124 @@
+[
+ {
+  "tool": "open_file",
+  "args": {
+   "path": "{fixtures}/material3.fig"
+  }
+ },
+ {
+  "tool": "summarize",
+  "args": {
+   "handle": "$0.handle"
+  }
+ },
+ {
+  "tool": "search_nodes",
+  "args": {
+   "handle": "$0.handle",
+   "name": "Introduction",
+   "type": "FRAME"
+  }
+ },
+ {
+  "tool": "read_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "$2.results.0.id",
+   "depth": 2
+  }
+ },
+ {
+  "tool": "list_components",
+  "args": {
+   "handle": "$0.handle",
+   "limit": 50
+  }
+ },
+ {
+  "tool": "list_variables",
+  "args": {
+   "handle": "$0.handle"
+  }
+ },
+ {
+  "tool": "list_styles",
+  "args": {
+   "handle": "$0.handle"
+  }
+ },
+ {
+  "tool": "check_contrast",
+  "args": {
+   "handle": "$0.handle",
+   "id": "$2.results.0.id"
+  }
+ },
+ {
+  "tool": "render_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "$2.results.0.id"
+  }
+ },
+ {
+  "tool": "create_frame",
+  "args": {
+   "handle": "$0.handle",
+   "parent": "$2.results.0.id",
+   "name": "Golden",
+   "x": 10,
+   "y": 10,
+   "width": 200,
+   "height": 100
+  }
+ },
+ {
+  "tool": "set_properties",
+  "args": {
+   "handle": "$0.handle",
+   "id": "$9.id",
+   "properties": {
+    "fills": [
+     {
+      "type": "SOLID",
+      "color": "#F59E0B"
+     }
+    ],
+    "layoutMode": "HORIZONTAL",
+    "itemSpacing": 4
+   }
+  }
+ },
+ {
+  "tool": "create_text",
+  "args": {
+   "handle": "$0.handle",
+   "parent": "$9.id",
+   "characters": "Golden"
+  }
+ },
+ {
+  "tool": "set_properties",
+  "args": {
+   "handle": "$0.handle",
+   "id": "$2.results.0.id",
+   "properties": {
+    "name": "Introduction golden"
+   }
+  }
+ },
+ {
+  "tool": "render_node",
+  "args": {
+   "handle": "$0.handle",
+   "id": "$9.id"
+  }
+ },
+ {
+  "tool": "save_as",
+  "args": {
+   "handle": "$0.handle",
+   "path": "{tmp}/design.fig"
+  }
+ }
+]

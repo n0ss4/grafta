@@ -1,0 +1,282 @@
+[
+ {
+  "layer": "Order",
+  "node": {
+   "childCount": 5,
+   "childrenOmitted": true,
+   "counterAxisAlignItems": "MIN",
+   "counterAxisSizingMode": "FIXED",
+   "explicitVariableModes": {
+    "Theme": "Light"
+   },
+   "fills": [
+    {
+     "color": "#F6F4EE",
+     "type": "SOLID",
+     "variable": "Background"
+    }
+   ],
+   "height": 365,
+   "id": "1735549286:1632",
+   "itemSpacing": 20,
+   "layoutMode": "VERTICAL",
+   "layoutSizingHorizontal": "FIXED",
+   "layoutSizingVertical": "HUG",
+   "name": "Order",
+   "paddingBottom": 24,
+   "paddingLeft": 24,
+   "paddingRight": 24,
+   "paddingTop": 24,
+   "path": "Showcase / Order",
+   "primaryAxisAlignItems": "MIN",
+   "primaryAxisSizingMode": "AUTO",
+   "type": "FRAME",
+   "undecoded": [
+    "strokeJoin"
+   ],
+   "width": 360,
+   "x": 0,
+   "y": 0
+  }
+ },
+ {
+  "layer": "Your order",
+  "node": {
+   "characters": "Your order",
+   "fills": [
+    {
+     "color": "#15171C",
+     "type": "SOLID",
+     "variable": "Ink"
+    }
+   ],
+   "height": 28,
+   "id": "1735549286:1633",
+   "layoutSizingHorizontal": "FIXED",
+   "layoutSizingVertical": "FIXED",
+   "name": "My order",
+   "path": "Showcase / Order / My order",
+   "style": {
+    "fontFamily": "Inter",
+    "fontSize": 28,
+    "fontStyle": "Bold",
+    "fontWeight": 700,
+    "letterSpacing": {
+     "unit": "PERCENT",
+     "value": 0.0
+    },
+    "lineHeight": {
+     "unit": "PERCENT",
+     "value": 100.0
+    },
+    "textAlignHorizontal": "LEFT",
+    "textAlignVertical": "TOP",
+    "textAutoResize": "WIDTH_AND_HEIGHT"
+   },
+   "type": "TEXT",
+   "undecoded": [
+    "strokeJoin",
+    "fontVersion"
+   ],
+   "width": 147.41,
+   "x": 24,
+   "y": 24
+  }
+ },
+ {
+  "layer": "Card",
+  "node": {
+   "childCount": 3,
+   "childrenOmitted": true,
+   "cornerRadius": 20,
+   "counterAxisAlignItems": "MIN",
+   "counterAxisSizingMode": "FIXED",
+   "effects": [
+    {
+     "color": "#15171C",
+     "offset": {
+      "x": 0.0,
+      "y": 8.0
+     },
+     "opacity": 0.06,
+     "radius": 24.0,
+     "type": "DROP_SHADOW"
+    }
+   ],
+   "fills": [
+    {
+     "color": "#FFFFFF",
+     "type": "SOLID",
+     "variable": "Surface"
+    }
+   ],
+   "height": 132,
+   "id": "1735549286:1634",
+   "itemSpacing": 14,
+   "layoutAlign": "STRETCH",
+   "layoutMode": "VERTICAL",
+   "layoutSizingHorizontal": "FILL",
+   "layoutSizingVertical": "HUG",
+   "name": "Card",
+   "paddingBottom": 20,
+   "paddingLeft": 20,
+   "paddingRight": 20,
+   "paddingTop": 20,
+   "path": "Showcase / Order / Card",
+   "primaryAxisAlignItems": "MIN",
+   "primaryAxisSizingMode": "AUTO",
+   "strokeAlign": "INSIDE",
+   "strokeWeight": 1,
+   "strokes": [
+    {
+     "color": "#E6E2D8",
+     "type": "SOLID",
+     "variable": "Border"
+    }
+   ],
+   "type": "FRAME",
+   "undecoded": [
+    "strokeJoin"
+   ],
+   "width": 312,
+   "x": 24,
+   "y": 106
+  }
+ },
+ {
+  "layer": "Package",
+  "node": {
+   "height": 22,
+   "id": "1735549286:1656",
+   "layoutSizingHorizontal": "FIXED",
+   "layoutSizingVertical": "FIXED",
+   "name": "Package (Lucide)",
+   "path": "Showcase / Order / Card / Header / Icon / Package (Lucide)",
+   "strokeAlign": "CENTER",
+   "strokeWeight": 2,
+   "strokes": [
+    {
+     "color": "#13704B",
+     "type": "SOLID",
+     "variable": "Accent"
+    }
+   ],
+   "type": "VECTOR",
+   "undecoded": [
+    "strokeCap",
+    "strokeJoin",
+    "vectorData"
+   ],
+   "width": 22,
+   "x": 11,
+   "y": 11
+  }
+ },
+ {
+  "layer": "Progress",
+  "node": {
+   "cornerRadius": 4,
+   "fills": [
+    {
+     "color": "#13704B",
+     "type": "SOLID",
+     "variable": "Accent"
+    }
+   ],
+   "height": 8,
+   "id": "1735549286:1658",
+   "name": "Done",
+   "path": "Showcase / Order / Card / Progress / Done",
+   "type": "FRAME",
+   "undecoded": [
+    "strokeJoin"
+   ],
+   "width": 196,
+   "x": 0,
+   "y": 0
+  }
+ },
+ {
+  "layer": "Button",
+  "node": {
+   "childCount": 2,
+   "childrenOmitted": true,
+   "cornerRadius": 14,
+   "counterAxisAlignItems": "CENTER",
+   "counterAxisSizingMode": "AUTO",
+   "fills": [
+    {
+     "color": "#13704B",
+     "type": "SOLID",
+     "variable": "Accent"
+    }
+   ],
+   "height": 50,
+   "id": "1735549286:1638",
+   "itemSpacing": 8,
+   "layoutAlign": "STRETCH",
+   "layoutMode": "HORIZONTAL",
+   "layoutSizingHorizontal": "FILL",
+   "layoutSizingVertical": "HUG",
+   "name": "Button",
+   "paddingBottom": 16,
+   "paddingLeft": 16,
+   "paddingRight": 16,
+   "paddingTop": 16,
+   "path": "Showcase / Order / Button",
+   "primaryAxisAlignItems": "CENTER",
+   "primaryAxisSizingMode": "FIXED",
+   "type": "FRAME",
+   "undecoded": [
+    "strokeJoin"
+   ],
+   "width": 312,
+   "x": 24,
+   "y": 258
+  }
+ },
+ {
+  "layer": "Track order",
+  "node": {
+   "characters": "Track order",
+   "fills": [
+    {
+     "color": "#FFFFFF",
+     "type": "SOLID",
+     "variable": "On accent"
+    }
+   ],
+   "height": 15,
+   "id": "1735549286:1639",
+   "layoutSizingHorizontal": "FIXED",
+   "layoutSizingVertical": "FIXED",
+   "name": "Track order",
+   "path": "Showcase / Order / Button / Track order",
+   "style": {
+    "fontFamily": "Inter",
+    "fontSize": 15,
+    "fontStyle": "Bold",
+    "fontWeight": 700,
+    "letterSpacing": {
+     "unit": "PERCENT",
+     "value": 0.0
+    },
+    "lineHeight": {
+     "unit": "PERCENT",
+     "value": 100.0
+    },
+    "textAlignHorizontal": "LEFT",
+    "textAlignVertical": "TOP",
+    "textAutoResize": "WIDTH_AND_HEIGHT"
+   },
+   "type": "TEXT",
+   "undecoded": [
+    "strokeJoin",
+    "fontVersion"
+   ],
+   "width": 85.72,
+   "x": 100.14,
+   "y": 17.5
+  }
+ }
+]
