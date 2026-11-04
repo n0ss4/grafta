@@ -27,8 +27,8 @@ export function Hero({
         </div>
         <div className="lg:pt-8">
           <p className="text-[17px] leading-relaxed text-muted">
-            Say what you want done to a .fig on your disk, in Claude. grafta opens it, makes the change,
-            checks it, and saves a new file that opens in Figma. No account, no plugin, no cloud.
+            Say what you want done to a .fig on your disk. grafta opens it, makes the change, reads it back,
+            and saves a new file for you to open in Figma. No account, no API key, no cloud.
           </p>
           <a
             href="#install"

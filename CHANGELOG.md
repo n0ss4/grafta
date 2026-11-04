@@ -33,7 +33,7 @@ The first release.
 - **Seeing:** `render_node` draws a node offline, in its variable mode, with
   the file's fonts; `export_pdf` writes frames as a vector PDF;
   `check_contrast` checks every text against WCAG AA.
-- **Safety:** files are never overwritten; unsaved edits are journaled and
+- **Safety:** your files are not written over; unsaved edits are journaled and
   replayed after a restart; a failed call rolls back whole; a
   write Figma would have to repair is refused, with the reason.
 - **The website:** a tool reference generated from the server's tool list, a

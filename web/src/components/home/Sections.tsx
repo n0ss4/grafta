@@ -39,10 +39,10 @@ export function Layers() {
 /** 03: four principles, numbered on rules. */
 export function Principles() {
   return (
-    <Section id="why" index="03" label="Why it can be trusted">
+    <Section id="why" index="03" label="How it works">
       <div className="mt-6 grid grid-cols-4 lg:grid-cols-8">
         <h2 id="why-title" className={cn(title, "col-span-4 lg:col-span-5 lg:col-start-2")}>
-          Four things it will not bend on.
+          What it holds to.
         </h2>
       </div>
       <div className="mt-16 grid grid-cols-4 lg:grid-cols-8">
@@ -70,8 +70,8 @@ export function Difference() {
           The other half.
         </h2>
         <p className="col-span-4 text-[17px] leading-relaxed text-muted lg:col-span-3 lg:col-start-5">
-          Figma's server works live in Figma, through your account. grafta works on the files themselves. Many
-          teams will want both.
+          Figma's server works live in Figma, through your account. grafta works on the files themselves. They
+          do different jobs.
         </p>
       </div>
       <div className="mt-14 grid grid-cols-4 lg:grid-cols-8">
@@ -105,7 +105,7 @@ export function Difference() {
           </tbody>
         </table>
         <p className="micro col-span-4 mt-6 text-muted lg:col-start-2">
-          Figma's documentation, 30 October 2026
+          Figma's documentation, 4 November 2026
         </p>
       </div>
       <div className="mt-24 grid grid-cols-4 lg:grid-cols-8">
@@ -221,10 +221,10 @@ function CountUp({ to, shown, run }: { to: number; shown: string; run: boolean }
 export function Proof() {
   const { ref, seen } = useInView<HTMLOListElement>(0.4);
   return (
-    <Section id="proof" index="06" label="Built with grafta">
+    <Section id="proof" index="06" label="Measured">
       <div className="mt-6 grid grid-cols-4 lg:grid-cols-8">
         <h2 id="proof-title" className={cn(title, "col-span-4 lg:col-span-5 lg:col-start-2")}>
-          A model designed this page, with grafta.
+          Measured on public Figma files.
         </h2>
       </div>
       <div className="mt-16 grid grid-cols-4 lg:grid-cols-8">
@@ -242,6 +242,11 @@ export function Proof() {
             </li>
           ))}
         </ol>
+      </div>
+      <div className="mt-10 grid grid-cols-4 lg:grid-cols-8">
+        <p className="micro col-span-4 text-muted lg:col-span-6 lg:col-start-2">
+          One Mac with Apple silicon, the release build of 0.1.0, 4 November 2026. Your machine will differ.
+        </p>
       </div>
     </Section>
   );

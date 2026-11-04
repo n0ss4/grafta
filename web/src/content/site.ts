@@ -4,8 +4,8 @@ export const GITHUB = "https://github.com/n0ss4/grafta";
 const blob = `${GITHUB}/blob/main`;
 
 export const announcement: Announcement | undefined = {
-  text: "New: every tool and its arguments, generated from the server",
-  href: "tools/",
+  text: "0.1.0: the first release. Early, and bug reports are welcome",
+  href: "changelog/",
 };
 
 export const nav: Link[] = [

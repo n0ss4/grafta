@@ -30,7 +30,7 @@ export function Comparison({ without, withGrafta }: { without: Recording; withGr
         .filter((t) => t.kind === "reply")
         .slice(-1)
         .map((t) => t.text),
-      holds: withGrafta.file ? `${withGrafta.file}, a new file that opens in Figma.` : "The change, made.",
+      holds: withGrafta.file ? `${withGrafta.file}, a new file to open in Figma.` : "The change, made.",
       good: true,
     },
   ];

@@ -1,14 +1,6 @@
 import type { ComponentType } from "react";
 import { cn } from "~/lib/cn";
-import {
-  ClaudeCodeMark,
-  ClaudeMark,
-  CodeXml,
-  CursorMark,
-  MessageCircle,
-  Terminal,
-  WindsurfMark,
-} from "../editorial/icons";
+import { ClaudeCodeMark, ClaudeMark, CodeXml, CursorMark, Terminal, WindsurfMark } from "../editorial/icons";
 import { Section } from "../editorial/Section";
 import { Wordmark } from "../editorial/Wordmark";
 import { Configurator } from "../install/Configurator";
@@ -31,7 +23,7 @@ const glyphs = Object.fromEntries(
   ]),
 );
 
-/** 07: running in a minute; the wordmark again at the foot. */
+/** 07: install; the wordmark again at the foot. */
 export function Install({
   highlighted,
   client,
@@ -48,21 +40,10 @@ export function Install({
           id="install-title"
           className="col-span-4 text-[36px] leading-[1.1] font-normal tracking-[-0.03em] sm:text-[48px] lg:col-span-5 lg:col-start-2"
         >
-          Running in a minute.
+          Install it.
         </h2>
         <div className="col-span-4 mt-10 min-w-0 lg:col-span-6 lg:col-start-2">
-          <Configurator
-            highlighted={highlighted}
-            value={client}
-            onValueChange={onClient}
-            glyphs={glyphs}
-            after={
-              <span className="inline-flex items-center gap-2 rounded-full border border-dashed border-line px-3.5 py-1.5 text-[14px] font-medium text-muted">
-                <MessageCircle size={16} />
-                ChatGPT · soon
-              </span>
-            }
-          />
+          <Configurator highlighted={highlighted} value={client} onValueChange={onClient} glyphs={glyphs} />
         </div>
         <p className="micro col-span-4 mt-8 text-muted lg:col-start-2">
           macOS · Linux · Windows · MIT · not affiliated with Figma

@@ -5,8 +5,6 @@ export interface Product {
   name: string;
   extension: ".fig" | ".deck" | ".jam" | ".site";
   summary: string;
-  /** The roadmap rows that built and proved it. */
-  roadmap: string[];
 }
 
 export interface Prompt {

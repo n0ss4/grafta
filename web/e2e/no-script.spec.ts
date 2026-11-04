@@ -12,7 +12,7 @@ test("home", async ({ page }) => {
   );
   await expect(hero.getByText(/· poster-\w+\.fig/)).toBeVisible();
   await expect(page.locator("#compare article")).toHaveCount(2);
-  await expect(page.locator("#faq details")).toHaveCount(8);
+  await expect(page.locator("#faq details")).toHaveCount(10);
   await page.locator("#faq summary").first().click();
   await expect(page.locator("#faq details").first()).toHaveAttribute("open", "");
 });

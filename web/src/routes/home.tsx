@@ -12,9 +12,9 @@ import type { Route } from "./+types/home";
 
 export const meta: Route.MetaFunction = () => [
   ...pageMeta({
-    title: "grafta · Your agent, inside your Figma files",
+    title: "grafta · Your agent, on your Figma files",
     description:
-      "Your agent, inside your Figma files: an open-source MCP server for Claude Code, Codex and Cursor that reads and writes .fig, .deck, .jam and .site files on your disk, exactly, with no Figma account.",
+      "An open-source MCP server that lets your AI agent read and edit Figma files on your disk, offline, with no account: .fig, .deck, .jam and .site.",
     path: "/",
   }),
   {

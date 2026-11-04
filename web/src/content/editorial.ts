@@ -2,17 +2,24 @@
 // where it was measured.
 
 export const principles = [
-  { title: "Exact", text: "Every figure from the file's bytes. No heuristics, no model, no estimate." },
-  { title: "Offline", text: "No account, no API key, no network call. Your files stay yours." },
+  { title: "Exact", text: "What it reads comes from the file's bytes, not from a guess or a model." },
+  {
+    title: "Offline",
+    text: "No account, no API key, no network call of its own. It works on files on your disk.",
+  },
   { title: "Whole", text: "Design, Slides, FigJam and Sites files: one toolkit, the same calls." },
   { title: "Honest", text: "A cut result names what is missing; a picture, what it drew approximately." },
 ] as const;
 
-/** Figma's MCP server as its documentation describes it on 30 October 2026 (help.figma.com, developers.figma.com). */
+/** Figma's MCP server as its documentation describes it on 4 November 2026 (developers.figma.com). */
 export const comparison = [
   { aspect: "Account", grafta: "None", figma: "A Figma account; a Full seat to write outside drafts" },
   { aspect: "Where", grafta: "Files on your disk", figma: "Files in Figma, live in the app" },
-  { aspect: "Network", grafta: "None: it runs offline", figma: "Through Figma's servers" },
+  {
+    aspect: "Network",
+    grafta: "None: it runs offline",
+    figma: "Through Figma's servers, or its desktop app",
+  },
   {
     aspect: "Cost",
     grafta: "None: no plan, no quota",
@@ -21,7 +28,7 @@ export const comparison = [
   { aspect: "Source", grafta: "Open source, MIT", figma: "Figma's own" },
   {
     aspect: "Best for",
-    grafta: "Batch work, CI, big files, any agent",
+    grafta: "Files on your disk, repeated edits, working with no Figma seat",
     figma: "Working live with a file open in Figma",
   },
 ] as const;
@@ -65,10 +72,10 @@ export const jobs = [
   },
 ] as const;
 
-/** Measured designing this page with grafta, on the approved sixth draft. */
+/** One Mac with Apple silicon, the release build of 0.1.0, 4 November 2026, on files anyone can get. */
 export const proof = [
-  { value: 64579, shown: "64,579", label: "nodes of a UI kit, opened in 1.3 s" },
-  { value: 167, shown: "167", label: "texts checked against WCAG AA; one fails, the decorative wordmark" },
-  { value: 110, shown: "110", label: "kit pages removed, so the file holds this design alone" },
-  { value: 10.9, shown: "10.9 MB", label: "from 132 MB, once the kit's unused images were dropped" },
+  { value: 64579, shown: "64,579", label: "nodes of the Untitled UI kit, opened in about 1 s" },
+  { value: 313068, shown: "313,068", label: "nodes of the 86 MB Nuxt UI kit, opened in about 7 s" },
+  { value: 5.5, shown: "5.5 GB", label: "of memory to hold that kit open: a large file costs a lot" },
+  { value: 0.02, shown: "0.02 s", label: "for 100 new frames in Material 3's 82,645 nodes, once open" },
 ] as const;
