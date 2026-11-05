@@ -308,6 +308,19 @@ fn a_save_that_fails_leaves_the_edits_to_recover() {
 }
 
 #[test]
+fn a_journal_holding_an_argument_since_refused_still_replays() {
+    let dir = Journals::new();
+    let (mut kit, handle, _) = start(&dir, BASE, true);
+    call(&mut kit, "create_frame", json!({ "handle": handle, "parent": "1:1", "name": "Old", "x": 0, "y": 0, "width": 100, "height": 50 })).unwrap();
+    let path = journal(&kit, &handle, &dir);
+    drop(kit);
+    let text = dir.text(&path).unwrap().replace("\"name\":\"Old\"", "\"name\":\"Old\",\"fills\":[]");
+    assert!(text.contains("fills"));
+    dir.write(&path, &text);
+    assert_eq!(start(&dir, BASE, true).2.unwrap(), json!({ "edits": 1 }));
+}
+
+#[test]
 fn a_toolkit_without_a_journal_writes_none() {
     let dir = Journals::new();
     let mut kit = crate::with_ports(dir.ports(), None);
