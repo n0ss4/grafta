@@ -2265,6 +2265,33 @@ fn a_direct_value_or_null_detaches_a_style() {
 }
 
 #[test]
+fn a_style_detached_keeps_the_runs_and_one_applied_replaces_their_fills() {
+    let (mut kit, handle) = kit();
+    styles(&mut kit, &handle);
+    call(&mut kit, "create_style", json!({ "handle": handle, "name": "Ink", "type": "FILL", "fills": [{ "type": "SOLID", "color": "#111111" }] })).unwrap();
+    let runs = json!([{ "characters": "Plain " }, { "characters": "red", "fills": [{ "type": "SOLID", "color": "#FF0000" }] }]);
+    let title = text(&mut kit, &handle, json!({ "parent": "1:1", "runs": runs })).unwrap()["id"].as_str().unwrap().to_string();
+    set(&mut kit, &handle, &title, json!({ "textStyle": "Heading/L", "fillStyle": "Ink" })).unwrap();
+    // Applying a fill style is set on the whole layer, so it takes the runs' fills.
+    assert!(read(&mut kit, &handle, &title).get("runs").is_none());
+
+    set(&mut kit, &handle, &title, json!({ "runs": runs })).unwrap();
+    for detach in [json!({ "textStyle": null }), json!({ "fillStyle": null })] {
+        set(&mut kit, &handle, &title, detach.clone()).unwrap();
+        let node = read(&mut kit, &handle, &title);
+        assert_eq!(node["runs"][1]["fills"][0]["color"], "#FF0000", "after {detach}: {node}");
+        assert_eq!(node["fills"][0]["color"], "#111111", "after {detach}: a detached node keeps the values");
+    }
+    assert!(read(&mut kit, &handle, &title).get("fillStyle").is_none());
+
+    // Together, as a kit's styles are cleared.
+    set(&mut kit, &handle, &title, json!({ "textStyle": "Heading/L", "fillStyle": "Ink" })).unwrap();
+    set(&mut kit, &handle, &title, json!({ "runs": runs })).unwrap();
+    set(&mut kit, &handle, &title, json!({ "textStyle": null, "fillStyle": null })).unwrap();
+    assert_eq!(read(&mut kit, &handle, &title)["runs"][1]["fills"][0]["color"], "#FF0000");
+}
+
+#[test]
 fn a_changed_style_shows_on_every_node_using_it() {
     let (mut kit, handle) = kit();
     styles(&mut kit, &handle);
