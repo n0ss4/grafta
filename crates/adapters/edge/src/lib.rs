@@ -134,6 +134,11 @@ pub fn call(kit: &mut Toolkit, name: &str, args: &Value) -> Result<Output, ToolE
     for handle in edited_handles {
         journal::record(kit, handle.as_str(), name, args, &output)?;
     }
+    if name == write::SaveAs.name() {
+        if let (Some(handle), Some(path)) = (args.get("handle").and_then(Value::as_str), args.get("path").and_then(Value::as_str)) {
+            journal::mark_saved(kit, handle, path)?;
+        }
+    }
     // A file the call opened has its journal replayed now, after the call and
     // outside its unit, so the replayed edits are not journaled as the call's.
     let waiting: Vec<(crate::Handle, bool)> = kit.sessions_mut().filter_map(|s| s.recovery.take().map(|r| (s.handle.clone(), r))).collect();

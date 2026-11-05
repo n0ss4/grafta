@@ -11,11 +11,28 @@ use crate::Base;
 use crate::tests::{call, document};
 use crate::port::disk::Render;
 use crate::port::memory::{FixedFaces, Memory, MemoryJournal};
-use crate::port::{DocumentStore, Journal, Ports};
+use crate::port::{Codec, DocumentStore, Journal, Ports};
+use figfile::{Difference, FigFile};
 use crate::{ToolError, Toolkit};
 
 const FILE: &str = "/tmp/hand-built.fig";
 const BASE: Base = Base { bytes: 1000, fnv: 0xfeed };
+
+/// A save of the hand-built document, which has no schema to encode by. What a
+/// save writes is not what these tests are about, only that it happened.
+struct Saves;
+
+impl Codec for Saves {
+    fn decode(&self, _: &[u8]) -> Result<FigFile, String> {
+        Ok(document())
+    }
+    fn encode(&self, _: &FigFile) -> Result<Vec<u8>, String> {
+        Ok(b"saved".to_vec())
+    }
+    fn compare(&self, _: &FigFile, _: &FigFile) -> Option<Difference> {
+        None
+    }
+}
 
 /// One test's journals and files, in memory, kept from one server to the next.
 struct Journals {
@@ -30,7 +47,7 @@ impl Journals {
     }
 
     fn ports(&self) -> Ports {
-        Ports { raster: Arc::new(Render), ..crate::port::memory::ports(&self.store, &self.kept, FixedFaces::default()) }
+        Ports { raster: Arc::new(Render), codec: Arc::new(Saves), ..crate::port::memory::ports(&self.store, &self.kept, FixedFaces::default()) }
     }
 
     fn text(&self, path: &Path) -> Option<String> {
@@ -50,7 +67,10 @@ impl Journals {
 /// recovered, if anything.
 fn start(dir: &Journals, base: Base, recovering: bool) -> (Toolkit, String, Option<Value>) {
     let mut kit = crate::with_ports(dir.ports(), Some(dir.dir.clone()));
-    let handle = kit.insert_with_base(PathBuf::from(FILE), document(), base).unwrap().handle.to_string();
+    // With the two entries a save asks for.
+    let mut fig = document();
+    fig.other_entries = vec![("thumbnail.png".into(), b"a picture".to_vec()), ("meta.json".into(), b"{}".to_vec())];
+    let handle = kit.insert_with_base(PathBuf::from(FILE), fig, base).unwrap().handle.to_string();
     let recovered = recover(&mut kit, &handle, recovering).unwrap().map(|r| crate::edge::data::to_json(&r));
     (kit, handle, recovered)
 }
@@ -190,6 +210,101 @@ fn declining_to_recover_and_closing_both_discard_the_edits() {
     assert!(!dir.exists(&path));
     let (_, _, recovered) = start(&dir, BASE, true);
     assert_eq!(recovered, None);
+}
+
+#[test]
+fn edits_saved_elsewhere_are_not_recovered_and_the_source_opens_as_it_is() {
+    let dir = Journals::new();
+    let (mut kit, handle, _) = start(&dir, BASE, true);
+    let id = edit(&mut kit, &handle);
+    call(&mut kit, "save_as", json!({ "handle": handle, "path": "/memory/elsewhere.fig" })).unwrap();
+    let path = journal(&kit, &handle, &dir);
+    drop(kit);
+
+    let (mut kit, handle, recovered) = start(&dir, BASE, true);
+    assert_eq!(recovered, Some(json!({ "edits": 0, "already_saved": { "edits": 3, "path": "/memory/elsewhere.fig" } })));
+    assert!(!dir.exists(&path), "nothing is left to recover");
+    assert_eq!(kit.session(&handle).unwrap().edits, 0);
+    assert!(call(&mut kit, "read_node", json!({ "handle": handle, "id": id })).is_err(), "the source is as it is on disk");
+}
+
+#[test]
+fn an_edit_after_a_save_brings_back_all_it_depends_on() {
+    let dir = Journals::new();
+    let (mut kit, handle, _) = start(&dir, BASE, true);
+    let id = edit(&mut kit, &handle);
+    call(&mut kit, "save_as", json!({ "handle": handle, "path": "/memory/first.fig" })).unwrap();
+    call(&mut kit, "set_properties", json!({ "handle": handle, "id": id, "properties": { "name": "After" } })).unwrap();
+    drop(kit);
+
+    let (mut kit, handle, recovered) = start(&dir, BASE, true);
+    assert_eq!(recovered.unwrap()["edits"], 4);
+    assert_eq!(call(&mut kit, "read_node", json!({ "handle": handle, "id": id })).unwrap()["name"], "After");
+
+    // Saved again, there is nothing left to recover.
+    call(&mut kit, "save_as", json!({ "handle": handle, "path": "/memory/second.fig" })).unwrap();
+    drop(kit);
+    let again = start(&dir, BASE, true).2.unwrap();
+    assert_eq!(again["edits"], 0);
+    assert_eq!(again["already_saved"], json!({ "edits": 4, "path": "/memory/second.fig" }));
+}
+
+#[test]
+fn an_edit_torn_after_a_save_is_dropped_and_said_and_the_rest_is_saved() {
+    let dir = Journals::new();
+    let (mut kit, handle, _) = start(&dir, BASE, true);
+    edit(&mut kit, &handle);
+    call(&mut kit, "save_as", json!({ "handle": handle, "path": "/memory/saved.fig" })).unwrap();
+    let path = journal(&kit, &handle, &dir);
+    drop(kit);
+    let whole = dir.text(&path).unwrap();
+    dir.write(&path, &format!("{whole}{{\"tool\":\"crea"));
+
+    let recovered = start(&dir, BASE, true).2.unwrap();
+    assert_eq!(recovered["edits"], 0);
+    assert_eq!(recovered["already_saved"]["edits"], 3);
+    assert_eq!(recovered["dropped"]["entries"], 1);
+    assert!(!dir.exists(&path));
+}
+
+#[test]
+fn edits_all_saved_are_not_set_aside_when_the_source_has_changed() {
+    let dir = Journals::new();
+    let (mut kit, handle, _) = start(&dir, BASE, true);
+    edit(&mut kit, &handle);
+    call(&mut kit, "save_as", json!({ "handle": handle, "path": "/memory/saved.fig" })).unwrap();
+    drop(kit);
+    let recovered = start(&dir, Base { bytes: 2000, fnv: 0xbeef }, true).2.unwrap();
+    assert_eq!(recovered["already_saved"]["path"], "/memory/saved.fig");
+    assert!(recovered.get("set_aside").is_none(), "{recovered}");
+}
+
+#[test]
+fn declining_to_recover_counts_only_the_edits_it_loses() {
+    let dir = Journals::new();
+    let (mut kit, handle, _) = start(&dir, BASE, true);
+    let id = edit(&mut kit, &handle);
+    call(&mut kit, "save_as", json!({ "handle": handle, "path": "/memory/saved.fig" })).unwrap();
+    drop(kit);
+    assert_eq!(start(&dir, BASE, false).2.unwrap()["discarded"], 0);
+
+    let (mut kit, handle, _) = start(&dir, BASE, true);
+    let id2 = edit(&mut kit, &handle);
+    assert_eq!(id, id2);
+    call(&mut kit, "save_as", json!({ "handle": handle, "path": "/memory/again.fig" })).unwrap();
+    call(&mut kit, "set_properties", json!({ "handle": handle, "id": id, "properties": { "name": "After" } })).unwrap();
+    drop(kit);
+    assert_eq!(start(&dir, BASE, false).2.unwrap()["discarded"], 4);
+}
+
+#[test]
+fn a_save_that_fails_leaves_the_edits_to_recover() {
+    let dir = Journals::new();
+    let (mut kit, handle, _) = start(&dir, BASE, true);
+    edit(&mut kit, &handle);
+    assert!(call(&mut kit, "save_as", json!({ "handle": handle, "path": "/memory/not-a-figma-name.txt" })).is_err());
+    drop(kit);
+    assert_eq!(start(&dir, BASE, true).2.unwrap()["edits"], 3);
 }
 
 #[test]
