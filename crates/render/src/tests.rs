@@ -929,6 +929,67 @@ fn a_gradient_text_fill_or_nothing_behind_is_unmeasured_not_guessed() {
     assert!(c.ratio.is_none() && c.sample.unmeasurable.as_deref().unwrap().contains("nothing is painted"), "{c:?}");
 }
 
+/// A run from `start` to `end` in `colour`.
+fn coloured(start: usize, end: usize, colour: model::Color) -> model::TextRun {
+    model::TextRun { start, end, fills: Some(vec![solid(colour)]), ..model::TextRun::default() }
+}
+
+/// Light text on black, its layer's fill black as `create_text` leaves it.
+fn on_black(text: &str, runs: Vec<model::TextRun>) -> SceneGraph {
+    let mut graph = text_on_white(rgb(0, 0, 0), 14.0).build();
+    graph.nodes.get_mut(&guid("1:1")).unwrap().fills = vec![solid(rgb(0, 0, 0))];
+    let label = graph.nodes.get_mut(&guid("1:3")).unwrap();
+    label.text = Some(text.into());
+    label.text_runs = runs;
+    graph
+}
+
+#[test]
+fn a_layer_colour_every_character_has_a_run_over_is_not_measured() {
+    let c = contrast_of(&on_black("Label", vec![coloured(0, 5, rgb(255, 255, 255))]));
+    assert_eq!(c.foreground.as_deref(), Some("#FFFFFF"), "{c:?}");
+    assert!((c.ratio.unwrap() - 21.0).abs() < 0.01, "{c:?}");
+}
+
+#[test]
+fn the_lowest_run_is_the_ratio_and_spaces_between_runs_show_no_colour() {
+    let c = contrast_of(&on_black("one two", vec![coloured(0, 3, rgb(255, 255, 255)), coloured(4, 7, rgb(0x33, 0x33, 0x33))]));
+    assert_eq!(c.foreground.as_deref(), Some("#333333"), "{c:?}");
+}
+
+#[test]
+fn a_character_no_run_covers_is_measured_in_the_layers_colour() {
+    let c = contrast_of(&on_black("Label", vec![coloured(0, 4, rgb(255, 255, 255))]));
+    assert_eq!(c.foreground.as_deref(), Some("#000000"), "{c:?}");
+    assert!((c.ratio.unwrap() - 1.0).abs() < 0.01, "{c:?}");
+}
+
+#[test]
+fn a_run_over_only_a_space_or_with_no_visible_fill_shows_no_colour_of_its_own() {
+    let c = contrast_of(&on_black("a b", vec![coloured(0, 1, rgb(255, 255, 255)), coloured(1, 2, rgb(0, 0, 0)), coloured(2, 3, rgb(255, 255, 255))]));
+    assert_eq!(c.foreground.as_deref(), Some("#FFFFFF"), "{c:?}");
+
+    let mut hidden = coloured(0, 5, rgb(255, 255, 255));
+    hidden.fills.as_mut().unwrap()[0].visible = false;
+    let c = contrast_of(&on_black("Label", vec![hidden]));
+    assert_eq!(c.foreground.as_deref(), Some("#000000"), "{c:?}");
+}
+
+#[test]
+fn a_large_run_over_every_character_makes_the_text_large() {
+    let mut run = coloured(0, 5, rgb(255, 255, 255));
+    run.font_size = Some(32.0);
+    let c = contrast_of(&on_black("Label", vec![run]));
+    assert!((c.required - 3.0).abs() < 0.001, "{c:?}");
+}
+
+#[test]
+fn run_offsets_count_utf16_units() {
+    // The emoji is two units, so the run over "b" starts at 3.
+    let c = contrast_of(&on_black("\u{1F600}ab", vec![coloured(0, 3, rgb(255, 255, 255)), coloured(3, 4, rgb(0x33, 0x33, 0x33))]));
+    assert_eq!(c.foreground.as_deref(), Some("#333333"), "{c:?}");
+}
+
 #[test]
 fn a_background_of_two_colours_gives_the_lower_ratio_and_says_it_varies() {
     let graph = text_on_white(rgb(0x55, 0x55, 0x55), 14.0)
