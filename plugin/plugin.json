@@ -1,0 +1,24 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "grafta",
+  "version": "0.1.1",
+  "description": "Read and write Figma .fig files, exactly and offline: an MCP server with 43 tools, and a skill for using them well.",
+  "author": { "name": "Nossair Ghazouani", "url": "https://github.com/n0ss4" },
+  "homepage": "https://n0ss4.github.io/grafta",
+  "repository": "https://github.com/n0ss4/grafta",
+  "license": "MIT",
+  "keywords": ["figma", "fig", "design", "mcp", "design-system"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "grafta",
+        "shortDescription": "Read and write Figma .fig files, offline",
+        "developerName": "Nossair Ghazouani",
+        "category": "Design",
+        "capabilities": ["Read", "Write"],
+        "websiteURL": "https://n0ss4.github.io/grafta",
+        "defaultPrompt": ["Summarize the pages and components of this .fig file."]
+      }
+    }
+  }
+}
