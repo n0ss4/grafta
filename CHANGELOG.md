@@ -4,6 +4,16 @@ What changed for someone using grafta, newest first. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.1](https://github.com/n0ss4/grafta/compare/v0.1.0...v0.1.1) (2026-11-05)
+
+
+### Fixed
+
+* **contrast:** measure only the colours a text shows ([bd79780](https://github.com/n0ss4/grafta/commit/bd79780966663d5e246e2f7435c6330ff5ee4bfa))
+* **journal:** edits saved elsewhere are not recovered into the source ([bd79780](https://github.com/n0ss4/grafta/commit/bd79780966663d5e246e2f7435c6330ff5ee4bfa))
+* **style:** fillStyle null keeps the colours of a text's runs ([bd79780](https://github.com/n0ss4/grafta/commit/bd79780966663d5e246e2f7435c6330ff5ee4bfa))
+* **tools:** refuse an argument a tool does not take ([bd79780](https://github.com/n0ss4/grafta/commit/bd79780966663d5e246e2f7435c6330ff5ee4bfa))
+
 ## [0.1.0] - 2026-11-04
 
 The first release.
