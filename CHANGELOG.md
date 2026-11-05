@@ -4,27 +4,6 @@ What changed for someone using grafta, newest first. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
-
-### Changed
-
-- **An argument a tool does not take is refused.** `create_frame` with `fills`,
-  or `render_node` with `path`, used to report success and ignore it, so a model
-  believed it was applied. The refusal names what the tool takes, and nothing is
-  done. A batch or client passing such an argument now fails where it passed.
-
-### Fixed
-
-- **`check_contrast` measures only the colours a text shows.** A layer's colour
-  that runs cover, as `create_text` leaves black under coloured runs, no longer
-  fails the text, and a large run over every character counts it as large.
-- **`fillStyle: null` keeps the colours of a text's runs.** Detaching changes no
-  character's colour; applying a fill style still sets the whole layer.
-- **Edits saved with `save_as` are not recovered into the source.** Opening the
-  source again gives the file as it is on disk, and `recovered.already_saved` says
-  where the edits went. An edit made after the save, not saved anywhere, still
-  brings back the whole session.
-
 ## [0.1.0] - 2026-11-04
 
 The first release.

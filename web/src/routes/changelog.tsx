@@ -16,7 +16,7 @@ export async function loader() {
   const source = await readFile(new URL("../../../CHANGELOG.md", import.meta.url), "utf-8");
   const body = source
     .replace(/^# Changelog\s*/, "")
-    .replace(/^## \[([^\]]+)\]/gm, "## $1")
+    .replace(/^## \[([^\]]+)\](\([^)]*\))?/gm, "## $1")
     .replace(/\]\((docs\/[^)]+)\)/g, "](https://github.com/n0ss4/grafta/blob/main/$1)");
   return { html: await marked.parse(body) };
 }

@@ -1,0 +1,58 @@
+# What the version is worked out from: a branch named for its type, and a title and
+# commits in Conventional Commits. See docs/CONTRIBUTING.md.
+name: conventions
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  conventions:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - env:
+          BRANCH: ${{ github.head_ref }}
+          TARGET: ${{ github.base_ref }}
+          TITLE: ${{ github.event.pull_request.title }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          types='feat|fix|perf|docs|chore|ci|refactor|test|build|style|revert'
+          subject="^($types)(\([a-z0-9._/-]+\))?!?: .+"
+          failed=0
+
+          # main is reached only from develop and by the release pull request.
+          case "$BRANCH" in
+            release-please--*)
+              [ "$TARGET" = main ] || { echo "::error::$BRANCH goes into main, not $TARGET"; failed=1; }
+              ;;
+            develop)
+              [ "$TARGET" = main ] || { echo "::error::develop goes into main, not $TARGET"; failed=1; }
+              # What it holds was checked on its way in, and the title is free.
+              exit "$failed"
+              ;;
+            *)
+              [ "$TARGET" != main ] || { echo "::error::a pull request into main comes from develop; this one is from $BRANCH"; failed=1; }
+              printf '%s' "$BRANCH" | grep -Eq "^($types)/[a-z0-9._/-]+$" \
+                || { echo "::error::branch \"$BRANCH\" should be <type>/<short-description>, of: $types"; failed=1; }
+              ;;
+          esac
+
+          printf '%s' "$TITLE" | grep -Eq "$subject" \
+            || { echo "::error::title \"$TITLE\" should be <type>(<scope>): <summary>, of: $types"; failed=1; }
+
+          while IFS= read -r commit; do
+            [ -n "$commit" ] || continue
+            printf '%s' "$commit" | grep -Eq "$subject" \
+              || { echo "::error::commit \"$commit\" should be <type>(<scope>): <summary>, of: $types"; failed=1; }
+          done <<EOF
+          $(git log --no-merges --format=%s "$BASE..$HEAD" | sed 's/^ *//')
+          EOF
+
+          exit "$failed"
