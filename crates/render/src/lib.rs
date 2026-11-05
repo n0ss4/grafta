@@ -442,19 +442,21 @@ impl<'a> Svg<'a> {
                 }
             }
         };
-        colours(fills, style.font_size, style.font_weight, &mut runs);
-        if override_text.is_none() {
-            for run in &node.text_runs {
-                let size = run.font_size.unwrap_or(style.font_size);
-                let weight = run.font_style.as_deref().map_or(style.font_weight, model::style_to_weight);
-                match &run.fills {
-                    Some(paints) => colours(paints, size, weight, &mut runs),
-                    None if size != style.font_size || weight != style.font_weight => {
-                        let layer: Vec<Fill> = fills.to_vec();
-                        colours(&layer, size, weight, &mut runs);
-                    }
-                    None => {}
-                }
+        // Only what is drawn is measured: a layer's colour no character shows,
+        // or a run's over nothing but spaces, is no colour of this text.
+        let text_runs: &[model::TextRun] = if override_text.is_none() { &node.text_runs } else { &[] };
+        let (layer_shows, shown) = colours_shown(override_text.or(node.text.as_deref()).unwrap_or_default(), text_runs);
+        if layer_shows {
+            colours(fills, style.font_size, style.font_weight, &mut runs);
+        }
+        for (run, _) in text_runs.iter().zip(&shown).filter(|(_, shown)| **shown) {
+            let size = run.font_size.unwrap_or(style.font_size);
+            let weight = run.font_style.as_deref().map_or(style.font_weight, model::style_to_weight);
+            // A run with no visible fill of its own is drawn in the layer's.
+            match run.fills.as_deref().filter(|paints| paints.iter().any(|p| p.visible)) {
+                Some(paints) => colours(paints, size, weight, &mut runs),
+                None if !layer_shows || size != style.font_size || weight != style.font_weight => colours(fills, size, weight, &mut runs),
+                None => {}
             }
         }
         if runs.is_empty() && unmeasurable.is_none() {
@@ -2126,4 +2128,24 @@ fn absolute(graph: &SceneGraph, id: Guid) -> (f32, f32) {
         at = node.parent_id.and_then(|p| graph.node(p));
     }
     (x, y)
+}
+
+/// Which colours of a text reach a visible character: whether the layer's does,
+/// and each run's. Run offsets count UTF-16 units. A text with nothing visible
+/// shows the layer's, so it is still reported rather than passed over.
+fn colours_shown(characters: &str, runs: &[model::TextRun]) -> (bool, Vec<bool>) {
+    let mut shown = vec![false; runs.len()];
+    let mut layer = false;
+    let mut offset = 0;
+    for c in characters.chars() {
+        if !c.is_whitespace() {
+            // The first run holding it, as `layout` draws it.
+            match runs.iter().position(|run| (run.start..run.end).contains(&offset)) {
+                Some(run) => shown[run] = true,
+                None => layer = true,
+            }
+        }
+        offset += c.len_utf16();
+    }
+    (layer || !shown.contains(&true), shown)
 }
