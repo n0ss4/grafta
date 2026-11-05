@@ -245,7 +245,12 @@ pub fn text_properties(
     }
     // A style set on the whole layer applies to every character (D8).
     if !properties.contains_key("runs") {
-        let fields: Vec<Field> = properties.keys().flat_map(|k| run_fields_of(k).iter().copied()).collect();
+        // Detaching a fill style changes no character's colour, so runs keep theirs.
+        let fields: Vec<Field> = properties
+            .iter()
+            .filter(|(key, value)| !(key.as_str() == "fillStyle" && value.is_null()))
+            .flat_map(|(key, _)| run_fields_of(key).iter().copied())
+            .collect();
         if !fields.is_empty() && has_runs(data.as_ref().unwrap_or(&current)) {
             strip_runs(data.get_or_insert_with(|| current.clone()), &fields);
         }

@@ -65,6 +65,9 @@ pub enum DomainError {
     NoSuchTool { name: String, tools: Vec<&'static str> },
     /// The arguments were not a JSON object.
     ArgumentsNotAnObject { got: String },
+    /// An argument the tool does not take: without this it would do nothing,
+    /// and the call would still report success.
+    UnknownArgument { tool: &'static str, argument: String, takes: Vec<String> },
     /// A parameter a call must carry is missing.
     Required { parameter: String },
     /// A parameter of the wrong kind or out of its range.
@@ -242,6 +245,7 @@ impl DomainError {
     fn kind(&self) -> Kind {
         match self {
             Self::ArgumentsNotAnObject { .. }
+            | Self::UnknownArgument { .. }
             | Self::Required { .. }
             | Self::Expected { .. }
             | Self::NotACursor { .. }
@@ -320,6 +324,9 @@ impl fmt::Display for DomainError {
         match self {
             Self::NoSuchTool { name, tools } => write!(f, "no tool named `{name}`. The tools are: {}", tools.join(", ")),
             Self::ArgumentsNotAnObject { got } => write!(f, "arguments must be a JSON object, got {got}"),
+            Self::UnknownArgument { tool, argument, takes } => {
+                write!(f, "{tool} has no argument \"{argument}\", and nothing was done. It takes: {}", takes.join(", "))
+            }
             Self::Required { parameter } => write!(f, "parameter \"{parameter}\" is required"),
             Self::Expected { parameter, expected, got } => {
                 write!(f, "parameter \"{parameter}\": expected {expected}, got {got}")

@@ -38,7 +38,7 @@ impl Tool for OpenFile {
          path that is already open returns the same handle without reading it again. \
          Large files take seconds to open; every later call on the handle is fast. Edits the \
          file had not saved when grafta last stopped are replayed, and `recovered` says how \
-         many."
+         many; edits all saved to another file are not, and it says which file."
     }
     fn input_schema(&self) -> Value {
         schema(

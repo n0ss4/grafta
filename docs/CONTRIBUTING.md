@@ -70,18 +70,49 @@ scripts/record-code.sh <work dir> docs/showcase/recordings/075   # the sessions,
 python3 docs/showcase/transcripts_site.py docs/showcase/recordings/075 web   # the recordings into the site
 ```
 
-## Releasing
+## Branches and commits
 
-One version names every channel; `Cargo.toml`'s `[workspace.package]` is the
-source.
-
-```bash
-scripts/set-version.sh 0.2.0      # Cargo.toml, npm packages, plugin, marketplace
-cargo update -w                   # refresh Cargo.lock
-git commit -am "chore: release 0.2.0" && git tag v0.2.0 && git push --tags
+```
+feat/… fix/… docs/… → develop → main → v* tag
 ```
 
-`.github/workflows/release.yml` then checks the version against the tag, builds
+Work goes on a branch named for its type, with a pull request into `develop`, the
+default branch. `main` is what is released: it moves only when `develop` is merged
+into it, and by the release pull request.
+
+Pull request titles follow [Conventional Commits](https://www.conventionalcommits.org/),
+and are squashed into `develop`, so each pull request is one commit whose title gives
+the next version. `develop` is merged into `main` with a merge commit, keeping them
+apart. `conventions.yml` checks the branch, the title and the target.
+
+| Type | Next version | CI |
+|---|---|---|
+| `feat` | minor: 0.1.0 → 0.2.0 | runs |
+| `fix`, `perf` | patch: 0.1.0 → 0.1.1 | runs |
+| `feat!`, or a `BREAKING CHANGE:` footer | minor before 1.0, major after | runs |
+| `docs`, `chore`, `ci`, `refactor`, `test`, `build`, `style` | none | runs, unless only prose changed |
+
+A commit that touches nothing but `web/` or `docs/` makes no release, whatever its
+type: the website deploys from `main` by itself. CI skips a change to nothing but
+the prose listed in `ci.yml`; `ci` is the one check to require.
+
+## Releasing
+
+One version names every channel; `Cargo.toml`'s `[workspace.package]` is the source.
+
+Each push to `main` runs `.github/workflows/release-please.yml`. If it holds a `feat`
+or a `fix`, the workflow opens or updates a release pull request into `main`, with
+the next version in every channel's file (`scripts/set-version.sh`), `Cargo.lock` and
+`CHANGELOG.md`. Nothing is released until that pull request is merged. To force a
+version, add a `Release-As: 1.0.0` footer to the squash message when you merge.
+
+It needs the secret `RELEASE_TOKEN`: a fine-grained token of a repository admin, with
+Contents, Pull requests and Workflows read and write on this repository. Only admins can create
+release tags, and what the default token does starts no other workflow. `main` is
+merged back into `develop` after every push, by the same workflow.
+
+Merging it tags the version and leaves a draft release. `.github/workflows/release.yml`
+then checks the version against the tag, builds
 the five binaries, publishes the GitHub release with `SHA256SUMS`, and runs each
 channel whose secret is set:
 

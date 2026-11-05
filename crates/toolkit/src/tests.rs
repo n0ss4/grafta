@@ -329,6 +329,21 @@ fn a_frame_under_a_text_node_is_refused_as_unmeasured() {
 }
 
 #[test]
+fn an_argument_a_tool_does_not_take_is_refused_and_nothing_is_done() {
+    let (mut kit, handle) = kit();
+    let before = kit.session(&handle).unwrap().edits;
+    let error = call(&mut kit, "create_frame", json!({ "handle": handle, "parent": "1:1", "name": "F", "width": 10, "height": 10, "fills": [] })).unwrap_err();
+    assert!(matches!(&error, ToolError::BadArgument(m) if m.contains("create_frame has no argument \"fills\"") && m.contains("width")), "{error}");
+    assert_eq!(kit.session(&handle).unwrap().edits, before);
+
+    let error = call(&mut kit, "render_node", json!({ "handle": handle, "id": "1:1", "path": "/tmp/x.png" })).unwrap_err();
+    assert!(error.to_string().contains("render_node has no argument \"path\""), "{error}");
+
+    // What a tool's schema names is still taken.
+    call(&mut kit, "create_frame", json!({ "handle": handle, "parent": "1:1", "name": "F", "width": 10, "height": 10 })).unwrap();
+}
+
+#[test]
 fn saving_over_an_existing_file_or_without_the_archive_entries_is_refused() {
     let (mut kit, handle) = kit();
     let existing = put(&kit, "/memory/exists.fig", "x");
@@ -2265,6 +2280,33 @@ fn a_direct_value_or_null_detaches_a_style() {
 }
 
 #[test]
+fn a_style_detached_keeps_the_runs_and_one_applied_replaces_their_fills() {
+    let (mut kit, handle) = kit();
+    styles(&mut kit, &handle);
+    call(&mut kit, "create_style", json!({ "handle": handle, "name": "Ink", "type": "FILL", "fills": [{ "type": "SOLID", "color": "#111111" }] })).unwrap();
+    let runs = json!([{ "characters": "Plain " }, { "characters": "red", "fills": [{ "type": "SOLID", "color": "#FF0000" }] }]);
+    let title = text(&mut kit, &handle, json!({ "parent": "1:1", "runs": runs })).unwrap()["id"].as_str().unwrap().to_string();
+    set(&mut kit, &handle, &title, json!({ "textStyle": "Heading/L", "fillStyle": "Ink" })).unwrap();
+    // Applying a fill style is set on the whole layer, so it takes the runs' fills.
+    assert!(read(&mut kit, &handle, &title).get("runs").is_none());
+
+    set(&mut kit, &handle, &title, json!({ "runs": runs })).unwrap();
+    for detach in [json!({ "textStyle": null }), json!({ "fillStyle": null })] {
+        set(&mut kit, &handle, &title, detach.clone()).unwrap();
+        let node = read(&mut kit, &handle, &title);
+        assert_eq!(node["runs"][1]["fills"][0]["color"], "#FF0000", "after {detach}: {node}");
+        assert_eq!(node["fills"][0]["color"], "#111111", "after {detach}: a detached node keeps the values");
+    }
+    assert!(read(&mut kit, &handle, &title).get("fillStyle").is_none());
+
+    // Together, as a kit's styles are cleared.
+    set(&mut kit, &handle, &title, json!({ "textStyle": "Heading/L", "fillStyle": "Ink" })).unwrap();
+    set(&mut kit, &handle, &title, json!({ "runs": runs })).unwrap();
+    set(&mut kit, &handle, &title, json!({ "textStyle": null, "fillStyle": null })).unwrap();
+    assert_eq!(read(&mut kit, &handle, &title)["runs"][1]["fills"][0]["color"], "#FF0000");
+}
+
+#[test]
 fn a_changed_style_shows_on_every_node_using_it() {
     let (mut kit, handle) = kit();
     styles(&mut kit, &handle);
@@ -3456,7 +3498,7 @@ fn dashes_are_written_on_frames_shapes_and_vectors_and_drawn() {
     assert_eq!(read(&mut kit, &handle, &rect)["dashPattern"], json!([2.0, 2.0]));
     set(&mut kit, &handle, &rect, json!({ "dashPattern": [] })).unwrap();
     assert!(raw_of(&kit, &handle, &rect).get("dashPattern").is_none(), "[] is solid");
-    let vector = call(&mut kit, "create_vector", json!({ "handle": handle, "parent": "1:1", "path": "M0 0L10 10", "viewBox": [0, 0, 10, 10], "size": 24, "strokes": [{ "type": "SOLID", "color": "#000000" }] })).unwrap()["id"].as_str().unwrap().to_string();
+    let vector = call(&mut kit, "create_vector", json!({ "handle": handle, "parent": "1:1", "path": "M0 0L10 10", "viewBox": [0, 0, 10, 10], "strokes": [{ "type": "SOLID", "color": "#000000" }] })).unwrap()["id"].as_str().unwrap().to_string();
     set(&mut kit, &handle, &vector, json!({ "dashPattern": [1, 2, 3, 4] })).unwrap();
     assert_eq!(read(&mut kit, &handle, &vector)["dashPattern"], json!([1.0, 2.0, 3.0, 4.0]));
 }

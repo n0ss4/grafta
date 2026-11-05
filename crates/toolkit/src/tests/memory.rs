@@ -57,10 +57,16 @@ fn a_file_is_edited_journaled_replayed_and_saved_with_no_disk() {
     let Some(store) = fixture_in_memory() else { return };
     let journal = Arc::new(MemoryJournal::default());
 
-    let mut kit = toolkit(&store, &journal);
+    // The same edits, saved in a session of their own, to compare the replay with.
+    let mut kit = toolkit(&store, &Arc::new(MemoryJournal::default()));
     let (handle, _) = open(&mut kit, FILE);
     let id = edit(&mut kit, &handle);
     call(&mut kit, "save_as", json!({ "handle": handle, "path": "/memory/first.fig" })).unwrap();
+    drop(kit);
+
+    let mut kit = toolkit(&store, &journal);
+    let (handle, _) = open(&mut kit, FILE);
+    edit(&mut kit, &handle);
     assert_eq!(journal.all().len(), 1, "one journal, in memory");
     drop(kit);
 

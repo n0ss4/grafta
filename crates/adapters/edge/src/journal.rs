@@ -14,6 +14,11 @@
 //! Nothing is thrown away silently. A journal made on other bytes, a journal
 //! that cannot be read, and the entries after a replay stopped are all set
 //! aside beside the journal, and `open_file` says where.
+//!
+//! A `save_as` marks the journal. Edits with nothing after the last mark are in
+//! the file saved, so the journal is done with and the source opens as it is on
+//! disk, its result saying where they went. An edit after a mark is unsaved, and depends on those before it, so
+//! the whole journal is replayed.
 
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -84,6 +89,25 @@ fn header(session: &Session, base: Base) -> Value {
     json!({ "grafta_journal": VERSION, "path": session.path.display().to_string(), "base": base_json(base) })
 }
 
+/// Mark that `handle`'s journalled edits are in the file saved at `saved`. A
+/// mark that cannot be written costs only a recovery of edits already saved, so
+/// it does not fail a save that succeeded.
+pub(crate) fn mark_saved(kit: &Toolkit, handle: &str, saved: &str) -> Result<(), ToolError> {
+    let (Some(dir), false) = (kit.journal_dir(), kit.replaying()) else { return Ok(()) };
+    let session = kit.session(handle)?;
+    let Some(base) = session.base else { return Ok(()) };
+    let path = path_for(dir, session);
+    if session.ports.journal.read(&path).is_some() {
+        let _ = session.ports.journal.append(&path, &header(session, base).to_string(), &json!({ "saved": saved }).to_string());
+    }
+    Ok(())
+}
+
+/// Whether a journal's line is a save's mark, not an edit.
+fn is_mark(line: &str) -> bool {
+    serde_json::from_str::<Value>(line).is_ok_and(|entry| entry.get("saved").is_some())
+}
+
 /// Remove a session's journal, when its edits are discarded on purpose.
 pub(crate) fn discard(dir: Option<&Path>, session: &Session) {
     if let Some(dir) = dir {
@@ -122,9 +146,22 @@ fn recovered(kit: &mut Toolkit, handle: &str, recover: bool) -> Result<Option<Va
     let recorded = stored.as_ref().and_then(|h| h.get("base")).and_then(base_from_json);
     let version = stored.as_ref().and_then(|h| h.get("grafta_journal")).and_then(Value::as_u64);
 
+    // A last line that does not parse was being written when the server
+    // stopped. Its result was never returned, so it is dropped and said.
+    let torn = lines.last().is_some_and(|line| serde_json::from_str::<Value>(line).is_err());
+    if torn {
+        lines.pop();
+    }
+    let dropped = json!({
+        "entries": 1,
+        "reason": "the last edit was being journaled when grafta stopped, and its result was never returned",
+    });
+    let all_saved = lines.last().is_some_and(|line| is_mark(line));
+
     if !recover {
         journal.remove(&path);
-        return Ok(Some(json!({ "edits": 0, "discarded": lines.len() })));
+        let discarded = if all_saved { 0 } else { lines.iter().filter(|line| !is_mark(line)).count() + usize::from(torn) };
+        return Ok(Some(json!({ "edits": 0, "discarded": discarded })));
     }
     if version != Some(VERSION) || recorded.is_none() {
         let aside = set_aside(journal.as_ref(), &path, "unreadable", &text)?;
@@ -133,6 +170,18 @@ fn recovered(kit: &mut Toolkit, handle: &str, recover: bool) -> Result<Option<Va
             "set_aside": { "path": aside, "reason": "the journal's header could not be read" },
         })));
     }
+    if all_saved {
+        journal.remove(&path);
+        // Nothing comes back, and the model is told where the edits are.
+        let saved_to = lines.last().and_then(|line| serde_json::from_str::<Value>(line).ok()).and_then(|mark| mark.get("saved").cloned());
+        let edits = lines.iter().filter(|line| !is_mark(line)).count();
+        let mut out = json!({ "edits": 0, "already_saved": { "edits": edits, "path": saved_to } });
+        if torn {
+            out["dropped"] = dropped;
+        }
+        return Ok(Some(out));
+    }
+    lines.retain(|line| !is_mark(line));
     if recorded != Some(base) {
         let was = recorded.expect("checked above");
         let aside = set_aside(journal.as_ref(), &path, "stale", &text)?;
@@ -148,13 +197,6 @@ fn recovered(kit: &mut Toolkit, handle: &str, recover: bool) -> Result<Option<Va
                 ),
             },
         })));
-    }
-
-    // A last line that does not parse was being written when the server
-    // stopped. Its result was never returned, so it is dropped and said.
-    let torn = lines.last().is_some_and(|line| serde_json::from_str::<Value>(line).is_err());
-    if torn {
-        lines.pop();
     }
 
     kit.set_replaying(true);
@@ -174,10 +216,7 @@ fn recovered(kit: &mut Toolkit, handle: &str, recover: bool) -> Result<Option<Va
 
     let mut out = json!({ "edits": replayed });
     if torn {
-        out["dropped"] = json!({
-            "entries": 1,
-            "reason": "the last edit was being journaled when grafta stopped, and its result was never returned",
-        });
+        out["dropped"] = dropped;
     }
     let session = kit.session(handle)?;
     let head = header(session, base).to_string();

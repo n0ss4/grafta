@@ -21,7 +21,7 @@ Pages, counts, and nodes by name or type, with their path.
 
 ### `open_file`
 
-Open a Figma .fig file and keep it open for later calls. Returns a handle and a summary: pages, node counts, components, variable collections, images. Opening a path that is already open returns the same handle without reading it again. Large files take seconds to open; every later call on the handle is fast. Edits the file had not saved when grafta last stopped are replayed, and `recovered` says how many.
+Open a Figma .fig file and keep it open for later calls. Returns a handle and a summary: pages, node counts, components, variable collections, images. Opening a path that is already open returns the same handle without reading it again. Large files take seconds to open; every later call on the handle is fast. Edits the file had not saved when grafta last stopped are replayed, and `recovered` says how many; edits all saved to another file are not, and it says which file.
 
 | Argument | Type | | Description |
 |---|---|---|---|
