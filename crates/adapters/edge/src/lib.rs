@@ -117,6 +117,10 @@ pub fn call(kit: &mut Toolkit, name: &str, args: &Value) -> Result<Output, ToolE
     if !args.is_object() {
         return Err(DomainError::ArgumentsNotAnObject { got: args.to_string() }.into());
     }
+    // A journal made before this check may hold arguments it would refuse.
+    if !kit.replaying() {
+        takes_all_of(tool, args)?;
+    }
     let (mut output, edited_handles) = match run(kit, tool, args) {
         Ok(done) => done,
         Err(error) => {
@@ -148,6 +152,17 @@ pub fn call(kit: &mut Toolkit, name: &str, args: &Value) -> Result<Output, ToolE
         }
     }
     Ok(output)
+}
+
+/// Refuse an argument the tool's schema does not name, which it would ignore.
+fn takes_all_of(tool: &dyn Tool, args: &Value) -> Result<(), ToolError> {
+    let schema = tool.input_schema();
+    let Some(takes) = schema.get("properties").and_then(Value::as_object) else { return Ok(()) };
+    let unknown = args.as_object().and_then(|given| given.keys().find(|key| !takes.contains_key(*key)));
+    match unknown {
+        Some(argument) => Err(DomainError::UnknownArgument { tool: tool.name(), argument: argument.clone(), takes: takes.keys().cloned().collect() }.into()),
+        None => Ok(()),
+    }
 }
 
 /// The call read, then run: a query as it is, a command as a unit of work,

@@ -6,6 +6,13 @@ What changed for someone using grafta, newest first. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- **An argument a tool does not take is refused.** `create_frame` with `fills`,
+  or `render_node` with `path`, used to report success and ignore it, so a model
+  believed it was applied. The refusal names what the tool takes, and nothing is
+  done. A batch or client passing such an argument now fails where it passed.
+
 ### Fixed
 
 - **`check_contrast` measures only the colours a text shows.** A layer's colour
