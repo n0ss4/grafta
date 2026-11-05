@@ -107,7 +107,7 @@ the next version in every channel's file (`scripts/set-version.sh`), `Cargo.lock
 version, add a `Release-As: 1.0.0` footer to the squash message when you merge.
 
 It needs the secret `RELEASE_TOKEN`: a fine-grained token of a repository admin, with
-Contents and Pull requests read and write on this repository. Only admins can create
+Contents, Pull requests and Workflows read and write on this repository. Only admins can create
 release tags, and what the default token does starts no other workflow. `main` is
 merged back into `develop` after every push, by the same workflow.
 
