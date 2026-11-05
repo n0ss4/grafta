@@ -14,6 +14,13 @@ export const clients: Client[] = [
     note: `In Claude Code. Registers the server and teaches the model to use it. ${NODE}`,
   },
   {
+    id: "chatgpt",
+    name: "ChatGPT desktop",
+    kind: "command",
+    snippet: "codex plugin marketplace add n0ss4/grafta@main && codex plugin add grafta@grafta",
+    note: `In a terminal, then restart the app. Or in the app: Settings → MCP servers → Add server → STDIO, with the command npx -y grafta mcp. Desktop only: ChatGPT on the web reads no local server. ${NODE} Not yet tried by us.`,
+  },
+  {
     id: "codex",
     name: "Codex",
     kind: "command",

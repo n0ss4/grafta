@@ -34,6 +34,7 @@
 |---|---|
 | **Claude Desktop** | download [`grafta.mcpb`](https://github.com/n0ss4/grafta/releases/latest/download/grafta.mcpb) and open it |
 | **Claude Code** | `/plugin install grafta --marketplace n0ss4/grafta` |
+| **ChatGPT desktop, Codex** | `codex plugin marketplace add n0ss4/grafta@main && codex plugin add grafta@grafta` |
 | **macOS, Linux** | `curl -fsSL https://raw.githubusercontent.com/n0ss4/grafta/main/install.sh \| sh` |
 | **Homebrew** | `brew install n0ss4/tap/grafta` |
 | **Windows** | `irm https://raw.githubusercontent.com/n0ss4/grafta/main/install.ps1 \| iex` |
@@ -65,8 +66,9 @@ With grafta installed by the script, Homebrew or Cargo, `"command": "grafta", "a
 Prebuilt for macOS (Apple silicon and Intel), Linux (x86_64 and arm64) and
 Windows (x86_64). One self-contained binary. We have run it by hand on a Mac with
 Apple silicon; the tests also pass on Linux and Windows in CI. Claude Code, Cursor,
-VS Code, Windsurf and Codex start it with `npx`, which needs Node.js 18 or newer.
-We have tried Claude Code and Claude Desktop; the others use the same setup.
+VS Code, Windsurf, Codex and the ChatGPT desktop app start it with `npx`, which needs
+Node.js 18 or newer. We have tried Claude Code and Claude Desktop; the others use the
+same setup. ChatGPT on the web reads no local server, so it cannot use grafta yet.
 
 ## Why
 
