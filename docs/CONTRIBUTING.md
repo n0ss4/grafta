@@ -80,9 +80,10 @@ Work goes on a branch named for its type, with a pull request into `develop`, th
 default branch. `main` is what is released: it moves only when `develop` is merged
 into it, and by the release pull request.
 
-Commit messages and pull request titles follow
-[Conventional Commits](https://www.conventionalcommits.org/). A merge commit, not a
-squash, keeps each commit's type for the version. `conventions.yml` checks all of this.
+Pull request titles follow [Conventional Commits](https://www.conventionalcommits.org/),
+and are squashed into `develop`, so each pull request is one commit whose title gives
+the next version. `develop` is merged into `main` with a merge commit, keeping them
+apart. `conventions.yml` checks the branch, the title and the target.
 
 | Type | Next version | CI |
 |---|---|---|
@@ -103,7 +104,7 @@ Each push to `main` runs `.github/workflows/release-please.yml`. If it holds a `
 or a `fix`, the workflow opens or updates a release pull request into `main`, with
 the next version in every channel's file (`scripts/set-version.sh`), `Cargo.lock` and
 `CHANGELOG.md`. Nothing is released until that pull request is merged. To force a
-version, add a `Release-As: 1.0.0` footer to a commit.
+version, add a `Release-As: 1.0.0` footer to the squash message when you merge.
 
 It needs the secret `RELEASE_TOKEN`: a fine-grained token of a repository admin, with
 Contents and Pull requests read and write on this repository. Only admins can create

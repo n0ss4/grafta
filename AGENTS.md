@@ -27,9 +27,8 @@ python3 scripts/tool-reference.py target/release/grafta
 - Branch from `develop` and open pull requests into `develop`. Never into `main`,
   except `develop` itself and the release pull request.
 - Name branches `<type>/<short-description>`: `feat/…`, `fix/…`, `docs/…`.
-- Write commit messages and pull request titles as Conventional Commits. The version
-  comes from them: `feat` is a minor release, `fix` and `perf` a patch, and the other
-  types none.
-- Merge with a merge commit, not a squash, so each commit keeps its type.
+- Write pull request titles as Conventional Commits. The version comes from them:
+  `feat` is a minor release, `fix` and `perf` a patch, and the other types none.
+- Squash pull requests into `develop`. Merge `develop` into `main` with a merge commit.
 - Do not edit `CHANGELOG.md` or the version in any file by hand: the release pull
   request writes both.
