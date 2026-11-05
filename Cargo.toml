@@ -29,7 +29,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/n0ss4/grafta"
@@ -43,23 +43,23 @@ categories = ["command-line-utilities", "parser-implementations", "graphics"]
 # Each is published under a `grafta-` package name, because `model` and
 # `render` are long gone on crates.io — but keeps its short lib name, so every
 # `use model::…` in the workspace reads the same as it always did.
-kiwi = { package = "grafta-kiwi", version = "0.1.0", path = "crates/decode/kiwi" }
-schema = { package = "grafta-schema", version = "0.1.0", path = "crates/decode/schema" }
-figfile = { package = "grafta-figfile", version = "0.1.0", path = "crates/decode/figfile" }
-model = { package = "grafta-model", version = "0.1.0", path = "crates/decode/model" }
-domain = { package = "grafta-domain", version = "0.1.0", path = "crates/core/domain" }
-app = { package = "grafta-app", version = "0.1.0", path = "crates/core/app" }
-design = { package = "grafta-design", version = "0.1.0", path = "crates/products/design" }
-slides = { package = "grafta-slides", version = "0.1.0", path = "crates/products/slides" }
-figjam = { package = "grafta-figjam", version = "0.1.0", path = "crates/products/figjam" }
-sites = { package = "grafta-sites", version = "0.1.0", path = "crates/products/sites" }
-disk = { package = "grafta-disk", version = "0.1.0", path = "crates/adapters/disk" }
-edge = { package = "grafta-edge", version = "0.1.0", path = "crates/adapters/edge" }
-memory = { package = "grafta-memory", version = "0.1.0", path = "crates/adapters/memory" }
+kiwi = { package = "grafta-kiwi", version = "0.1.1", path = "crates/decode/kiwi" }
+schema = { package = "grafta-schema", version = "0.1.1", path = "crates/decode/schema" }
+figfile = { package = "grafta-figfile", version = "0.1.1", path = "crates/decode/figfile" }
+model = { package = "grafta-model", version = "0.1.1", path = "crates/decode/model" }
+domain = { package = "grafta-domain", version = "0.1.1", path = "crates/core/domain" }
+app = { package = "grafta-app", version = "0.1.1", path = "crates/core/app" }
+design = { package = "grafta-design", version = "0.1.1", path = "crates/products/design" }
+slides = { package = "grafta-slides", version = "0.1.1", path = "crates/products/slides" }
+figjam = { package = "grafta-figjam", version = "0.1.1", path = "crates/products/figjam" }
+sites = { package = "grafta-sites", version = "0.1.1", path = "crates/products/sites" }
+disk = { package = "grafta-disk", version = "0.1.1", path = "crates/adapters/disk" }
+edge = { package = "grafta-edge", version = "0.1.1", path = "crates/adapters/edge" }
+memory = { package = "grafta-memory", version = "0.1.1", path = "crates/adapters/memory" }
 testkit = { package = "grafta-testkit", path = "crates/testkit" }
-toolkit = { package = "grafta-toolkit", version = "0.1.0", path = "crates/toolkit" }
-render = { package = "grafta-render", version = "0.1.0", path = "crates/render" }
-mcp = { package = "grafta-mcp", version = "0.1.0", path = "crates/mcp" }
+toolkit = { package = "grafta-toolkit", version = "0.1.1", path = "crates/toolkit" }
+render = { package = "grafta-render", version = "0.1.1", path = "crates/render" }
+mcp = { package = "grafta-mcp", version = "0.1.1", path = "crates/mcp" }
 
 anyhow = "1"
 clap = { version = "4", features = ["derive"] }
