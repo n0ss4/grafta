@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "grafta",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Read and write Figma .fig files, exactly and offline: an MCP server with 43 tools, and a skill for using them well.",
   "author": { "name": "Nossair Ghazouani", "url": "https://github.com/n0ss4" },
   "homepage": "https://n0ss4.github.io/grafta",
