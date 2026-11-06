@@ -4,6 +4,18 @@ What changed for someone using grafta, newest first. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.2.1](https://github.com/n0ss4/grafta/compare/v0.2.0...v0.2.1) (2026-11-06)
+
+
+### Fixed
+
+* **shapes:** take an image paint when a shape or vector is made ([#15](https://github.com/n0ss4/grafta/issues/15)) ([e927895](https://github.com/n0ss4/grafta/commit/e92789528badf494226feadf7799f37ef8011be8))
+
+
+### Changed
+
+* **save:** write the message in zstd, as Figma does ([#16](https://github.com/n0ss4/grafta/issues/16)) ([85db28c](https://github.com/n0ss4/grafta/commit/85db28c069652037cb33f6dcfb3c33a75d22d1ba))
+
 ## [0.2.0](https://github.com/n0ss4/grafta/compare/v0.1.1...v0.2.0) (2026-11-06)
 
 
