@@ -2633,6 +2633,58 @@ fn images_in(kit: &Toolkit, handle: &str) -> usize {
     kit.session(handle).unwrap().fig.images.len()
 }
 
+/// The keys of a frame's children, as the file holds them.
+fn child_keys(kit: &mut Toolkit, handle: &str, parent: &str) -> Vec<String> {
+    let children = call(kit, "read_node", json!({ "handle": handle, "id": parent, "depth": 1 })).unwrap()["children"].as_array().unwrap().clone();
+    children
+        .iter()
+        .map(|child| {
+            let raw = raw_of(kit, handle, child["id"].as_str().unwrap());
+            raw.get("parentIndex").and_then(|p| p.get("position")).and_then(Raw::as_str).unwrap().to_string()
+        })
+        .collect()
+}
+
+/// Each way a child reaches a parent knows of the others, so no two share a key
+/// and the last made is last.
+#[test]
+fn children_made_moved_and_duplicated_each_take_a_key_of_their_own() {
+    let (mut kit, handle) = kit();
+    let parent = created_frame(&mut kit, &handle);
+    let frame = |kit: &mut Toolkit, name: &str, on: &str| {
+        call(kit, "create_frame", json!({ "handle": handle, "parent": on, "name": name, "x": 0, "y": 0, "width": 4, "height": 4 })).unwrap()["id"].as_str().unwrap().to_string()
+    };
+    let first = frame(&mut kit, "first", &parent);
+    let elsewhere = frame(&mut kit, "elsewhere", "1:1");
+    frame(&mut kit, "second", &parent);
+    call(&mut kit, "duplicate_node", json!({ "handle": handle, "id": first, "parent": parent })).unwrap();
+    frame(&mut kit, "third", &parent);
+    call(&mut kit, "move_node", json!({ "handle": handle, "id": elsewhere, "parent": parent })).unwrap();
+    let last = frame(&mut kit, "fourth", &parent);
+
+    let keys = child_keys(&mut kit, &handle, &parent);
+    let mut unique = keys.clone();
+    unique.sort();
+    unique.dedup();
+    assert_eq!(unique.len(), keys.len(), "{keys:?}");
+    let children = call(&mut kit, "read_node", json!({ "handle": handle, "id": parent, "depth": 1 })).unwrap();
+    assert_eq!(children["children"].as_array().unwrap().last().unwrap()["id"].as_str(), Some(last.as_str()), "{keys:?}");
+}
+
+/// A frame's keys cost what its children do, not the square of them.
+#[test]
+fn appended_keys_stay_short() {
+    let (mut kit, handle) = kit();
+    let parent = created_frame(&mut kit, &handle);
+    for _ in 0..500 {
+        call(&mut kit, "create_frame", json!({ "handle": handle, "parent": parent, "name": "f", "x": 0, "y": 0, "width": 4, "height": 4 })).unwrap();
+    }
+    let keys = child_keys(&mut kit, &handle, &parent);
+    assert!(keys.windows(2).all(|pair| pair[0] < pair[1]), "in order");
+    let longest = keys.iter().map(String::len).max().unwrap();
+    assert!(longest < 12, "{longest} characters for 500 children");
+}
+
 #[test]
 fn a_shape_or_vector_made_with_an_image_paint_embeds_it() {
     let (mut kit, handle) = kit();
