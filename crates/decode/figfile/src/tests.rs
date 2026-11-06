@@ -426,12 +426,26 @@ fn a_bounded_read_stops_past_its_limit_and_only_past_it() {
 
 #[test]
 fn a_message_past_its_ratio_is_refused_and_not_taken_for_plain_data() {
-    let zeros = vec![0u8; 8 << 20];
-    let packed = compress::deflate(&zeros).expect("deflates");
-    assert!(packed.len() * 256 + (1 << 20) < zeros.len(), "compresses past the ratio");
+    let zeros = vec![0u8; 64 << 20];
+    let packed = ::zstd::bulk::compress(&zeros, 9).expect("compresses");
+    assert!(packed.len() * 4096 + (1 << 20) < zeros.len(), "compresses past the ratio");
     let error = compress::decompress(&packed).unwrap_err();
     assert!(matches!(error, FigError::TooLarge { what: "the message", .. }), "{error}");
     assert!(error.to_string().contains("bytes"), "{error}");
+}
+
+/// What a page of repeated layers reaches, which 084's ratio of 256 refused.
+#[test]
+fn a_message_of_repeated_layers_is_read() {
+    let body: Vec<u8> = (0..1500).map(|i| (i * 7 % 251) as u8).collect();
+    let mut message = Vec::new();
+    for record in 0..4000u32 {
+        message.extend_from_slice(&record.to_le_bytes());
+        message.extend_from_slice(&body);
+    }
+    let packed = ::zstd::bulk::compress(&message, 9).expect("compresses");
+    assert!(packed.len() * 256 + (1 << 20) < message.len(), "past the old ratio");
+    assert_eq!(compress::decompress(&packed).expect("reads"), message);
 }
 
 #[test]
@@ -443,17 +457,10 @@ fn a_message_within_its_ratio_and_plain_data_are_still_read() {
     assert_eq!(compress::decompress(plain).expect("reads"), plain);
 }
 
-/// Records differing only in a counter, as repeated layers differ in their ids:
-/// zstd packs them past the ratio, and deflate within it.
+/// zstd packs a run of the same bytes past the ratio, and deflate within it.
 #[test]
 fn a_message_too_repetitive_for_zstd_is_still_read_back() {
-    let body: Vec<u8> = (0..5000).map(|i| (i * 7 % 251) as u8).collect();
-    let mut message = Vec::new();
-    for record in 0..4000u32 {
-        message.extend_from_slice(&record.to_le_bytes());
-        message.extend_from_slice(&body);
-    }
-
+    let message = vec![0u8; 64 << 20];
     let chunk = compress::message_chunk(&message).expect("packs");
     assert_ne!(chunk[..4], [0x28, 0xB5, 0x2F, 0xFD], "zstd would be refused here, so this is deflate");
     assert_eq!(compress::decompress(&chunk).expect("reads back"), message);
