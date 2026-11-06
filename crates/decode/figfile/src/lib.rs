@@ -180,7 +180,8 @@ pub fn parse_canvas(canvas: &[u8], images: Vec<(String, Vec<u8>)>) -> Result<Fig
     let schema = kiwi::decode_binary_schema(&schema_bytes)?;
 
     let data_bytes = compress::decompress(container.message_chunk)?;
-    let node_changes = kiwi::decode_message("Message", &data_bytes, &schema)?;
+    let most = compress::most_values(container.message_chunk.len());
+    let node_changes = kiwi::decode_message_within("Message", &data_bytes, &schema, most)?;
 
     let blobs = extract_blobs(&node_changes);
 

@@ -16,6 +16,44 @@ use testkit::model;
 
 // ── Against real files ───────────────────────────────────────────────────────
 
+/// A run of empty structs, the most memory a byte of a crafted file can ask for,
+/// with noise to pass the ratio of bytes, in the schema of a real file. Its
+/// bytes alone would allow three times the values its packed size does.
+#[test]
+fn a_small_chunk_of_many_values_is_refused_by_its_packed_size() {
+    let Some(template) = testkit::fixture::parsed("gold-preview.fig") else { return };
+    let tag = template.schema.find_definition("Message").unwrap().fields.iter().find(|f| f.name == "nodeChanges").unwrap().value;
+    assert!(tag < 128);
+    let count: u32 = 64 << 20;
+    let mut message = vec![tag as u8];
+    let mut left = count;
+    while left > 127 {
+        message.push((left & 127) as u8 | 128);
+        left >>= 7;
+    }
+    message.push(left as u8);
+    message.resize(message.len() + count as usize, 0);
+    let mut noise: u64 = 88_172_645_463_325_252;
+    for _ in 0..40_000 {
+        noise ^= noise << 13;
+        noise ^= noise >> 7;
+        noise ^= noise << 17;
+        message.push(noise as u8);
+    }
+
+    let packed = zstd::bulk::compress(&message, 3).expect("compresses");
+    assert!((packed.len() as u64) * 4096 + (1 << 20) > message.len() as u64, "within the ratio of bytes");
+    assert!(packed.len() < 64 << 10, "{} bytes", packed.len());
+    let mut canvas = b"fig-kiwi".to_vec();
+    canvas.extend_from_slice(&template.version.to_le_bytes());
+    for chunk in [template.schema_chunk.as_slice(), packed.as_slice()] {
+        canvas.extend_from_slice(&(chunk.len() as u32).to_le_bytes());
+        canvas.extend_from_slice(chunk);
+    }
+    let error = figfile::parse_canvas(&canvas, Vec::new()).err().expect("refused");
+    assert!(error.to_string().contains("values"), "{error}");
+}
+
 /// Figma leaves nothing unnamed in a file, in any of its products, so saving one
 /// nobody deleted from leaves nothing out.
 #[test]
