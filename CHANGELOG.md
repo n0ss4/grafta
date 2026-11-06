@@ -4,6 +4,16 @@ What changed for someone using grafta, newest first. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.2.2](https://github.com/n0ss4/grafta/compare/v0.2.1...v0.2.2) (2026-11-06)
+
+
+### Fixed
+
+* **render:** draw alone a character its font lacks, and name it ([#20](https://github.com/n0ss4/grafta/issues/20)) ([f8d2df7](https://github.com/n0ss4/grafta/commit/f8d2df7b52be1e7248e3f2ebee3f730bef5a1346))
+* **render:** draw the spaces a text run or line starts with ([#19](https://github.com/n0ss4/grafta/issues/19)) ([6626a26](https://github.com/n0ss4/grafta/commit/6626a261738b3100694aa5dc1ed751f104903d32))
+* **save:** read and save a file of many repeated layers ([#21](https://github.com/n0ss4/grafta/issues/21)) ([b1f71cb](https://github.com/n0ss4/grafta/commit/b1f71cb5cfc32d452ac17833fd066756d6f3290f))
+* **security:** bound a message's values by its packed size ([#22](https://github.com/n0ss4/grafta/issues/22)) ([df609b1](https://github.com/n0ss4/grafta/commit/df609b14e2458f481d43d5722ad40dd21119ce3c))
+
 ## [0.2.1](https://github.com/n0ss4/grafta/compare/v0.2.0...v0.2.1) (2026-11-06)
 
 
