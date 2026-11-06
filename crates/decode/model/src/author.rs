@@ -56,10 +56,19 @@ pub const GRAFTA_SESSION: u32 = 0x6772_6166;
 /// children here.
 const FIRST_POSITION: &str = "!";
 
-/// Appended to the largest sibling key to sort after it. Any character does —
-/// `x < x + c` for every non-empty suffix — and this one is the smallest
-/// printable character the files use.
-const POSITION_SUFFIX: char = '!';
+/// The key after the largest sibling's, as Figma's own run: its last character
+/// the next one up, and at the last character there is, one more. So a character
+/// lasts 94 children, where a parent's keys would cost the square of them if each
+/// were a character longer than the last: `nuxtui.fig`'s 11,216 under one parent
+/// reach 443 characters.
+fn key_after(largest: &str) -> String {
+    let mut key = largest.as_bytes().to_vec();
+    match key.last_mut() {
+        Some(last) if *last < KEY_MAX => *last += 1,
+        _ => key.extend_from_slice(FIRST_POSITION.as_bytes()),
+    }
+    String::from_utf8(key).unwrap_or_else(|_| format!("{largest}{FIRST_POSITION}"))
+}
 
 #[derive(Debug, Error)]
 pub enum AuthorError {
@@ -177,10 +186,7 @@ pub fn position_after(node_changes: &[Value], parent: Guid) -> String {
         .filter_map(position_of)
         .max();
 
-    match largest {
-        Some(key) => format!("{key}{POSITION_SUFFIX}"),
-        None => FIRST_POSITION.to_string(),
-    }
+    largest.map_or_else(|| FIRST_POSITION.to_string(), key_after)
 }
 
 /// The smallest and largest characters a position key uses: every key in the
@@ -877,13 +883,21 @@ impl<'a> Graft<'a> {
     fn next_position(&mut self, parent: Guid) -> String {
         let remembered = self.memo.as_deref().and_then(|memo| memo.last_position.get(&parent).cloned());
         let position = match remembered {
-            Some(last) => format!("{last}{POSITION_SUFFIX}"),
+            Some(last) => key_after(&last),
             None => position_after(node_changes(self.fig), parent),
         };
         if let Some(memo) = self.memo.as_deref_mut() {
             memo.last_position.insert(parent, position.clone());
         }
         position
+    }
+
+    /// A child reached `parent` another way, so the key remembered may no longer
+    /// be its largest.
+    fn forget_position(&mut self, parent: Guid) {
+        if let Some(memo) = self.memo.as_deref_mut() {
+            memo.last_position.remove(&parent);
+        }
     }
 
     /// The document root: the one node change with no `parentIndex`.
@@ -1621,6 +1635,7 @@ impl<'a> Graft<'a> {
     /// (from [`position_between`]) to place it among its siblings.
     pub fn place(&mut self, node: Guid, parent: Guid, position: &str) -> Result<(), AuthorError> {
         self.require_node(parent)?;
+        self.forget_position(parent);
         let Value::Object(fields) = self.change_mut(node)? else { return Err(AuthorError::UnknownNode(node)) };
         fields.set(Field::ParentIndex, parent_index(parent, position));
         Ok(())
@@ -1677,6 +1692,7 @@ impl<'a> Graft<'a> {
     pub fn duplicate(&mut self, root: Guid, parent: Guid, position: &str, at: (f32, f32)) -> Result<Vec<(Guid, Guid)>, AuthorError> {
         self.require_node(root)?;
         self.require_node(parent)?;
+        self.forget_position(parent);
         // The subtree, breadth first, from one pass over who is whose child.
         let mut children: std::collections::HashMap<Guid, Vec<Guid>> = std::collections::HashMap::new();
         for nc in node_changes(self.fig) {
