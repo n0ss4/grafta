@@ -2634,6 +2634,44 @@ fn images_in(kit: &Toolkit, handle: &str) -> usize {
 }
 
 #[test]
+fn a_shape_or_vector_made_with_an_image_paint_embeds_it() {
+    let (mut kit, handle) = kit();
+    let path = image_file(&kit, "logo.png", PNG);
+    let hash = sha1_hex(PNG);
+    let before = images_in(&kit, &handle);
+    let paint = json!([{ "type": "IMAGE", "image": path }]);
+
+    let shape = call(&mut kit, "create_shape", json!({ "handle": handle, "parent": "1:1", "type": "ELLIPSE", "width": 8, "height": 8, "fills": paint })).unwrap();
+    let id = shape["id"].as_str().unwrap().to_string();
+    let fill = &read(&mut kit, &handle, &id)["fills"][0];
+    assert_eq!((fill["type"].as_str(), fill["imageHash"].as_str()), (Some("IMAGE"), Some(hash.as_str())));
+    assert_eq!(images_in(&kit, &handle), before + 1);
+    assert!(kit.session(&handle).unwrap().graph.images.iter().any(|(name, _)| *name == hash), "render_node draws from this");
+
+    let vector = call(&mut kit, "create_vector", json!({ "handle": handle, "parent": "1:1", "path": "M0 0H10V10H0Z", "fills": paint, "strokes": paint })).unwrap();
+    let id = vector["id"].as_str().unwrap().to_string();
+    let node = read(&mut kit, &handle, &id);
+    assert_eq!(node["fills"][0]["imageHash"].as_str(), Some(hash.as_str()));
+    assert_eq!(node["strokes"][0]["imageHash"].as_str(), Some(hash.as_str()));
+    assert_eq!(images_in(&kit, &handle), before + 1, "embedded once");
+}
+
+#[test]
+fn a_shape_refused_embeds_no_image() {
+    let (mut kit, handle) = kit();
+    let path = image_file(&kit, "logo.png", PNG);
+    let before = images_in(&kit, &handle);
+    let paint = json!([{ "type": "IMAGE", "image": path }]);
+
+    let error = call(&mut kit, "create_shape", json!({ "handle": handle, "parent": "1:1", "type": "RECTANGLE", "width": 8, "height": 8, "fills": paint, "strokeWeight": -1 })).unwrap_err();
+    assert!(error.to_string().contains("strokeWeight"), "{error}");
+    assert_eq!(images_in(&kit, &handle), before);
+
+    let missing = call(&mut kit, "create_shape", json!({ "handle": handle, "parent": "1:1", "type": "RECTANGLE", "width": 8, "height": 8, "fills": [{ "type": "IMAGE", "image": "/nonexistent/logo.png" }] })).unwrap_err();
+    assert!(missing.to_string().contains("cannot read"), "{missing}");
+}
+
+#[test]
 fn an_image_from_disk_fills_a_frame_and_is_embedded_once() {
     let (mut kit, handle) = kit();
     let png = PNG;

@@ -102,13 +102,15 @@ pub struct CreateShape {
 impl Command for CreateShape {
     fn run(&self, kit: &mut Toolkit) -> Result<Output, ToolError> {
         let session = kit.session_mut(&self.handle)?;
-        let extra = extra(session, self.kind, &self.values)?;
+        let values = super::images::stage(session, &self.values)?;
+        let extra = extra(session, self.kind, &values)?;
         let parent = require_parent(session, &self.parent, Placement::Shape)?;
         let id = session
             .graft()
             .map_err(author_error)?
             .add_shape_at(parent, self.kind, &self.name, self.size, self.at, extra)
             .map_err(author_error)?;
+        super::images::commit(session);
         record(session, id)?;
         Ok(Output::Data(created(session, id)))
     }
