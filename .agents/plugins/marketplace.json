@@ -1,0 +1,12 @@
+{
+  "name": "grafta",
+  "interface": { "displayName": "grafta" },
+  "plugins": [
+    {
+      "name": "grafta",
+      "source": { "source": "local", "path": "./plugin" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Design"
+    }
+  ]
+}

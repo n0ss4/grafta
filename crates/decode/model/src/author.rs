@@ -1415,7 +1415,7 @@ impl<'a> Graft<'a> {
                 (Field::DefId, def.to_value()),
                 (Field::ComponentPropNodeField, Value::from(field)),
             ]));
-            let prop_ref = object([(Field::DefId, def.to_value())]);
+            let prop_ref = object([(Field::PropRefDefId, def.to_value())]);
             consumed.push(object([
                 (Field::VariableData,
                     object([

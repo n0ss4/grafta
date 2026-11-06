@@ -19,7 +19,7 @@ export const faq: FaqEntry[] = [
   {
     question: "Which apps and models does it work with?",
     answer:
-      "Any client that speaks MCP over stdio should work, with any model it runs. We have run it in Claude Code and Claude Desktop. Cursor, VS Code, Windsurf and Codex use the same setup, but we have not tried them yet. Clients that only connect to remote servers, such as ChatGPT, cannot use it yet.",
+      "Any client that speaks MCP over stdio should work, with any model it runs. We have run it in Claude Code and Claude Desktop. Cursor, VS Code, Windsurf, Codex and the ChatGPT desktop app use the same setup, but we have not tried them yet. Clients that only connect to remote servers, such as ChatGPT on the web, cannot use it yet.",
   },
   {
     question: "How accurate are the pictures?",

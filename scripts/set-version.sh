@@ -1,6 +1,6 @@
 #!/bin/sh
 # One version for every channel. The workspace's Cargo.toml is the
-# source; the npm packages, the Claude Code plugin and the marketplace follow.
+# source; the npm packages, the plugin and its marketplace follow.
 #
 #   scripts/set-version.sh 0.2.0        write 0.2.0 everywhere
 #   scripts/set-version.sh --check      fail unless every file names one version
@@ -20,6 +20,8 @@ FILES = {
     "plugin/.claude-plugin/plugin.json": [r'("version": ")([^"]+)(")'],
     ".claude-plugin/marketplace.json": [r'("version": ")([^"]+)(")'],
     "plugin/.mcp.json": [r'("grafta@)([^"]+)(")'],
+    "plugin/plugin.json": [r'("version": ")([^"]+)(")'],
+    "plugin/mcp.json": [r'("grafta@)([^"]+)(")'],
 }
 
 args = sys.argv[1:]

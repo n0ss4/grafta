@@ -23,7 +23,6 @@ Tell us what you need in the [issues](https://github.com/n0ss4/grafta/issues).
 - Saving over the file `new_file` made, instead of leaving an empty one beside it.
 - `create_shape` taking an image paint.
 - A file saved elsewhere no longer recovered when its source is opened again.
-- A file carrying only what it uses, after deletes.
 
 ## Reach
 

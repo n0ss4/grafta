@@ -45,6 +45,7 @@ crate::wire! {
         DashPattern = "dashPattern",
         DataType = "dataType",
         DefId = "defID",
+        PropRefDefId = "defId",
         DerivedImmutableFrameData = "derivedImmutableFrameData",
         DerivedSymbolData = "derivedSymbolData",
         DerivedTextData = "derivedTextData",
@@ -260,4 +261,14 @@ crate::wire! {
         X = "x",
         Y = "y",
     }
+}
+
+/// Whether a field of this name might hold an index into a message's blobs.
+///
+/// `commandsBlob` and `vectorNetworkBlob` are the only ones that do in any file
+/// measured, but a schema also lists `dataBlob` and `blobBaseIndex`, which no
+/// file measured fills. A later one may, so what rewrites indexes has to know.
+#[must_use]
+pub fn may_index_blobs(name: &str) -> bool {
+    name.as_bytes().windows(4).any(|window| window.eq_ignore_ascii_case(b"blob"))
 }
