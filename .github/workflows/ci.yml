@@ -74,6 +74,7 @@ jobs:
       - run: python3 scripts/mcpb.py target/release/grafta target/release/grafta grafta.mcpb
       # docs/TOOLS.md and the website's web/src/generated/tools.json are the server's own tool list.
       - run: python3 scripts/tool-reference.py target/release/grafta --check
+      - run: python3 scripts/check-public-figures.py
 
   # The website: types, lint, tests, the pre-rendered build, and the
   # browser's view of it (routes, keyboard, scripts off, axe, Lighthouse).
