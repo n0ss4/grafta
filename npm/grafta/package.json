@@ -1,6 +1,6 @@
 {
   "name": "grafta",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Figma's file format for your agent: an MCP server that reads and writes .fig files, exactly and offline.",
   "keywords": ["figma", "fig", "mcp", "mcp-server", "design", "agent", "claude"],
   "homepage": "https://n0ss4.github.io/grafta",
@@ -10,10 +10,10 @@
   "files": ["bin"],
   "engines": { "node": ">=18" },
   "optionalDependencies": {
-    "grafta-darwin-arm64": "0.2.0",
-    "grafta-darwin-x64": "0.2.0",
-    "grafta-linux-arm64": "0.2.0",
-    "grafta-linux-x64": "0.2.0",
-    "grafta-win32-x64": "0.2.0"
+    "grafta-darwin-arm64": "0.2.1",
+    "grafta-darwin-x64": "0.2.1",
+    "grafta-linux-arm64": "0.2.1",
+    "grafta-linux-x64": "0.2.1",
+    "grafta-win32-x64": "0.2.1"
   }
 }
