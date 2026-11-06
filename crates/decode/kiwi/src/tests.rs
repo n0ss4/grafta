@@ -560,7 +560,38 @@ fn empty_structs_cost_no_input_and_are_counted() {
     let schema = schema_of(&[("Message", MESSAGE, &[("items", 1, true)]), ("Item", STRUCT, &[])]);
     // 40,000,000 as a var_uint.
     let error = decode_message("Message", &[1, 0x80, 0xB4, 0x89, 0x13, 0], &schema).unwrap_err();
-    assert!(matches!(error, KiwiError::TooManyValues { limit: 1030 }), "{error}");
+    assert!(matches!(error, KiwiError::TooManyValues { limit: 1027 }), "{error}");
+}
+
+/// Each costs a byte, so a message of them passes no count of what it holds but
+/// one that asks for fewer values than bytes.
+#[test]
+fn a_message_of_empty_structs_is_refused_on_its_bytes() {
+    let schema = schema_of(&[("Message", MESSAGE, &[("items", 1, true)]), ("Item", MESSAGE, &[])]);
+    let message = |count: u32| {
+        let mut bytes = vec![1u8];
+        let mut left = count;
+        while left > 127 {
+            bytes.push((left & 127) as u8 | 128);
+            left >>= 7;
+        }
+        bytes.push(left as u8);
+        bytes.resize(bytes.len() + count as usize, 0);
+        bytes.push(0);
+        bytes
+    };
+    assert!(decode_message("Message", &message(1000), &schema).is_ok());
+    let error = decode_message("Message", &message(4000), &schema).unwrap_err();
+    assert!(matches!(error, KiwiError::TooManyValues { .. }), "{error}");
+}
+
+#[test]
+fn a_caller_can_ask_for_fewer_values_than_the_message_allows() {
+    let schema = schema_of(&[("Message", MESSAGE, &[("a", -3, false), ("b", -3, false)])]);
+    let message = [1, 7, 2, 8, 0];
+    assert!(decode_message_within("Message", &message, &schema, 2).is_ok());
+    let error = decode_message_within("Message", &message, &schema, 1).unwrap_err();
+    assert!(matches!(error, KiwiError::TooManyValues { limit: 1 }), "{error}");
 }
 
 #[test]

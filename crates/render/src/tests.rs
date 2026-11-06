@@ -934,6 +934,96 @@ fn coloured(start: usize, end: usize, colour: model::Color) -> model::TextRun {
     model::TextRun { start, end, fills: Some(vec![solid(colour)]), ..model::TextRun::default() }
 }
 
+/// The leftmost and rightmost columns a text paints in, of a picture on white.
+fn ink(graph: &SceneGraph) -> (u32, u32) {
+    let picture = draw(graph, "1:1");
+    let pixmap = Pixmap::decode_png(&picture.png).expect("a PNG");
+    let width = pixmap.width() as usize;
+    let dark: Vec<u32> = pixmap.pixels().iter().enumerate().filter(|(_, p)| p.demultiply().green() < 128).map(|(i, _)| (i % width) as u32).collect();
+    (*dark.iter().min().expect("the text is drawn"), *dark.iter().max().unwrap())
+}
+
+fn text_of(text: &str, runs: Vec<model::TextRun>) -> SceneGraph {
+    let mut graph = text_on_white(rgb(0, 0, 0), 24.0).build();
+    graph.nodes.get_mut(&guid("1:1")).unwrap().width = 300.0;
+    let label = graph.nodes.get_mut(&guid("1:3")).unwrap();
+    label.width = 280.0;
+    label.text = Some(text.into());
+    label.text_runs = runs;
+    graph
+}
+
+/// SVG drops the spaces a `<text>` starts with, and a run is a `<text>` of its own.
+#[test]
+fn a_space_at_the_start_of_a_run_is_drawn() {
+    let (_, whole) = ink(&text_of("ab cd", vec![coloured(2, 5, rgb(0, 0, 0))]));
+    let (_, plain) = ink(&text_of("ab cd", Vec::new()));
+    assert!(whole.abs_diff(plain) <= 1, "a run over the space changes nothing: {whole} and {plain}");
+
+    let (_, joined) = ink(&text_of("abcd", vec![coloured(2, 4, rgb(0, 0, 0))]));
+    assert!(whole > joined + 2, "the space takes room: {whole} against {joined}");
+}
+
+/// Figma shows every space, at the start of a line and between words.
+#[test]
+fn spaces_a_line_starts_with_or_holds_are_drawn() {
+    let (left, _) = ink(&text_of("ab", Vec::new()));
+    let (indented, _) = ink(&text_of("   ab", Vec::new()));
+    assert!(indented > left + 2, "{indented} against {left}");
+
+    let (_, one) = ink(&text_of("a b", Vec::new()));
+    let (_, three) = ink(&text_of("a   b", Vec::new()));
+    assert!(three > one + 2, "{three} against {one}");
+}
+
+/// No font has a character of this private plane, but the font of last resort,
+/// which claims them all and draws a box for each.
+const IN_NO_FONT: char = '\u{10FFFD}';
+
+/// The columns the first characters of a text paint in, the rest cut off.
+fn first_columns(graph: &SceneGraph, up_to: u32) -> Vec<u8> {
+    let picture = draw(graph, "1:1");
+    let pixmap = Pixmap::decode_png(&picture.png).expect("a PNG");
+    let width = pixmap.width() as usize;
+    pixmap.pixels().iter().enumerate().filter(|(i, _)| ((i % width) as u32) < up_to).map(|(_, p)| p.demultiply().green()).collect()
+}
+
+/// One character no font has turned its whole line to boxes, with no note.
+#[test]
+fn a_character_no_font_has_leaves_the_rest_of_its_line_alone_and_is_named() {
+    let (_, end_of_text) = ink(&text_of("abc", Vec::new()));
+    let with = text_of(&format!("abc{IN_NO_FONT}"), Vec::new());
+    assert_eq!(first_columns(&with, end_of_text + 1), first_columns(&text_of("abc", Vec::new()), end_of_text + 1), "the letters are drawn as they were");
+    let notes = draw(&with, "1:1").notes;
+    assert!(notes.iter().any(|n| n.contains("U+10FFFD") && n.contains("drawn as a box")), "{notes:?}");
+}
+
+#[test]
+fn the_font_of_last_resort_is_never_the_fallback() {
+    let db = crate::text::fonts();
+    assert!(crate::text::fallback(&db, IN_NO_FONT, 400, false).is_none());
+}
+
+/// A character another installed font has is drawn in it, and the rest stay.
+#[test]
+fn a_character_another_font_has_is_drawn_in_it_and_named() {
+    let db = crate::text::fonts();
+    let Some(base) = crate::text::find(&db, "Inter", 400, false) else { return };
+    let lacked = ['\u{23FA}', '\u{23BF}', '\u{4E2D}', '\u{0E01}'].into_iter().find(|c| {
+        !crate::text::has_char(&db, base.id, *c) && crate::text::fallback(&db, *c, 400, false).is_some()
+    });
+    let Some(lacked) = lacked else { return };
+    let fallback = crate::text::fallback(&db, lacked, 400, false).unwrap();
+    assert!(crate::text::has_char(&db, fallback.id, lacked));
+
+    let graph = text_of(&format!("abc{lacked}"), Vec::new());
+    let (_, end_of_text) = ink(&text_of("abc", Vec::new()));
+    assert_eq!(first_columns(&graph, end_of_text + 1), first_columns(&text_of("abc", Vec::new()), end_of_text + 1));
+    let hex = format!("U+{:04X}", u32::from(lacked));
+    let notes = draw(&graph, "1:1").notes;
+    assert!(notes.iter().any(|n| n.contains(&hex) && n.contains(&fallback.family)), "{notes:?}");
+}
+
 /// Light text on black, its layer's fill black as `create_text` leaves it.
 fn on_black(text: &str, runs: Vec<model::TextRun>) -> SceneGraph {
     let mut graph = text_on_white(rgb(0, 0, 0), 14.0).build();

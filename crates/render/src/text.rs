@@ -89,6 +89,51 @@ pub fn faces(db: &Database, family: &str) -> Option<Vec<String>> {
     found.then_some(names)
 }
 
+/// Apple's font of last resort, which claims every character there is and draws
+/// a box for each.
+const LAST_RESORT: &str = "LastResort";
+
+fn is_last_resort(face: &fontdb::FaceInfo) -> bool {
+    face.families.iter().any(|(name, _)| name.contains(LAST_RESORT))
+}
+
+/// Whether a font draws this character.
+#[must_use]
+pub fn has_char(db: &Database, id: fontdb::ID, c: char) -> bool {
+    db.with_face_data(id, |data, index| FontRef::from_index(data, index).ok().and_then(|font| font.charmap().map(c)).is_some_and(|glyph| glyph.to_u32() != 0)).unwrap_or(false)
+}
+
+/// The font to draw a character in that its text's own font lacks: a stand-in
+/// if it has it, else the installed face nearest in style, by family name so
+/// that every machine's scan gives the same answer. `None` when no font draws it.
+#[must_use]
+pub fn fallback(db: &Database, c: char, weight: u32, italic: bool) -> Option<Font> {
+    let style = if italic { Style::Italic } else { Style::Normal };
+    let family = |face: &fontdb::FaceInfo| face.families.first().map(|(name, _)| name.clone()).unwrap_or_default();
+    let stand_in = |face: &&fontdb::FaceInfo| STAND_INS.iter().position(|name| family(face) == *name).unwrap_or(STAND_INS.len());
+    db.faces()
+        .filter(|face| !is_last_resort(face) && has_char(db, face.id, c))
+        // A leading dot is a system's own font, which no design names.
+        .min_by_key(|face| (stand_in(face), family(face).starts_with('.'), face.style != style, face.weight.0.abs_diff(u16::try_from(weight).unwrap_or(400)), family(face)))
+        .map(|face| Font { id: face.id, family: family(face), substituted: false })
+}
+
+/// The rasteriser's options: the machine's fonts, and a fallback that is never
+/// the font of last resort, or a character none has turns its whole line to boxes.
+#[must_use]
+pub fn options() -> resvg::usvg::Options<'static> {
+    let select_fallback: resvg::usvg::FallbackSelectionFn<'static> = Box::new(|c, used, db| {
+        let base = db.face(*used.first()?)?;
+        let same = |face: &fontdb::FaceInfo| base.style == face.style || base.weight == face.weight || base.stretch == face.stretch;
+        db.faces().find(|face| !used.contains(&face.id) && !is_last_resort(face) && same(face) && has_char(db, face.id, c)).map(|face| face.id)
+    });
+    resvg::usvg::Options {
+        fontdb: fonts(),
+        font_resolver: resvg::usvg::FontResolver { select_font: resvg::usvg::FontResolver::default_font_selector(), select_fallback },
+        ..resvg::usvg::Options::default()
+    }
+}
+
 pub use domain::font::is_face;
 
 /// The machine's fonts, read once per process and shared by the layout and

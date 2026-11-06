@@ -20,10 +20,24 @@ const MAX_SCHEMA: u64 = 16 << 20;
 /// The most a message inflates to. Measured on 13 real files: 229 MB.
 const MAX_MESSAGE: u64 = 2 << 30;
 /// The most a message inflates to, for its packed size. Measured on 13 real
-/// files: 14.3 times. zstd has no bound of its own, so this is what stops a
-/// few bytes reaching [`MAX_MESSAGE`]; a small message always has this much.
-const MESSAGE_RATIO: u64 = 256;
+/// files: 14.3 times, and on 20,000 copies of a card, as a design system's page
+/// may hold: 687. zstd has no bound of its own, so this is what stops a few bytes
+/// reaching [`MAX_MESSAGE`], which takes 32,000 times; a small message always has
+/// this much. A crafted file can be padded to pass it, so it asks only for a
+/// larger file: what limits the cost of one is [`MAX_MESSAGE`] and kiwi's budget.
+const MESSAGE_RATIO: u64 = 4096;
 const MESSAGE_FLOOR: u64 = 1 << 20;
+/// The most values a message holds, for its packed size. Measured on 13 real
+/// files: 4.2 per packed byte, and on thousands of copies of their frames: 34.6.
+/// Bytes that inflate to a run of empty structs hold thousands, and each costs
+/// memory where a byte of a blob does not, so this is what asks a crafted file to
+/// be large that [`MESSAGE_RATIO`] no longer does.
+const VALUES_PER_PACKED_BYTE: u64 = 256;
+
+/// The most values a message of this packed size holds.
+pub fn most_values(packed: usize) -> u64 {
+    (packed as u64).saturating_mul(VALUES_PER_PACKED_BYTE).saturating_add(MESSAGE_FLOOR)
+}
 
 /// All of `reader`, or `None` past `limit`, whatever it claims about itself.
 pub fn read_bounded(reader: impl Read, limit: u64) -> Result<Option<Vec<u8>>, std::io::Error> {
@@ -42,9 +56,9 @@ pub fn inflate(data: &[u8]) -> Result<Vec<u8>, FigError> {
 /// The message as a chunk: zstd, the format every file measured from Figma
 /// stores it in, unless that packs it past what [`decompress`] takes back.
 ///
-/// Repeated layers reach thousands of times in zstd, where deflate stops near
-/// 250, within the limit. A file too repetitive for zstd gets deflate, which
-/// Figma has also written and opens from grafta.
+/// Runs of the same bytes reach tens of thousands of times in zstd, where deflate
+/// stops near 1,000, within the limit. What is too repetitive for zstd gets
+/// deflate, which Figma has also written and opens from grafta.
 pub fn message_chunk(message: &[u8]) -> Result<Vec<u8>, FigError> {
     let packed = ::zstd::bulk::compress(message, ZSTD_LEVEL).map_err(|e| FigError::Zstd(e.to_string()))?;
     if message.len() as u64 <= message_limit(packed.len()) {

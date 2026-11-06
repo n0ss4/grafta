@@ -34,7 +34,7 @@ fn contrast_here(fig: &FigFile, graph: &SceneGraph, id: Guid) -> Result<Vec<Cont
     if let Some(note) = drawing.notes.iter().find(|note| *note == crate::TOO_DEEP || *note == crate::TOO_MANY) {
         return Err(RenderError(note.clone()));
     }
-    let options = resvg::usvg::Options { fontdb: crate::text::fonts(), ..resvg::usvg::Options::default() };
+    let options = crate::text::options();
     let tree = resvg::usvg::Tree::from_str(&drawing.svg, &options).map_err(|error| RenderError(format!("the drawing did not parse: {error}")))?;
     let mut pixmap = resvg::tiny_skia::Pixmap::new(w, h).ok_or_else(|| RenderError(format!("cannot allocate {w}×{h} pixels")))?;
     resvg::render(&tree, resvg::tiny_skia::Transform::identity(), &mut pixmap.as_mut());
