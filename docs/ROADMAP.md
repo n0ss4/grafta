@@ -18,12 +18,6 @@ Tell us what you need in the [issues](https://github.com/n0ss4/grafta/issues).
   others, and the page's notes say so.
 - Soft masks in Preview, which may come out wrong at some zooms.
 
-## Editing
-
-- Saving over the file `new_file` made, instead of leaving an empty one beside it.
-- `create_shape` taking an image paint.
-- A file saved elsewhere no longer recovered when its source is opened again.
-
 ## Reach
 
 - Serving over HTTP, for clients that only connect to remote servers.

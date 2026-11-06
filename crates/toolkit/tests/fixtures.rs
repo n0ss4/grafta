@@ -363,6 +363,28 @@ fn a_layer_bound_to_a_property_saves_and_comes_back_bound() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
+/// Thousands of identical layers pack past what the reader takes in zstd, and
+/// have to save all the same.
+#[test]
+fn a_file_of_identical_layers_saves_and_opens() {
+    let Some(from) = fixture("gold-preview.fig") else { return };
+    let dir = std::env::temp_dir().join(format!("grafta-094-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let mut kit = toolkit::new();
+    let handle = open(&mut kit, &from);
+    let page = call(&mut kit, "create_page", json!({ "handle": handle, "name": "094" }))["id"].clone();
+    let frame = call(&mut kit, "create_frame", json!({ "handle": handle, "parent": page, "name": "f", "x": 0, "y": 0, "width": 10, "height": 10 }))["id"].clone();
+    for _ in 0..4000 {
+        call(&mut kit, "duplicate_node", json!({ "handle": handle, "id": frame }));
+    }
+    let saved = dir.join("saved.fig");
+    call(&mut kit, "save_as", json!({ "handle": handle, "path": saved }));
+    let mut reopened = toolkit::new();
+    let opened = call(&mut reopened, "open_file", json!({ "path": saved }));
+    assert!(opened["nodes"].as_u64().unwrap() > 4000, "{opened}");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
 /// On a real file, edits kept up to date incrementally leave the graph a
 /// full rebuild gives. Compared by `Debug`, since the file carries NaN sizes
 /// and NaN is not equal to itself.

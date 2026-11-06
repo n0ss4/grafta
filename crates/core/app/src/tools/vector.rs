@@ -37,12 +37,17 @@ impl Command for CreateVector {
     fn run(&self, kit: &mut Toolkit) -> Result<Output, ToolError> {
         let session = kit.session_mut(&self.handle)?;
         let parent = require_parent(session, &self.parent, Placement::Vector)?;
-        let fills = match &self.fills {
+        let asked: Map = [("fills", &self.fills), ("strokes", &self.strokes)]
+            .into_iter()
+            .filter_map(|(key, value)| Some((key.to_owned(), value.clone()?)))
+            .collect();
+        let asked = super::images::stage(session, &asked)?;
+        let fills = match asked.get("fills") {
             Some(value) => paints(session, "fills", value)?,
             None => Raw::Array(Vec::new()),
         };
         // Figma's pen draws a black 1 px stroke; so does this, unless told.
-        let strokes = match &self.strokes {
+        let strokes = match asked.get("strokes") {
             Some(value) => paints(session, "strokes", value)?,
             None if self.fills.is_some() => Raw::Array(Vec::new()),
             None => paints(session, "strokes", &black())?,
@@ -64,6 +69,7 @@ impl Command for CreateVector {
             (Field::VectorData, object([(Field::VectorNetworkBlob, Raw::Uint(blob)), (Field::NormalizedSize, size)])),
         ]);
         let id = graft.add_vector_at(parent, name, (width, height), at, fields).map_err(author_error)?;
+        super::images::commit(session);
         record(session, id)?;
         let mut out = created(session, id);
         out["size"] = data!({ "width": num(width), "height": num(height) });

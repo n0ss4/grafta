@@ -443,6 +443,27 @@ fn a_message_within_its_ratio_and_plain_data_are_still_read() {
     assert_eq!(compress::decompress(plain).expect("reads"), plain);
 }
 
+/// Records differing only in a counter, as repeated layers differ in their ids:
+/// zstd packs them past the ratio, and deflate within it.
+#[test]
+fn a_message_too_repetitive_for_zstd_is_still_read_back() {
+    let body: Vec<u8> = (0..5000).map(|i| (i * 7 % 251) as u8).collect();
+    let mut message = Vec::new();
+    for record in 0..4000u32 {
+        message.extend_from_slice(&record.to_le_bytes());
+        message.extend_from_slice(&body);
+    }
+
+    let chunk = compress::message_chunk(&message).expect("packs");
+    assert_ne!(chunk[..4], [0x28, 0xB5, 0x2F, 0xFD], "zstd would be refused here, so this is deflate");
+    assert_eq!(compress::decompress(&chunk).expect("reads back"), message);
+
+    let plain = vec![7u8; 1000];
+    let chunk = compress::message_chunk(&plain).expect("packs");
+    assert_eq!(chunk[..4], [0x28, 0xB5, 0x2F, 0xFD], "an ordinary message is zstd");
+    assert_eq!(compress::decompress(&chunk).expect("reads back"), plain);
+}
+
 #[test]
 fn a_schema_past_its_limit_is_refused() {
     let zeros = vec![0u8; (16 << 20) + 1];

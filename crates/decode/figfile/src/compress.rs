@@ -9,6 +9,12 @@ use crate::FigError;
 
 const ZSTD_MAGIC: [u8; 4] = [0x28, 0xB5, 0x2F, 0xFD];
 
+/// How hard the message is compressed. Measured on real messages: smaller than
+/// Figma's own chunk and faster than deflate was. Level 19 saves a further 20%,
+/// in 44 times as long. Fixed, because the output has to be the same bytes every
+/// time (I4).
+const ZSTD_LEVEL: i32 = 9;
+
 /// The most a schema inflates to. Measured on 13 real files: 75 KB.
 const MAX_SCHEMA: u64 = 16 << 20;
 /// The most a message inflates to. Measured on 13 real files: 229 MB.
@@ -33,22 +39,36 @@ pub fn inflate(data: &[u8]) -> Result<Vec<u8>, FigError> {
         .ok_or(FigError::TooLarge { what: "the schema", limit: MAX_SCHEMA })
 }
 
-/// Raw deflate, the format the writer uses for every chunk it compresses.
+/// The message as a chunk: zstd, the format every file measured from Figma
+/// stores it in, unless that packs it past what [`decompress`] takes back.
 ///
-/// Not zstd: `ruzstd` decodes and does not encode, and deflate is a format
-/// Figma has itself written the message chunk with, so it is not an exotic
-/// choice being handed to Figma's reader (research D2). The compression level
-/// is fixed, because the output has to be the same bytes every time (I4).
+/// Repeated layers reach thousands of times in zstd, where deflate stops near
+/// 250, within the limit. A file too repetitive for zstd gets deflate, which
+/// Figma has also written and opens from grafta.
+pub fn message_chunk(message: &[u8]) -> Result<Vec<u8>, FigError> {
+    let packed = ::zstd::bulk::compress(message, ZSTD_LEVEL).map_err(|e| FigError::Zstd(e.to_string()))?;
+    if message.len() as u64 <= message_limit(packed.len()) {
+        return Ok(packed);
+    }
+    deflate(message).map_err(|e| FigError::Deflate(e.to_string()))
+}
+
+/// Raw deflate. The compression level is fixed, for the same reason as zstd's.
 pub fn deflate(data: &[u8]) -> Result<Vec<u8>, std::io::Error> {
     let mut out = Vec::new();
     DeflateEncoder::new(data, flate2::Compression::default()).read_to_end(&mut out)?;
     Ok(out)
 }
 
+/// The most a message of this packed size inflates to.
+fn message_limit(packed: usize) -> u64 {
+    (packed as u64).saturating_mul(MESSAGE_RATIO).saturating_add(MESSAGE_FLOOR).min(MAX_MESSAGE)
+}
+
 /// Decompress a chunk, sniffing the format. A chunk that is neither zstd nor
 /// deflate is already plain data; one that inflates past its limit is not.
 pub fn decompress(data: &[u8]) -> Result<Vec<u8>, FigError> {
-    let limit = (data.len() as u64).saturating_mul(MESSAGE_RATIO).saturating_add(MESSAGE_FLOOR).min(MAX_MESSAGE);
+    let limit = message_limit(data.len());
     let too_large = FigError::TooLarge { what: "the message", limit };
     if data.starts_with(&ZSTD_MAGIC) {
         let decoder = ruzstd::StreamingDecoder::new(data).map_err(|e| FigError::Zstd(e.to_string()))?;
