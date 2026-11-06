@@ -61,16 +61,21 @@ pub struct Limits {
     pub children_from: usize,
 }
 
+/// A vector's paths where the file stores no geometry, only the network it is
+/// drawn from: `(data, winding rule)`. Figma derives geometry from a network when it
+/// opens a file, so a vector grafta wrote has none until then.
+pub type DrawnPaths<'a> = dyn Fn(&SceneNode) -> Vec<(String, &'static str)> + 'a;
+
 /// A node's view, with its children to `limits.depth`, cut at a node boundary
 /// if the next child would cross the budget.
 #[must_use]
-pub fn node(session_graph: &SceneGraph, raw: Option<&Raw>, node: &SceneNode, limits: &Limits, ports: &Ports, products: Products) -> Data {
+pub fn node(session_graph: &SceneGraph, raw: Option<&Raw>, node: &SceneNode, limits: &Limits, ports: &Ports, products: Products, drawn: &DrawnPaths) -> Data {
     // An eighth of the budget is held back for what the accounting below does
     // not see: the arrays and keys that join views together, the path, the
     // `undecoded` list and the `omitted` note itself.
     let inner = Limits { budget: limits.budget - limits.budget / 8, ..*limits };
     let mut used = 0;
-    let mut out = subtree(session_graph, node, limits.depth, &inner, limits.children_from, ports.measure.as_ref(), &mut used);
+    let mut out = subtree(session_graph, node, limits.depth, &inner, limits.children_from, ports.measure.as_ref(), drawn, &mut used);
     if let Some(references) = raw.and_then(|raw| property_references(session_graph, node, raw)) {
         out["componentPropertyReferences"] = references;
     }
@@ -194,9 +199,21 @@ fn subtree(
     limits: &Limits,
     skip: usize,
     measure: &dyn Measure,
+    drawn: &DrawnPaths,
     used: &mut usize,
 ) -> Data {
     let mut view = properties(graph, node, limits.geometry);
+    if node.fill_geometry.is_empty() && node.stroke_geometry.is_empty() {
+        let paths = drawn(node);
+        if !paths.is_empty() {
+            if limits.geometry {
+                let listed: Vec<Data> = paths.iter().map(|(d, rule)| data!({ "data": d, "windingRule": *rule })).collect();
+                view.insert("vectorPaths".into(), data!(listed));
+            } else {
+                view.insert("geometry".into(), data!({ "vectorPaths": paths.len(), "how": "read_node with geometry: true" }));
+            }
+        }
+    }
     // The node's own properties, plus the `childCount`/`children` keys and the
     // separators around it.
     *used += measure.bytes(&Data::Map(view.clone())) + 48;
@@ -214,7 +231,7 @@ fn subtree(
     let mut cut_at = None;
     for (position, child) in graph.children(node.id).enumerate().skip(skip) {
         let before = *used;
-        let child_view = subtree(graph, child, depth - 1, limits, 0, measure, used);
+        let child_view = subtree(graph, child, depth - 1, limits, 0, measure, drawn, used);
         if *used > limits.budget && !children.is_empty() {
             *used = before;
             cut_at = Some(position);
