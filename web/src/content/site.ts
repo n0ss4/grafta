@@ -1,12 +1,7 @@
-import type { Announcement, FooterColumn, Link } from "./types";
+import type { FooterColumn, Link } from "./types";
 
 export const GITHUB = "https://github.com/n0ss4/grafta";
 const blob = `${GITHUB}/blob/main`;
-
-export const announcement: Announcement | undefined = {
-  text: "0.1.0: the first release. Early, and bug reports are welcome",
-  href: "changelog/",
-};
 
 export const nav: Link[] = [
   { label: "How it works", href: "#how" },

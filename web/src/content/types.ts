@@ -44,8 +44,3 @@ export interface FooterColumn {
   title: string;
   links: Link[];
 }
-
-export interface Announcement {
-  text: string;
-  href: string;
-}
