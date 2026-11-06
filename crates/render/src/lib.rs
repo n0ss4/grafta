@@ -1426,7 +1426,7 @@ impl<'a> Svg<'a> {
                 let family = escape(&style.font_family);
                 let _ = write!(
                     self.out,
-                    "<text font-family=\"{family}, Inter, Helvetica, Arial, sans-serif\" font-size=\"{size}\" font-weight=\"{}\" text-anchor=\"{}\" {paint}>",
+                    "<text xml:space=\"preserve\" font-family=\"{family}, Inter, Helvetica, Arial, sans-serif\" font-size=\"{size}\" font-weight=\"{}\" text-anchor=\"{}\" {paint}>",
                     style.font_weight,
                     anchor.0
                 );
@@ -1672,7 +1672,7 @@ impl<'a> Svg<'a> {
         };
         let _ = write!(
             self.out,
-            "<text x=\"{x}\" y=\"{y}\" font-family=\"{}\" font-size=\"{}\" font-weight=\"{}\"{italic} letter-spacing=\"{}\"{decoration} {}>{}</text>",
+            "<text xml:space=\"preserve\" x=\"{x}\" y=\"{y}\" font-family=\"{}\" font-size=\"{}\" font-weight=\"{}\"{italic} letter-spacing=\"{}\"{decoration} {}>{}</text>",
             escape(&style.font.family),
             style.size,
             style.weight,
@@ -1830,7 +1830,7 @@ impl<'a> Svg<'a> {
             let y = top + i as f32 * line + (line - size) / 2.0 + ascent;
             let _ = write!(
                 self.out,
-                "<text x=\"{x}\" y=\"{y}\" font-family=\"{}\" font-size=\"{size}\" font-weight=\"{weight}\" fill=\"{hex}\" fill-opacity=\"{alpha}\">{}</text>",
+                "<text xml:space=\"preserve\" x=\"{x}\" y=\"{y}\" font-family=\"{}\" font-size=\"{size}\" font-weight=\"{weight}\" fill=\"{hex}\" fill-opacity=\"{alpha}\">{}</text>",
                 escape(&family),
                 escape(&shown)
             );
@@ -1876,7 +1876,7 @@ impl<'a> Svg<'a> {
                         let shown: String = chars[l.start..l.end].iter().collect::<String>().trim_end().to_string();
                         let _ = write!(
                             self.out,
-                            "<text x=\"{}\" y=\"{}\" font-family=\"Inter\" font-size=\"{size}\" font-weight=\"{weight}\" fill=\"#1E1E1E\">{}</text>",
+                            "<text xml:space=\"preserve\" x=\"{}\" y=\"{}\" font-family=\"Inter\" font-size=\"{size}\" font-weight=\"{weight}\" fill=\"#1E1E1E\">{}</text>",
                             x + 16.0,
                             y + 40.0 + i as f32 * 32.0,
                             escape(&shown)

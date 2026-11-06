@@ -934,6 +934,48 @@ fn coloured(start: usize, end: usize, colour: model::Color) -> model::TextRun {
     model::TextRun { start, end, fills: Some(vec![solid(colour)]), ..model::TextRun::default() }
 }
 
+/// The leftmost and rightmost columns a text paints in, of a picture on white.
+fn ink(graph: &SceneGraph) -> (u32, u32) {
+    let picture = draw(graph, "1:1");
+    let pixmap = Pixmap::decode_png(&picture.png).expect("a PNG");
+    let width = pixmap.width() as usize;
+    let dark: Vec<u32> = pixmap.pixels().iter().enumerate().filter(|(_, p)| p.demultiply().green() < 128).map(|(i, _)| (i % width) as u32).collect();
+    (*dark.iter().min().expect("the text is drawn"), *dark.iter().max().unwrap())
+}
+
+fn text_of(text: &str, runs: Vec<model::TextRun>) -> SceneGraph {
+    let mut graph = text_on_white(rgb(0, 0, 0), 24.0).build();
+    graph.nodes.get_mut(&guid("1:1")).unwrap().width = 300.0;
+    let label = graph.nodes.get_mut(&guid("1:3")).unwrap();
+    label.width = 280.0;
+    label.text = Some(text.into());
+    label.text_runs = runs;
+    graph
+}
+
+/// SVG drops the spaces a `<text>` starts with, and a run is a `<text>` of its own.
+#[test]
+fn a_space_at_the_start_of_a_run_is_drawn() {
+    let (_, whole) = ink(&text_of("ab cd", vec![coloured(2, 5, rgb(0, 0, 0))]));
+    let (_, plain) = ink(&text_of("ab cd", Vec::new()));
+    assert!(whole.abs_diff(plain) <= 1, "a run over the space changes nothing: {whole} and {plain}");
+
+    let (_, joined) = ink(&text_of("abcd", vec![coloured(2, 4, rgb(0, 0, 0))]));
+    assert!(whole > joined + 2, "the space takes room: {whole} against {joined}");
+}
+
+/// Figma shows every space, at the start of a line and between words.
+#[test]
+fn spaces_a_line_starts_with_or_holds_are_drawn() {
+    let (left, _) = ink(&text_of("ab", Vec::new()));
+    let (indented, _) = ink(&text_of("   ab", Vec::new()));
+    assert!(indented > left + 2, "{indented} against {left}");
+
+    let (_, one) = ink(&text_of("a b", Vec::new()));
+    let (_, three) = ink(&text_of("a   b", Vec::new()));
+    assert!(three > one + 2, "{three} against {one}");
+}
+
 /// Light text on black, its layer's fill black as `create_text` leaves it.
 fn on_black(text: &str, runs: Vec<model::TextRun>) -> SceneGraph {
     let mut graph = text_on_white(rgb(0, 0, 0), 14.0).build();
