@@ -655,19 +655,25 @@ impl Value {
 // ── decode_message ────────────────────────────────────────────────────────────
 
 pub fn decode_message(root_name: &str, data: &[u8], schema: &Schema) -> Result<Value, KiwiError> {
+    decode_message_within(root_name, data, schema, MAX_VALUES)
+}
+
+/// [`decode_message`], holding at most `most_values`, for a caller that knows
+/// more of what the message came in than the message says.
+pub fn decode_message_within(root_name: &str, data: &[u8], schema: &Schema, most_values: u64) -> Result<Value, KiwiError> {
     let def = schema
         .find_definition(root_name)
         .ok_or_else(|| KiwiError::UnknownDefinition(root_name.to_string()))?;
     let mut reader = ByteReader::new(data);
-    let mut budget = Budget::for_message(data.len());
+    let mut budget = Budget::for_message(data.len(), most_values);
     decode_value(&mut reader, def, schema, &mut budget)
 }
 
 /// How far a message may nest. Measured on 13 real files: at most 24.
 const MAX_DEPTH: usize = 64;
-/// The most values any message may hold, about 16 GiB of them. Measured on 13
+/// The most values any message may hold, about 8 GiB of them. Measured on 13
 /// real files: at most 70,109,169.
-const MAX_VALUES: u64 = 1 << 29;
+const MAX_VALUES: u64 = 1 << 28;
 
 /// What a message may still spend. A struct reads no input, so what it holds has
 /// to be counted: a schema alone can nest without end, or double at each level.
@@ -678,10 +684,11 @@ struct Budget {
 }
 
 impl Budget {
-    /// At most a value per byte, and a few for a small message. Measured on 13
-    /// real files: at most 0.30 per byte.
-    fn for_message(bytes: usize) -> Self {
-        let limit = (bytes as u64).saturating_add(1024).min(MAX_VALUES);
+    /// At most a value per two bytes, and a few for a small message. Measured on
+    /// 13 real files, and on thousands of copies of their frames: at most 0.32
+    /// per byte. An empty struct is a value in one byte, and takes 32 to hold.
+    fn for_message(bytes: usize, most: u64) -> Self {
+        let limit = (bytes as u64 / 2).saturating_add(1024).min(MAX_VALUES).min(most);
         Self { depth: 0, values: 0, limit }
     }
 

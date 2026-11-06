@@ -27,6 +27,17 @@ const MAX_MESSAGE: u64 = 2 << 30;
 /// larger file: what limits the cost of one is [`MAX_MESSAGE`] and kiwi's budget.
 const MESSAGE_RATIO: u64 = 4096;
 const MESSAGE_FLOOR: u64 = 1 << 20;
+/// The most values a message holds, for its packed size. Measured on 13 real
+/// files: 4.2 per packed byte, and on thousands of copies of their frames: 34.6.
+/// Bytes that inflate to a run of empty structs hold thousands, and each costs
+/// memory where a byte of a blob does not, so this is what asks a crafted file to
+/// be large that [`MESSAGE_RATIO`] no longer does.
+const VALUES_PER_PACKED_BYTE: u64 = 256;
+
+/// The most values a message of this packed size holds.
+pub fn most_values(packed: usize) -> u64 {
+    (packed as u64).saturating_mul(VALUES_PER_PACKED_BYTE).saturating_add(MESSAGE_FLOOR)
+}
 
 /// All of `reader`, or `None` past `limit`, whatever it claims about itself.
 pub fn read_bounded(reader: impl Read, limit: u64) -> Result<Option<Vec<u8>>, std::io::Error> {
