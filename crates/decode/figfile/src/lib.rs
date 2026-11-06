@@ -45,9 +45,11 @@ mod archive;
 mod compress;
 mod container;
 mod error;
+mod prune;
 mod write;
 
 pub use error::FigError;
+pub use prune::{without_unused, Pruned};
 pub use write::{compare, write_canvas, write_fig, Difference};
 
 use kiwi::{Schema, Value};

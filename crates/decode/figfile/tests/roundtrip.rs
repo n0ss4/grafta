@@ -16,6 +16,19 @@ use testkit::model;
 
 // ── Against real files ───────────────────────────────────────────────────────
 
+/// Figma leaves nothing unnamed in a file, in any of its products, so saving one
+/// nobody deleted from leaves nothing out.
+#[test]
+fn a_file_from_figma_has_nothing_to_leave_out() {
+    for path in testkit::fixture::all() {
+        let name = path.file_name().and_then(|n| n.to_str()).unwrap_or_default().to_string();
+        let Some(original) = testkit::fixture::parsed(&name) else { continue };
+        if let Some(pruned) = figfile::without_unused(&original) {
+            panic!("{name}: {} images and {} blobs would be left out", pruned.images, pruned.blobs);
+        }
+    }
+}
+
 /// Round-trip a fixture and compare what grafta understands: first the
 /// document, then the scene graph built from it.
 #[test]
