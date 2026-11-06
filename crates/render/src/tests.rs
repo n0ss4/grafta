@@ -1586,19 +1586,23 @@ fn a_paint_passing_through_is_a_plain_paint() {
     assert!(picture.notes.is_empty(), "{:?}", picture.notes);
 }
 
+/// Neither is drawn as stored, so both are named, and the nearest stands in.
 #[test]
-fn the_linear_modes_are_drawn_as_normal_and_named() {
-    for mode in ["LINEAR_BURN", "LINEAR_DODGE"] {
+fn the_linear_modes_are_drawn_as_their_nearest_and_named() {
+    for (mode, standing_in, nearest) in [("LINEAR_BURN", "multiply", "MULTIPLY"), ("LINEAR_DODGE", "screen", "SCREEN")] {
         let on_the_layer = blended(|graph| graph.nodes.get_mut(&guid("8:3")).unwrap().blend_mode = Some(mode.into()));
         let on_the_paint = blended(|graph| {
             let layer = graph.nodes.get_mut(&guid("8:3")).unwrap();
             layer.blend_mode = None;
             layer.fills[0].blend_mode = Some(mode.into());
         });
+        let same = blended(|graph| graph.nodes.get_mut(&guid("8:3")).unwrap().blend_mode = Some(nearest.into()));
+        let expected = pixel(&draw(&same, "8:1").png, 10, 10);
+        assert_ne!(expected, CYAN, "{mode} changes what is behind it");
         for graph in [on_the_layer, on_the_paint] {
             let picture = draw(&graph, "8:1");
-            assert_eq!(pixel(&picture.png, 10, 10), CYAN, "{mode}");
-            assert!(picture.notes.iter().any(|n| n.contains(mode)), "{mode}: {:?}", picture.notes);
+            assert_eq!(pixel(&picture.png, 10, 10), expected, "{mode}");
+            assert!(picture.notes.iter().any(|n| n.contains(mode) && n.contains(standing_in)), "{mode}: {:?}", picture.notes);
         }
     }
 }

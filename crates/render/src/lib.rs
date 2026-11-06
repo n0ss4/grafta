@@ -1032,9 +1032,16 @@ impl<'a> Svg<'a> {
             Some(BlendMode::Saturation) => "saturation",
             Some(BlendMode::Color) => "color",
             Some(BlendMode::Luminosity) => "luminosity",
-            Some(BlendMode::LinearBurn | BlendMode::LinearDodge) => {
-                self.notes.insert(format!("{mode} is not a blend the renderer has: drawn as normal"));
-                return String::new();
+            // The nearest the renderer has: within 20 of 255 on average, and 64 at
+            // worst, where normal is 84 and 255. Its own has neither, and SVG's
+            // filters cannot read what lies behind a layer.
+            Some(BlendMode::LinearBurn) => {
+                self.notes.insert(format!("{mode} is not a blend the renderer has: drawn as multiply, so midtones come out lighter than in Figma"));
+                "multiply"
+            }
+            Some(BlendMode::LinearDodge) => {
+                self.notes.insert(format!("{mode} is not a blend the renderer has: drawn as screen, so midtones come out darker than in Figma"));
+                "screen"
             }
             _ => return String::new(),
         };
