@@ -4,6 +4,19 @@ What changed for someone using grafta, newest first. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.2.0](https://github.com/n0ss4/grafta/compare/v0.1.1...v0.2.0) (2026-11-06)
+
+
+### Added
+
+* **plugin:** install in the ChatGPT desktop app and Codex ([#10](https://github.com/n0ss4/grafta/issues/10)) ([b36416c](https://github.com/n0ss4/grafta/commit/b36416c852e42f30b5aaf251507945e19efe96a1))
+* **save:** leave out images and blobs nothing names ([#11](https://github.com/n0ss4/grafta/issues/11)) ([323ca47](https://github.com/n0ss4/grafta/commit/323ca47d144414fbbbf629672e679cd89dbdea00))
+
+
+### Fixed
+
+* **components:** save a layer bound to a property ([#12](https://github.com/n0ss4/grafta/issues/12)) ([3dc4c82](https://github.com/n0ss4/grafta/commit/3dc4c823edb935368735c9c40c2726bae1579341))
+
 ## [0.1.1](https://github.com/n0ss4/grafta/compare/v0.1.0...v0.1.1) (2026-11-05)
 
 

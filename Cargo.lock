@@ -630,7 +630,7 @@ dependencies = [
 
 [[package]]
 name = "grafta"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -642,7 +642,7 @@ dependencies = [
 
 [[package]]
 name = "grafta-app"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "grafta-domain",
  "grafta-figfile",
@@ -656,7 +656,7 @@ dependencies = [
 
 [[package]]
 name = "grafta-design"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "grafta-app",
  "grafta-domain",
@@ -668,7 +668,7 @@ dependencies = [
 
 [[package]]
 name = "grafta-disk"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "grafta-domain",
  "grafta-figfile",
@@ -679,7 +679,7 @@ dependencies = [
 
 [[package]]
 name = "grafta-domain"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "grafta-figfile",
  "grafta-kiwi",
@@ -692,7 +692,7 @@ dependencies = [
 
 [[package]]
 name = "grafta-edge"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "grafta-app",
  "grafta-disk",
@@ -708,7 +708,7 @@ dependencies = [
 
 [[package]]
 name = "grafta-figfile"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "flate2",
  "grafta-kiwi",
@@ -722,7 +722,7 @@ dependencies = [
 
 [[package]]
 name = "grafta-figjam"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "grafta-app",
  "grafta-domain",
@@ -734,7 +734,7 @@ dependencies = [
 
 [[package]]
 name = "grafta-kiwi"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "indexmap",
  "thiserror",
@@ -742,7 +742,7 @@ dependencies = [
 
 [[package]]
 name = "grafta-mcp"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "grafta-toolkit",
  "rmcp",
@@ -752,7 +752,7 @@ dependencies = [
 
 [[package]]
 name = "grafta-memory"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "grafta-disk",
  "grafta-domain",
@@ -765,7 +765,7 @@ dependencies = [
 
 [[package]]
 name = "grafta-model"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "grafta-figfile",
  "grafta-kiwi",
@@ -779,7 +779,7 @@ dependencies = [
 
 [[package]]
 name = "grafta-render"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "grafta-domain",
  "grafta-figfile",
@@ -796,7 +796,7 @@ dependencies = [
 
 [[package]]
 name = "grafta-schema"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "grafta-figfile",
  "grafta-kiwi",
@@ -806,7 +806,7 @@ dependencies = [
 
 [[package]]
 name = "grafta-sites"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "grafta-app",
  "grafta-domain",
@@ -818,7 +818,7 @@ dependencies = [
 
 [[package]]
 name = "grafta-slides"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "grafta-app",
  "grafta-domain",
@@ -830,7 +830,7 @@ dependencies = [
 
 [[package]]
 name = "grafta-testkit"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "grafta-figfile",
  "grafta-kiwi",
@@ -841,7 +841,7 @@ dependencies = [
 
 [[package]]
 name = "grafta-toolkit"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "grafta-app",
  "grafta-design",
