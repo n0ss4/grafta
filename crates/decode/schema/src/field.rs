@@ -45,6 +45,7 @@ crate::wire! {
         DashPattern = "dashPattern",
         DataType = "dataType",
         DefId = "defID",
+        PropRefDefId = "defId",
         DerivedImmutableFrameData = "derivedImmutableFrameData",
         DerivedSymbolData = "derivedSymbolData",
         DerivedTextData = "derivedTextData",

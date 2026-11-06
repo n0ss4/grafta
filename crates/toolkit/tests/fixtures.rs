@@ -315,6 +315,54 @@ fn what_a_delete_leaves_behind_is_not_saved_and_what_stays_draws_the_same() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
+/// A layer bound to each kind of property saves in the file's own schema, and
+/// comes back bound, with an instance's values.
+#[test]
+fn a_layer_bound_to_a_property_saves_and_comes_back_bound() {
+    let Some(from) = fixture("gold-preview.fig") else { return };
+    let dir = std::env::temp_dir().join(format!("grafta-079-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let mut kit = toolkit::new();
+    let handle = open(&mut kit, &from);
+
+    let page = call(&mut kit, "create_page", json!({ "handle": handle, "name": "079" }))["id"].clone();
+    let frame = |kit: &mut Toolkit, name: &str, x: i32| {
+        call(kit, "create_frame", json!({ "handle": handle, "parent": page, "name": name, "x": x, "y": 0, "width": 100, "height": 40 }))["id"].clone()
+    };
+    let icon = frame(&mut kit, "Icon/A", 0);
+    call(&mut kit, "create_component", json!({ "handle": handle, "id": icon }));
+    let other = frame(&mut kit, "Icon/B", 120);
+    call(&mut kit, "create_component", json!({ "handle": handle, "id": other }));
+
+    let card = frame(&mut kit, "Card", 240);
+    let label = call(&mut kit, "create_text", json!({ "handle": handle, "parent": card, "characters": "Label" }))["id"].clone();
+    let slot = call(&mut kit, "create_instance", json!({ "handle": handle, "parent": card, "component": icon }))["id"].clone();
+    call(&mut kit, "create_component", json!({ "handle": handle, "id": card }));
+    for (name, kind, default) in [("Label", "TEXT", json!("Label")), ("Show", "BOOLEAN", json!(true)), ("Icon", "INSTANCE_SWAP", json!("Icon/A"))] {
+        call(&mut kit, "add_component_property", json!({ "handle": handle, "component": card, "name": name, "type": kind, "default": default }));
+    }
+    let bind = |kit: &mut Toolkit, id: &Value, references: Value| {
+        call(kit, "set_properties", json!({ "handle": handle, "id": id, "properties": { "componentPropertyReferences": references } }));
+    };
+    bind(&mut kit, &label, json!({ "characters": "Label" }));
+    bind(&mut kit, &slot, json!({ "visible": "Show", "mainComponent": "Icon" }));
+
+    let copy = call(&mut kit, "create_instance", json!({ "handle": handle, "parent": page, "component": card, "x": 400 }))["id"].clone();
+    let values = json!({ "Label": "Guardar", "Show": false, "Icon": "Icon/B" });
+    call(&mut kit, "set_properties", json!({ "handle": handle, "id": copy, "properties": { "componentProperties": values } }));
+
+    let saved = dir.join("saved.fig");
+    call(&mut kit, "save_as", json!({ "handle": handle, "path": saved }));
+
+    let mut reopened = toolkit::new();
+    let handle = open(&mut reopened, &saved);
+    let read = |kit: &mut Toolkit, id: &Value| call(kit, "read_node", json!({ "handle": handle, "id": id, "depth": 0 }));
+    assert_eq!(read(&mut reopened, &label)["componentPropertyReferences"], json!({ "characters": "Label" }));
+    assert_eq!(read(&mut reopened, &slot)["componentPropertyReferences"], json!({ "visible": "Show", "mainComponent": "Icon" }));
+    assert_eq!(read(&mut reopened, &copy)["componentProperties"], json!({ "Label": "Guardar", "Show": "false", "Icon": "Icon/B" }));
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
 /// On a real file, edits kept up to date incrementally leave the graph a
 /// full rebuild gives. Compared by `Debug`, since the file carries NaN sizes
 /// and NaN is not equal to itself.

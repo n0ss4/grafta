@@ -2533,6 +2533,10 @@ fn a_component_property_is_defined_bound_and_set_per_instance() {
     let consumed = raw.get("parameterConsumptionMap").and_then(|m| m.get("entries")).and_then(Raw::as_array).unwrap();
     assert_eq!(consumed.len(), 2);
     assert_eq!(consumed[0].get("variableData").and_then(|d| d.get("dataType")).and_then(Raw::as_str), Some("PROP_REF"));
+    // Spelled apart from `componentPropRefs`' `defID`, in every schema measured: this
+    // document has no schema to refuse the wrong one, and a save on a real file does.
+    let prop_ref = consumed[0].get("variableData").and_then(|d| d.get("value")).and_then(|v| v.get("propRefValue")).unwrap();
+    assert!(prop_ref.get("defId").is_some() && prop_ref.get("defID").is_none());
 
     set(&mut kit, &handle, &instance, json!({ "componentProperties": { "Label": "Guardar", "Show icon": false, "Icon": "Icon/Check" } })).unwrap();
     let node = read(&mut kit, &handle, &instance);
