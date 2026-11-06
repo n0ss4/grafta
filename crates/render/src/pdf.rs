@@ -33,7 +33,7 @@ fn pdf_here(fig: &FigFile, graph: &SceneGraph, ids: &[Guid]) -> Result<Pdf, Rend
     if ids.is_empty() {
         return Err(RenderError("no node to write".into()));
     }
-    let options = resvg::usvg::Options { fontdb: crate::text::fonts(), ..resvg::usvg::Options::default() };
+    let options = crate::text::options();
     let mut document = Document::new();
     let mut pages = Vec::new();
     for id in ids {

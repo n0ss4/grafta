@@ -81,7 +81,7 @@ fn render_here(fig: &FigFile, graph: &SceneGraph, id: Guid, scale: f32, max_size
     let height = (tall * scale).ceil().max(1.0) as u32;
 
     let drawing = draw(fig, graph, node, top, tall, width, height);
-    let options = resvg::usvg::Options { fontdb: text::fonts(), ..resvg::usvg::Options::default() };
+    let options = text::options();
     let tree = resvg::usvg::Tree::from_str(&drawing.svg, &options)
         .map_err(|error| RenderError(format!("the drawing did not parse: {error}")))?;
     let mut pixmap = resvg::tiny_skia::Pixmap::new(width, height)
@@ -1453,6 +1453,55 @@ impl<'a> Svg<'a> {
         true
     }
 
+    /// Give each character its text's font lacks a style of its own, in a font
+    /// that has it, so that one character changes neither the font of the rest
+    /// nor their line's height. The notes name them, as a drawing that differs
+    /// from what the file says should.
+    fn fall_back(&mut self, db: &resvg::usvg::fontdb::Database, styles: &mut Vec<RunStyle>, chars: &mut [Styled]) {
+        let mut found: std::collections::HashMap<(char, u32, bool), Option<text::Font>> = std::collections::HashMap::new();
+        let mut made: std::collections::HashMap<(usize, resvg::usvg::fontdb::ID), usize> = std::collections::HashMap::new();
+        let mut missing: std::collections::BTreeMap<(String, Option<String>), Vec<char>> = std::collections::BTreeMap::new();
+        let mut before = None;
+        for styled in chars.iter_mut() {
+            let shown = styled.shown.chars().next().unwrap_or(' ');
+            // These only modify the character before, and go where it went.
+            if matches!(shown, '\u{200D}' | '\u{FE00}'..='\u{FE0F}') {
+                styled.style = before.unwrap_or(styled.style);
+                continue;
+            }
+            let own = styled.style;
+            before = Some(own);
+            let lacking = |c: &char| !c.is_whitespace() && !c.is_control() && !text::has_char(db, styles[own].font.id, *c);
+            let Some(c) = styled.shown.chars().find(lacking) else { continue };
+            let (weight, italic) = (styles[own].weight, styles[own].italic);
+            let font = found.entry((c, weight, italic)).or_insert_with(|| text::fallback(db, c, weight, italic)).clone();
+            let named = missing.entry((styles[own].font.family.clone(), font.as_ref().map(|f| f.family.clone()))).or_default();
+            if !named.contains(&c) {
+                named.push(c);
+            }
+            let Some(font) = font else { continue };
+            let style = *made.entry((own, font.id)).or_insert_with(|| {
+                let mut style = styles[own].clone();
+                style.font = font;
+                styles.push(style);
+                styles.len() - 1
+            });
+            styled.style = style;
+            before = Some(style);
+        }
+        for ((family, fallback), shown) in missing {
+            let mut listed: Vec<String> = shown.iter().take(MISSING_NAMED).map(|c| format!("{c} (U+{:04X})", u32::from(*c))).collect();
+            if shown.len() > MISSING_NAMED {
+                listed.push(format!("and {} more", shown.len() - MISSING_NAMED));
+            }
+            let listed = listed.join(", ");
+            self.notes.insert(match fallback {
+                Some(fallback) => format!("{listed} not in {family}, so drawn in {fallback}; Figma may choose another font for them"),
+                None => format!("{listed} not in {family} or any font installed here, so drawn as a box"),
+            });
+        }
+    }
+
     /// The layout `lay_out` draws, and `measure_text` sizes a text by.
     /// `None` when the machine has no font at all.
     fn layout(&mut self, node: &SceneNode, paint: &str, override_text: Option<&str>) -> Option<TextLayout> {
@@ -1470,7 +1519,7 @@ impl<'a> Svg<'a> {
             let style = self.text_style_for(&db, node, &layer, Some(run), paint);
             styles.push(style.or_else(|| styles[0].clone()));
         }
-        let styles: Vec<RunStyle> = styles.into_iter().map(|s| s.expect("the layer's font was found")).collect();
+        let mut styles: Vec<RunStyle> = styles.into_iter().map(|s| s.expect("the layer's font was found")).collect();
 
         // Each character: what is drawn for it, its style, its advance.
         let mut chars: Vec<Styled> = Vec::new();
@@ -1488,6 +1537,7 @@ impl<'a> Svg<'a> {
             word_start = c.is_whitespace();
             chars.push(Styled { shown, style, advance: 0.0 });
         }
+        self.fall_back(&db, &mut styles, &mut chars);
         for (i, style) in styles.iter().enumerate() {
             let mine: Vec<usize> = (0..chars.len()).filter(|&c| chars[c].style == i && chars[c].shown != "\n").collect();
             let joined: String = mine.iter().map(|&c| chars[c].shown.as_str()).collect();
@@ -2092,6 +2142,9 @@ struct RunStyle {
     decoration: String,
     paint: String,
 }
+
+/// How many characters a text's font lacks are named in a note, one by one.
+const MISSING_NAMED: usize = 5;
 
 /// A character of a text: what is drawn for it (its case applied), its style
 /// (0 the layer's, then each run's), and its advance.
