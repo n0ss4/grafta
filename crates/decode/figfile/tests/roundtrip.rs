@@ -188,6 +188,15 @@ fn canvas(message_chunk: &[u8]) -> Vec<u8> {
     out
 }
 
+/// The second chunk of a canvas: the magic, the version, then each chunk behind
+/// its length.
+fn message_chunk_of(canvas: &[u8]) -> &[u8] {
+    let length = |at: usize| u32::from_le_bytes(canvas[at..at + 4].try_into().unwrap()) as usize;
+    let schema_at = 12;
+    let message_at = schema_at + 4 + length(schema_at);
+    &canvas[message_at + 4..message_at + 4 + length(message_at)]
+}
+
 /// However the message arrived — zstd, deflate, or not compressed at all — the
 /// document that comes back out is the same one.
 #[test]
@@ -211,12 +220,10 @@ fn a_message_survives_whatever_it_was_compressed_with() {
             "{how}: and it is the document that went in"
         );
 
-        // The output is deflate every time, whatever came in. If Figma refuses
-        // a file, this is the first thing to vary (research D2) — and every
-        // real file measured arrives as zstd, so this conversion is on the
-        // common path, not an edge of it.
-        let second_chunk_is_zstd = written.windows(4).any(|w| w == [0x28, 0xb5, 0x2f, 0xfd]);
-        assert!(!second_chunk_is_zstd, "{how}: the writer emitted zstd");
+        // The output is zstd every time, whatever came in, as every real file
+        // measured stores it.
+        let chunk = message_chunk_of(&written);
+        assert_eq!(chunk[..4], [0x28, 0xb5, 0x2f, 0xfd], "{how}: the writer did not emit zstd");
     }
 }
 

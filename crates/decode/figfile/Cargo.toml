@@ -21,6 +21,7 @@ flate2.workspace = true
 ruzstd.workspace = true
 thiserror.workspace = true
 zip.workspace = true
+zstd.workspace = true
 # Only to build liblzma in (the workspace says why); not used directly.
 lzma-sys.workspace = true
 

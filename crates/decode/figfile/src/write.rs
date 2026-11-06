@@ -25,8 +25,7 @@ pub fn write_canvas(fig: &FigFile) -> Result<Vec<u8>, FigError> {
     let schema_chunk = fig.schema_chunk.as_slice();
 
     let message_bytes = kiwi::encode_message("Message", &fig.node_changes, &fig.schema)?;
-    let message_chunk =
-        compress::deflate(&message_bytes).map_err(|e| FigError::Deflate(e.to_string()))?;
+    let message_chunk = compress::message_chunk(&message_bytes)?;
 
     let mut chunks: Vec<&[u8]> = vec![schema_chunk, &message_chunk];
     chunks.extend(fig.trailing_chunks.iter().map(Vec::as_slice));
