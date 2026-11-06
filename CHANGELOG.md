@@ -4,6 +4,13 @@ What changed for someone using grafta, newest first. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.2.3](https://github.com/n0ss4/grafta/compare/v0.2.2...v0.2.3) (2026-11-06)
+
+
+### Fixed
+
+* **order:** keep order keys short, and give each child its own ([#25](https://github.com/n0ss4/grafta/issues/25)) ([bc0d84e](https://github.com/n0ss4/grafta/commit/bc0d84e07248c0e75891a0157e233212a64bdf70))
+
 ## [0.2.2](https://github.com/n0ss4/grafta/compare/v0.2.1...v0.2.2) (2026-11-06)
 
 
