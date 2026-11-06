@@ -202,9 +202,14 @@ impl Query for SaveAs {
             return Err(WriteError::MissingEntries { file: session.file_name(), missing }.into());
         }
 
-        let bytes = ports.codec.encode(&session.fig).map_err(|error| WriteError::CannotEncode { error })?;
+        // The session keeps what it left out, so an edit after this save can
+        // still name it, and the journal and a rollback see what they always did.
+        let pruned = figfile::without_unused(&session.fig);
+        let fig = pruned.as_ref().map_or(&session.fig, |pruned| &pruned.fig);
+
+        let bytes = ports.codec.encode(fig).map_err(|error| WriteError::CannotEncode { error })?;
         let reread = ports.codec.decode(&bytes).map_err(|error| WriteError::NotReadBack { error })?;
-        if let Some(difference) = ports.codec.compare(&session.fig, &reread) {
+        if let Some(difference) = ports.codec.compare(fig, &reread) {
             return Err(WriteError::ChangedInTransit { at: difference.path.to_string() }.into());
         }
 
@@ -223,14 +228,21 @@ impl Query for SaveAs {
             .filter_map(|&id| session.graph.node(id))
             .map(|n| data!({ "id": n.id, "type": type_name(n.node_type), "name": n.name }))
             .collect();
-        Ok(Output::Data(data!({
+        let mut result = data!({
             "path": path.display().to_string(),
             "bytes": bytes.len(),
             "nodes_added": session.created.len(),
             "created": created,
             "reread": "compared equal",
             "next": "open it in Figma: Figma's import is the check grafta cannot do",
-        })))
+        });
+        if let (Some(pruned), Data::Map(result)) = (&pruned, &mut result) {
+            result.insert(
+                "left_out".into(),
+                data!({ "images": pruned.images, "blobs": pruned.blobs, "bytes": pruned.bytes, "why": "nothing in the file names them any more" }),
+            );
+        }
+        Ok(Output::Data(result))
     }
 }
 

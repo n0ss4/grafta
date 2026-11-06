@@ -256,6 +256,65 @@ fn a_new_file_from_a_large_file_is_empty_and_small() {
     let _ = std::fs::remove_file(&path);
 }
 
+fn picture(kit: &mut Toolkit, handle: &str, id: &Value) -> Vec<u8> {
+    match toolkit::edge::call(kit, "render_node", &json!({ "handle": handle, "id": id })).unwrap() {
+        Output::Image { bytes, .. } => bytes,
+        Output::Data(_) => panic!("render_node gave no picture"),
+    }
+}
+
+/// What a delete leaves behind stays out of the saved file, and the blob after
+/// it moving down an index draws the same layer. The first vector is made
+/// first so that the second's blob has to move.
+#[test]
+fn what_a_delete_leaves_behind_is_not_saved_and_what_stays_draws_the_same() {
+    let Some(from) = fixture("gold-preview.fig") else { return };
+    let dir = std::env::temp_dir().join(format!("grafta-073-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let mut kit = toolkit::new();
+    let handle = open(&mut kit, &from);
+
+    let page = call(&mut kit, "create_page", json!({ "handle": handle, "name": "073" }))["id"].clone();
+    let vector = |kit: &mut Toolkit, path: &str, color: &str, x: i32| {
+        let args = json!({ "handle": handle, "parent": page, "path": path, "fills": [{ "type": "SOLID", "color": color }], "x": x, "width": 64, "height": 64 });
+        call(kit, "create_vector", args)["id"].clone()
+    };
+    let gone = vector(&mut kit, "M0 0H10V10H0Z", "#FF0000", 0);
+    let kept = vector(&mut kit, "M0 10L5 0L10 10Z", "#0000FF", 100);
+
+    let framed = |kit: &mut Toolkit, source: &Value, name: &str, x: i32| {
+        let png = dir.join(name);
+        std::fs::write(&png, picture(kit, &handle, source)).unwrap();
+        let frame = call(kit, "create_frame", json!({ "handle": handle, "parent": page, "name": name, "x": x, "y": 100, "width": 64, "height": 64 }))["id"].clone();
+        call(kit, "set_properties", json!({ "handle": handle, "id": frame, "properties": { "fills": [{ "type": "IMAGE", "image": png }] } }));
+        frame
+    };
+    let gone_image = framed(&mut kit, &gone, "gone.png", 0);
+    let kept_image = framed(&mut kit, &kept, "kept.png", 100);
+
+    call(&mut kit, "delete_node", json!({ "handle": handle, "id": gone }));
+    call(&mut kit, "delete_node", json!({ "handle": handle, "id": gone_image }));
+    let before = (picture(&mut kit, &handle, &kept), picture(&mut kit, &handle, &kept_image));
+
+    let saved = dir.join("saved.fig");
+    let out = call(&mut kit, "save_as", json!({ "handle": handle, "path": saved }));
+    assert_eq!(out["left_out"]["images"], 1, "{out}");
+    assert!(out["left_out"]["blobs"].as_u64().unwrap() >= 1, "{out}");
+
+    let parsed = figfile::parse_fig(&std::fs::read(&saved).unwrap()).unwrap();
+    assert!(figfile::without_unused(&parsed).is_none(), "the saved file holds nothing unnamed");
+
+    let again = dir.join("again.fig");
+    call(&mut kit, "save_as", json!({ "handle": handle, "path": again }));
+    assert_eq!(std::fs::read(&saved).unwrap(), std::fs::read(&again).unwrap(), "the session is as it was");
+
+    let mut reopened = toolkit::new();
+    let handle = open(&mut reopened, &saved);
+    let after = (picture(&mut reopened, &handle, &kept), picture(&mut reopened, &handle, &kept_image));
+    assert!(before == after, "what stays draws the same");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
 /// On a real file, edits kept up to date incrementally leave the graph a
 /// full rebuild gives. Compared by `Debug`, since the file carries NaN sizes
 /// and NaN is not equal to itself.

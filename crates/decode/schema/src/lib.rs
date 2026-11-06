@@ -15,7 +15,7 @@ mod wire;
 
 pub use access::{fields, object, Wire, WireMut, Wired};
 pub use enums::*;
-pub use field::Field;
+pub use field::{may_index_blobs, Field};
 pub use generated::{GeneratedLayer, GENERATED_SESSION};
 pub use guid::{Guid, GuidError};
 pub use table::{table_entries, table_sizes, TableAxis};
