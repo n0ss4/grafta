@@ -25,7 +25,9 @@ jobs:
   version:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: The tag, the workspace and every channel name one version
         run: scripts/set-version.sh --check "${GITHUB_REF_NAME#v}"
 
@@ -44,9 +46,12 @@ jobs:
           - { target: x86_64-pc-windows-msvc, os: windows-2025, npm: win32-x64 }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: stable
           targets: ${{ matrix.target }}
       - run: cargo build --release --locked -p grafta --target ${{ matrix.target }}
       - name: Archive (unix)
@@ -56,7 +61,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: Compress-Archive -Path target/${{ matrix.target }}/release/grafta.exe -DestinationPath grafta-${{ matrix.target }}.zip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: grafta-${{ matrix.target }}
           path: grafta-${{ matrix.target }}.*
@@ -67,8 +72,10 @@ jobs:
     needs: build
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           path: dist
           merge-multiple: true
@@ -84,7 +91,7 @@ jobs:
       - name: The bundle names the tag's version
         run: |
           unzip -p grafta.mcpb manifest.json | python3 -c 'import json, sys; v = json.load(sys.stdin)["version"]; sys.exit(v != sys.argv[1] and f"bundle says {v}")' "${GITHUB_REF_NAME#v}"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: grafta-mcpb
           path: grafta.mcpb
@@ -93,7 +100,7 @@ jobs:
     needs: [build, mcpb]
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           path: dist
           merge-multiple: true
@@ -120,9 +127,11 @@ jobs:
     env:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: env.NODE_AUTH_TOKEN != ''
-      - uses: actions/setup-node@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         if: env.NODE_AUTH_TOKEN != ''
         with:
           node-version: 20
@@ -151,8 +160,10 @@ jobs:
     env:
       TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: env.TAP_TOKEN != ''
+        with:
+          persist-credentials: false
       - name: Render the formula and push it to the tap
         if: env.TAP_TOKEN != ''
         env:
@@ -179,8 +190,10 @@ jobs:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       MCP_PUBLISHER: v1.8.8
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: env.NODE_AUTH_TOKEN != ''
+        with:
+          persist-credentials: false
       - name: Publish server.json
         if: env.NODE_AUTH_TOKEN != ''
         run: |
@@ -203,10 +216,14 @@ jobs:
     env:
       CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: env.CARGO_REGISTRY_TOKEN != ''
-      - uses: dtolnay/rust-toolchain@stable
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         if: env.CARGO_REGISTRY_TOKEN != ''
+        with:
+          toolchain: stable
       - name: Publish, dependencies first
         if: env.CARGO_REGISTRY_TOKEN != ''
         run: scripts/publish-crates.sh "${GITHUB_REF_NAME#v}"
