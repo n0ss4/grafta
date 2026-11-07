@@ -6,8 +6,8 @@ Tell us what you need in the [issues](https://github.com/n0ss4/grafta/issues).
 
 ## Drawing
 
-- `LINEAR_BURN` and `LINEAR_DODGE` blend modes. Today they are drawn as normal,
-  and the picture's notes say so.
+- `LINEAR_BURN` and `LINEAR_DODGE` blend modes as stored. Today they are drawn as
+  multiply and screen, the nearest the renderer has, and the picture's notes say so.
 - Noise and grain effects, which are not drawn yet.
 - An instance laid out again when an overridden text changes its width.
 

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.n0ss4/grafta",
+  "title": "grafta",
+  "description": "Talk to any Figma file with your AI: ask what's in it, change it, or turn it into code.",
+  "websiteUrl": "https://n0ss4.github.io/grafta",
+  "repository": {
+    "url": "https://github.com/n0ss4/grafta",
+    "source": "github"
+  },
+  "version": "0.2.3",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "grafta",
+      "version": "0.2.3",
+      "transport": { "type": "stdio" },
+      "packageArguments": [{ "type": "positional", "value": "mcp" }]
+    }
+  ]
+}

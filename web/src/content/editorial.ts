@@ -58,9 +58,9 @@ export const asks = [
         alt: "A poster rebuilt as editable Figma layers",
       },
       {
-        prompt: "Bring this web page into the file as auto-layout.",
-        image: "showcase/sessions/html-claude-code-1.png",
-        alt: "Pricing cards imported from a web page",
+        prompt: "Turn this screen into code, in our stack.",
+        image: "showcase/sessions/code-order.png",
+        alt: "An order card built in code from the file's exact values",
       },
     ],
   },

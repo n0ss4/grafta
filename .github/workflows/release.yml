@@ -7,6 +7,8 @@
 #   NPM_TOKEN             npm, packages grafta and grafta-<os>-<cpu>
 #   HOMEBREW_TAP_TOKEN    push access to n0ss4/homebrew-tap
 #   CARGO_REGISTRY_TOKEN  crates.io
+# The MCP registry needs no secret: it signs in with the workflow's own
+# identity, and lists the npm package, so it follows npm.
 name: release
 
 on:
@@ -164,6 +166,27 @@ jobs:
           git config user.name "grafta release" && git config user.email "release@grafta.invalid"
           git add Formula/grafta.rb
           git diff --cached --quiet || { git commit -m "grafta ${GITHUB_REF_NAME}" && git push; }
+
+  mcp-registry:
+    # The registry holds only a description: it checks the npm package of the
+    # same version names it (`mcpName`), so it goes once npm is out.
+    needs: npm
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      MCP_PUBLISHER: v1.8.8
+    steps:
+      - uses: actions/checkout@v4
+        if: env.NODE_AUTH_TOKEN != ''
+      - name: Publish server.json
+        if: env.NODE_AUTH_TOKEN != ''
+        run: |
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER}/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish
 
   crates:
     # After npm: crates.io cannot be taken back, so it goes only once npm is out.

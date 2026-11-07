@@ -62,6 +62,10 @@ render = { package = "grafta-render", version = "0.2.3", path = "crates/render" 
 mcp = { package = "grafta-mcp", version = "0.2.3", path = "crates/mcp" }
 
 anyhow = "1"
+# Colour in the terminal for `grafta tool`, none when piped or under NO_COLOR.
+# Already clap's.
+anstream = "1"
+anstyle = "1"
 clap = { version = "4", features = ["derive"] }
 flate2 = "1"
 indexmap = { version = "2", features = ["serde"] }
@@ -84,6 +88,8 @@ ruzstd = "0.7"
 zmij = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+# The terminal's width, so `grafta tool` fits its lines to it.
+terminal_size = "0.4"
 thiserror = "2"
 tokio = { version = "1", features = ["rt", "macros", "io-std", "sync"] }
 zip = "2"

@@ -7,14 +7,42 @@
 
 use kiwi::Value as Raw;
 use model::path::Path;
-use schema::{fields, object, Field, PaintType, StrokeAlign, StrokeCap, StrokeJoin, WireName};
+use model::SceneNode;
+use schema::{fields, object, Field, PaintType, StrokeAlign, StrokeCap, StrokeJoin, Wire, WireName};
 
 use super::style::paints;
 use super::write::{author_error, created, record, require_parent, Placement};
 use crate::data::{data, Data, Map};
 use crate::Command;
 use crate::view::num;
-use crate::{Output, ToolError, Toolkit};
+use crate::{Output, Session, ToolError, Toolkit};
+
+/// A vector's paths from the network it stores, at its size, in the plugin API's
+/// `vectorPaths` shape: what it fills, and what it strokes, as `NONE` says, every
+/// segment of it, open or closed.
+pub fn drawn_paths(session: &Session, node: &SceneNode) -> Vec<(String, &'static str)> {
+    let network = session.raw(node.id).and_then(|raw| raw.field(Field::VectorData)).and_then(|data| {
+        let blob = session.fig.blobs.get(data.field(Field::VectorNetworkBlob)?.as_u32()? as usize)?;
+        let size = data.field(Field::NormalizedSize);
+        let stored = |axis: Field, own: f32| size.and_then(|s| s.field(axis)).and_then(Raw::as_f32).filter(|v| *v > 0.0).unwrap_or(own);
+        let scale = (node.width / stored(Field::X, node.width), node.height / stored(Field::Y, node.height));
+        Some((model::path::Network::decode(blob)?, scale))
+    });
+    let Some((network, scale)) = network else { return Vec::new() };
+    let mut paths = Vec::new();
+    if node.fills.iter().any(|fill| fill.visible) {
+        if let Some((d, nonzero)) = network.fill_path(scale) {
+            paths.push((d, if nonzero { "NONZERO" } else { "EVENODD" }));
+        }
+    }
+    if node.strokes.iter().any(|stroke| stroke.visible) {
+        let d = network.stroke_path(scale);
+        if !d.is_empty() {
+            paths.push((d, "NONE"));
+        }
+    }
+    paths
+}
 
 /// A vector drawn from SVG path data, scaled to its size.
 pub struct CreateVector {

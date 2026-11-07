@@ -209,7 +209,7 @@ fn a_budget_cut_ends_at_a_node_and_says_where_to_resume() {
     let page_node = session.graph.node(node_id("1:1")).unwrap();
     // Below the tools' 1 KB floor, so a document this small still gets cut.
     let limits = crate::view::Limits { depth: 3, budget: 300, geometry: false, children_from: 0 };
-    let page = crate::view::node(&session.graph, None, page_node, &limits, &session.ports, session.products);
+    let page = crate::view::node(&session.graph, None, page_node, &limits, &session.ports, session.products, &|_| Vec::new());
 
     let shown = page["children"].as_list().unwrap().len();
     assert!((1..3).contains(&shown), "the budget should have cut the page's children, showed {shown}");
@@ -224,6 +224,7 @@ fn a_budget_cut_ends_at_a_node_and_says_where_to_resume() {
         &crate::view::Limits { depth: 1, budget: 32 * 1024, geometry: false, children_from: shown },
         &session.ports,
         session.products,
+        &|_| Vec::new(),
     );
     assert_eq!(resumed["children"].as_list().unwrap().len(), 3 - shown);
     assert_eq!(resumed["childrenFrom"], shown);
@@ -1552,6 +1553,38 @@ fn a_vector_is_drawn_from_its_network_stroke_and_fill() {
     let square = call(&mut kit, "create_vector", json!({ "handle": handle, "parent": "1:1", "path": "M0 0H10V10H0Z", "fills": [{ "type": "SOLID", "color": "#FF0000" }], "width": 20 })).unwrap();
     let (png, _) = render(&mut kit, json!({ "handle": handle, "id": square["id"] })).unwrap();
     assert_eq!(pixel(&png, 10, 10), [255, 0, 0, 255]);
+}
+
+/// A vector grafta wrote stores no geometry until Figma opens it, and turning it
+/// into code still needs its shape.
+#[test]
+fn a_vector_grafta_wrote_gives_its_paths_when_asked() {
+    let (mut kit, handle) = kit();
+    let filled = call(&mut kit, "create_vector", json!({ "handle": handle, "parent": "1:1", "path": "M0 0H10V10H0Z", "fills": [{ "type": "SOLID", "color": "#FF0000" }], "width": 20 })).unwrap();
+    let stroked = call(&mut kit, "create_vector", json!({ "handle": handle, "parent": "1:1", "path": "M5 12L19 12", "viewBox": [0, 0, 24, 24] })).unwrap();
+
+    let plain = call(&mut kit, "read_node", json!({ "handle": handle, "id": filled["id"] })).unwrap();
+    assert_eq!(plain["geometry"]["vectorPaths"], 1, "{plain}");
+    assert!(plain.get("vectorPaths").is_none());
+
+    let asked = call(&mut kit, "read_node", json!({ "handle": handle, "id": filled["id"], "geometry": true })).unwrap();
+    let path = &asked["vectorPaths"][0];
+    assert_eq!(path["windingRule"], "NONZERO", "{asked}");
+    assert!(path["data"].as_str().unwrap().contains("20"), "at the vector's size: {path}");
+
+    let line = call(&mut kit, "read_node", json!({ "handle": handle, "id": stroked["id"], "geometry": true })).unwrap();
+    assert_eq!(line["vectorPaths"][0]["windingRule"], "NONE", "{line}");
+
+    // A stroked icon with a closed loop and an open line keeps both.
+    let icon = call(&mut kit, "create_vector", json!({ "handle": handle, "parent": "1:1", "path": ["M0 0H10V10H0Z", "M2 5L8 5"], "viewBox": [0, 0, 10, 10] })).unwrap();
+    let icon = call(&mut kit, "read_node", json!({ "handle": handle, "id": icon["id"], "geometry": true })).unwrap();
+    assert_eq!(icon["vectorPaths"][0]["windingRule"], "NONE", "{icon}");
+    assert_eq!(icon["vectorPaths"][0]["data"].as_str().unwrap().matches('M').count(), 2, "{icon}");
+
+    // Inside a frame's view too.
+    let page = call(&mut kit, "read_node", json!({ "handle": handle, "id": "1:1", "depth": 1, "geometry": true })).unwrap();
+    let shown = page["children"].as_array().unwrap().iter().filter(|c| c.get("vectorPaths").is_some()).count();
+    assert_eq!(shown, 3, "{page}");
 }
 
 #[test]
