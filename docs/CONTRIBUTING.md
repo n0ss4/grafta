@@ -85,16 +85,29 @@ and are squashed into `develop`, so each pull request is one commit whose title 
 the next version. `develop` is merged into `main` with a merge commit, keeping them
 apart. `conventions.yml` checks the branch, the title and the target.
 
-| Type | Next version | CI |
-|---|---|---|
-| `feat` | minor: 0.1.0 → 0.2.0 | runs |
-| `fix`, `perf` | patch: 0.1.0 → 0.1.1 | runs |
-| `feat!`, or a `BREAKING CHANGE:` footer | minor before 1.0, major after | runs |
-| `docs`, `chore`, `ci`, `refactor`, `test`, `build`, `style` | none | runs, unless only prose changed |
+| Type | Next version |
+|---|---|
+| `feat` | minor: 0.1.0 → 0.2.0 |
+| `fix`, `perf` | patch: 0.1.0 → 0.1.1 |
+| `feat!`, or a `BREAKING CHANGE:` footer | minor before 1.0, major after |
+| `docs`, `chore`, `ci`, `refactor`, `test`, `build`, `style` | none |
 
 A commit that touches nothing but `web/` or `docs/` makes no release, whatever its
-type: the website deploys from `main` by itself. CI skips a change to nothing but
-the prose listed in `ci.yml`; `ci` is the one check to require.
+type: the website deploys from `main` by itself.
+
+What CI runs depends on the files a change touches, not on its type, as
+[`scripts/ci-changes.sh`](../scripts/ci-changes.sh) names them:
+
+| A change to | Runs |
+|---|---|
+| prose only: the README, this file, the roadmap, troubleshooting | nothing |
+| `web/`, `docs/assets`, `docs/brand`, `CHANGELOG.md` | `web` |
+| `crates/`, `Cargo.toml`, `Cargo.lock` | `test` on three systems, and `packaging` |
+| npm, the plugins, `server.json`, `docs/TOOLS.md`, `scripts/` | `packaging` |
+| `ci.yml`, or a file the script does not name | everything |
+
+A new kind of file runs everything until the script names it. `ci` is the one
+check to require: it passes when every job that ran passed.
 
 ## Releasing
 

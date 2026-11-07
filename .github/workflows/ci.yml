@@ -11,13 +11,15 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  # A change to nothing but prose runs nothing. This names the prose by file,
-  # so a new file runs everything until it is listed here: docs/TOOLS.md is
-  # checked against the server, and the site is built from CHANGELOG.md.
+  # Each job runs when the change touches what it checks, as
+  # scripts/ci-changes.sh names by file: prose runs nothing, the site alone
+  # runs only web, and a file it does not name runs everything.
   changes:
     runs-on: ubuntu-24.04
     outputs:
-      code: ${{ steps.diff.outputs.code }}
+      rust: ${{ steps.diff.outputs.rust }}
+      packaging: ${{ steps.diff.outputs.packaging }}
+      web: ${{ steps.diff.outputs.web }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,18 +29,15 @@ jobs:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
           HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
-          prose='^(README\.md|AGENTS\.md|SECURITY\.md|LICENSE|docs/(ROADMAP|CONTRIBUTING|ARCHITECTURE)\.md)$'
-          # What cannot be compared, a new branch's first push, runs everything.
-          if files="$(git diff --name-only "$BASE...$HEAD")" && [ -n "$files" ] && ! printf '%s\n' "$files" | grep -Evq "$prose"; then
-            echo "Only prose changed:" && printf '%s\n' "$files"
-            echo "code=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "code=true" >> "$GITHUB_OUTPUT"
-          fi
+          # What cannot be compared, a new branch's first push, gives no files,
+          # and the script runs everything for that.
+          files="$(git diff --name-only "$BASE...$HEAD" 2>/dev/null || true)"
+          printf '%s\n' "$files"
+          printf '%s\n' "$files" | scripts/ci-changes.sh | tee -a "$GITHUB_OUTPUT"
 
   test:
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    if: needs.changes.outputs.rust == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -59,7 +58,7 @@ jobs:
 
   packaging:
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    if: needs.changes.outputs.packaging == 'true'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -80,7 +79,7 @@ jobs:
   # browser's view of it (routes, keyboard, scripts off, axe, Lighthouse).
   web:
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-24.04
     defaults:
       run:
