@@ -79,3 +79,4 @@ fn exit_status(error: &anyhow::Error) -> i32 {
     anstream::eprintln!("{}", command::view::error(&format!("{error:#}"), &[]));
     1
 }
+// ci 101 check
