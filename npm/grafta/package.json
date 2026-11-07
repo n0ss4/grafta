@@ -1,6 +1,7 @@
 {
   "name": "grafta",
   "version": "0.2.3",
+  "mcpName": "io.github.n0ss4/grafta",
   "description": "Talk to any Figma file with your AI: ask what's in it, change it, or turn it into code. No Figma account, no app running, no API limits. An MCP server.",
   "keywords": ["figma", "fig", "mcp", "mcp-server", "design", "ai", "agent", "claude", "cursor", "design-system", "design-to-code"],
   "homepage": "https://n0ss4.github.io/grafta",
