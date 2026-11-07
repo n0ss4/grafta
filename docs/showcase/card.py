@@ -3,12 +3,12 @@
 
 The card a link to the site shows (1200 × 630, og:image) is drawn by grafta, as
 the showcase is: the mark from its shapes and paths, the headline as text, and
-the showcase's own pictures placed as image fills.
+the idea of docs/showcase/talk, one file and three asks, in shapes.
 
     python3 docs/showcase/card.py <any .fig, for its format> <out dir> <docs/assets> > card.json
 
 scripts/showcase.sh runs it after the showcase. Inter and Inter Display must be
-installed.
+installed, and PT Mono for the code.
 """
 import json
 import sys
@@ -73,70 +73,76 @@ for name, cx, cy, color in [("Node", 14, 46, PAPER), ("Node", 32, 18, PAPER), ("
          x=(cx - 8) * S, y=(cy - 8) * S, width=16 * S, height=16 * S, fills=solid(color))
 text(None, "card", "grafta", 46, "SemiBold", PAPER, family="Inter Display", x=170, y=78, letterSpacing=-1)
 
-# ── The words ────────────────────────────────────────────────────────────────
-text(None, "card", "MCP SERVER  ·  OPEN SOURCE", 17, "Semi Bold", BUD, x=80, y=200,
+# ── The words, from the message ──────────────────────────────────────────────
+text(None, "card", "OPEN SOURCE  ·  FOR YOUR AI APP", 17, "Semi Bold", BUD, x=80, y=200,
      letterSpacing={"value": 12, "unit": "PERCENT"})
 call("headline", "create_text", handle=h(), parent=ref("card"), fontFamily="Inter Display", fontStyle="Bold",
-     fontSize=66, fills=solid(PAPER), x=80, y=236, width=640, textAutoResize="HEIGHT",
-     lineHeight={"value": 108, "unit": "PERCENT"}, letterSpacing={"value": -2, "unit": "PERCENT"},
-     runs=[{"characters": "Your agent, inside\nyour "}, {"characters": "Figma files.", "fills": solid(BUD)}])
-text(None, "card", "Your model reads and edits .fig files: exactly, offline, with no Figma account.",
-     24, "Regular", MUTED, x=80, y=410, width=560, textAutoResize="HEIGHT",
+     fontSize=72, fills=solid(PAPER), x=80, y=236, width=600, textAutoResize="HEIGHT",
+     lineHeight={"value": 106, "unit": "PERCENT"}, letterSpacing={"value": -2, "unit": "PERCENT"},
+     runs=[{"characters": "Talk to your\n"}, {"characters": "Figma files.", "fills": solid(BUD)}])
+text(None, "card", "Ask your AI what's in one, change it, or turn it into code. No Figma account, no app running.",
+     24, "Regular", MUTED, x=80, y=414, width=540, textAutoResize="HEIGHT",
      lineHeight={"value": 140, "unit": "PERCENT"})
 
-# ── The four products grafta speaks, as pills ────────────────────────────────
-call("pills", "create_frame", handle=h(), parent=ref("card"), name="Products", x=80, y=524, width=10, height=10)
-props("pills", layoutMode="HORIZONTAL", itemSpacing=10, layoutSizingHorizontal="HUG", layoutSizingVertical="HUG")
-for product, extension in [("Design", ".fig"), ("Slides", ".deck"), ("FigJam", ".jam"), ("Sites", ".site")]:
-    key = f"pill-{product}"
-    call(key, "create_frame", handle=h(), parent=ref("pills"), name=product, x=0, y=0, width=10, height=10)
-    props(key, layoutMode="HORIZONTAL", itemSpacing=8, paddingLeft=16, paddingRight=16, paddingTop=9,
-          paddingBottom=9, layoutSizingHorizontal="HUG", layoutSizingVertical="HUG", cornerRadius=999,
-          strokes=solid(LINE), strokeWeight=1.5, strokeAlign="INSIDE", fills=solid(PAPER, 0.04))
-    text(None, key, product, 17, "Semi Bold", PAPER)
-    text(None, key, extension, 17, "Regular", MUTED)
-
-# ── The concept: a generic web wireframe as named, editable .fig layers ─────
-call("file-window", "create_frame", handle=h(), parent=ref("card"), name="landing-editable.fig",
+# ── The idea: one file, three asks, as in docs/showcase/talk ─────────────────
+call("file-window", "create_frame", handle=h(), parent=ref("card"), name="order.fig",
      x=700, y=72, width=420, height=472)
-props("file-window", cornerRadius=22, clipsContent=True, fills=solid("#2C2C2C"),
+props("file-window", cornerRadius=22, clipsContent=True, fills=solid("#202227"),
       strokes=solid(LINE), strokeWeight=1, strokeAlign="INSIDE",
       effects=[{"type": "DROP_SHADOW", "color": "#000000", "opacity": 0.45,
                 "offset": {"x": 0, "y": 24}, "radius": 48}])
 call("file-top", "create_frame", handle=h(), parent=ref("file-window"), name="File bar",
      x=0, y=0, width=420, height=50)
-props("file-top", fills=solid("#202124"))
-text(None, "file-top", "landing-editable.fig", 14, "Medium", PAPER, family="Inter", x=20, y=17)
-text(None, "file-top", "LOCAL FILE", 10, "Semi Bold", BUD, family="Inter", x=326, y=19,
+props("file-top", fills=solid("#1A1C20"))
+text(None, "file-top", "order.fig", 14, "Medium", PAPER, x=20, y=17)
+text(None, "file-top", "A FIGMA FILE", 10, "Semi Bold", BUD, x=318, y=19,
      letterSpacing={"value": 8, "unit": "PERCENT"})
 
-call("layers", "create_frame", handle=h(), parent=ref("file-window"), name="Layers",
-     x=0, y=50, width=132, height=422)
-props("layers", fills=solid("#252629"))
-text(None, "layers", "LAYERS", 10, "Semi Bold", MUTED, family="Inter", x=18, y=18,
-     letterSpacing={"value": 10, "unit": "PERCENT"})
-for i, label in enumerate(("▣  Landing", "◇  Navigation", "◇  Hero", "T  Heading", "◇  CTA",
-                           "◇  Features", "◇  Footer")):
-    text(None, "layers", label, 10, "Regular", PAPER if i == 0 else MUTED,
-         family="Inter", x=18, y=50 + i * 30)
+# The file: an order card, drawn small
+call("order", "create_frame", handle=h(), parent=ref("file-window"), name="Your order",
+     x=24, y=74, width=200, height=150)
+props("order", cornerRadius=14, clipsContent=True, fills=solid(PAPER))
+text(None, "order", "Your order", 17, "Bold", INK, family="Inter Display", x=16, y=14)
+text(None, "order", "Placed 2 Oct · 3 items", 9, "Regular", "#6B7178", x=16, y=38)
+call("status", "create_frame", handle=h(), parent=ref("order"), name="Status", x=16, y=58, width=168, height=42)
+props("status", cornerRadius=9, fills=solid("#FFFFFF"), strokes=solid("#E6E2D8"), strokeWeight=1,
+      strokeAlign="INSIDE")
+call(None, "create_shape", handle=h(), parent=ref("status"), type="RECTANGLE", name="Icon",
+     x=8, y=8, width=16, height=16, fills=solid("#E3F4EA"), cornerRadius=5)
+text(None, "status", "Order #4821", 9, "Semi Bold", INK, x=30, y=8)
+call(None, "create_shape", handle=h(), parent=ref("status"), type="RECTANGLE", name="Track",
+     x=8, y=31, width=152, height=4, fills=solid("#ECE9E1"), cornerRadius=2)
+call(None, "create_shape", handle=h(), parent=ref("status"), type="RECTANGLE", name="Done",
+     x=8, y=31, width=106, height=4, fills=solid(SAP), cornerRadius=2)
+call(None, "create_shape", handle=h(), parent=ref("order"), type="RECTANGLE", name="Track order",
+     x=16, y=110, width=168, height=26, fills=solid("#17744F"), cornerRadius=7)
+text(None, "order", "Track order", 9, "Semi Bold", "#FFFFFF", x=74, y=117)
 
-call("poster", "create_frame", handle=h(), parent=ref("file-window"), name="Landing",
-     x=168, y=78, width=220, height=240)
-props("poster", clipsContent=True, fills=solid(PAPER), strokes=solid(BUD), strokeWeight=2, strokeAlign="OUTSIDE")
-for name, x, y, width, height, color in [
-    ("Logo", 14, 14, 16, 10, INK), ("Nav", 128, 17, 76, 5, MUTED),
-    ("Heading 1", 14, 50, 84, 14, INK), ("Heading 2", 14, 70, 66, 14, INK),
-    ("Copy 1", 14, 96, 82, 5, MUTED), ("Copy 2", 14, 107, 68, 5, MUTED),
-    ("CTA", 14, 126, 48, 18, SAP), ("Hero media", 116, 48, 88, 98, "#E3F4EA"),
-    ("Feature 1", 14, 170, 58, 46, "#E6E2D8"), ("Feature 2", 81, 170, 58, 46, "#E6E2D8"),
-    ("Feature 3", 148, 170, 58, 46, "#E6E2D8")]:
-    call(None, "create_shape", handle=h(), parent=ref("poster"), type="RECTANGLE", name=name,
-         x=x, y=y, width=width, height=height, fills=solid(color), cornerRadius=3)
-text(None, "file-window", "1440 × 960", 10, "Medium", MUTED, family="Inter", x=244, y=334)
-text(None, "file-window", "7 named layers  ·  editable text  ·  vectors", 11, "Medium", BUD,
-     family="Inter", x=162, y=410)
+# The code it became
+call("code", "create_frame", handle=h(), parent=ref("file-window"), name="Code",
+     x=236, y=74, width=160, height=150)
+props("code", cornerRadius=14, fills=solid("#0E0F12"), strokes=solid(LINE), strokeWeight=1,
+      strokeAlign="INSIDE")
+for i, (line, color) in enumerate([(".card {", BUD), ("  padding: 20px;", PAPER), ("  gap: 14px;", PAPER),
+                                   ("  radius: 20px;", PAPER), ("}", BUD), (".done {", BUD),
+                                   ("  width: 196px;", PAPER), ("}", BUD)]):
+    text(None, "code", line, 9, "Regular", color, family="PT Mono", x=14, y=14 + i * 15)
 
-text(None, "card", "n0ss4.github.io/grafta", 18, "Medium", MUTED, x=876, y=560)
+# Three asks, as a person types them, on the right as a chat puts them
+call("asks", "create_frame", handle=h(), parent=ref("file-window"), name="Asks", x=24, y=248, width=372, height=10)
+props("asks", layoutMode="VERTICAL", itemSpacing=14, counterAxisAlignItems="MAX",
+      layoutSizingVertical="HUG", fills=[])
+for i, ask in enumerate(("What's in this file?", "Make it light, and check the contrast.",
+                         "Now turn it into code.")):
+    key = f"ask-{i}"
+    call(key, "create_frame", handle=h(), parent=ref("asks"), name=f"Ask {i + 1}", x=0, y=0, width=10, height=10)
+    props(key, layoutMode="HORIZONTAL", paddingLeft=16, paddingRight=16, paddingTop=11, paddingBottom=11,
+          layoutSizingHorizontal="HUG", layoutSizingVertical="HUG", cornerRadius=14,
+          fills=solid(PAPER, 0.08), strokes=solid(LINE), strokeWeight=1, strokeAlign="INSIDE")
+    text(None, key, ask, 15, "Medium", PAPER)
+text(None, "file-window", "Your file stays yours: changes are saved as a new one", 11, "Medium", BUD, x=24, y=436)
+
+text(None, "card", "n0ss4.github.io/grafta", 18, "Medium", MUTED, x=80, y=548)
 
 call(None, "render_node", f"{OUT}/card.png", handle=h(), id=ref("card"), scale=1)
 call(None, "save_as", handle=h(), path=f"{OUT}/card-saved.fig")
