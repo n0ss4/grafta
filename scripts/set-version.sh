@@ -1,6 +1,7 @@
 #!/bin/sh
 # One version for every channel. The workspace's Cargo.toml is the
-# source; the npm packages, the plugin and its marketplace follow.
+# source; the npm packages, the plugin and its marketplace, and the
+# MCP registry's server.json follow.
 #
 #   scripts/set-version.sh 0.2.0        write 0.2.0 everywhere
 #   scripts/set-version.sh --check      fail unless every file names one version
@@ -22,6 +23,7 @@ FILES = {
     "plugin/.mcp.json": [r'("grafta@)([^"]+)(")'],
     "plugin/plugin.json": [r'("version": ")([^"]+)(")'],
     "plugin/mcp.json": [r'("grafta@)([^"]+)(")'],
+    "server.json": [r'("version": ")([^"]+)(")'],
 }
 
 args = sys.argv[1:]
