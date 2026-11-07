@@ -66,6 +66,14 @@ pub struct Limits {
 /// opens a file, so a vector grafta wrote has none until then.
 pub type DrawnPaths<'a> = dyn Fn(&SceneNode) -> Vec<(String, &'static str)> + 'a;
 
+/// What a view's walk reads with, the same at every node.
+#[derive(Clone, Copy)]
+struct Reading<'a> {
+    limits: &'a Limits,
+    measure: &'a dyn Measure,
+    drawn: &'a DrawnPaths<'a>,
+}
+
 /// A node's view, with its children to `limits.depth`, cut at a node boundary
 /// if the next child would cross the budget.
 #[must_use]
@@ -75,7 +83,8 @@ pub fn node(session_graph: &SceneGraph, raw: Option<&Raw>, node: &SceneNode, lim
     // `undecoded` list and the `omitted` note itself.
     let inner = Limits { budget: limits.budget - limits.budget / 8, ..*limits };
     let mut used = 0;
-    let mut out = subtree(session_graph, node, limits.depth, &inner, limits.children_from, ports.measure.as_ref(), drawn, &mut used);
+    let reading = Reading { limits: &inner, measure: ports.measure.as_ref(), drawn };
+    let mut out = subtree(session_graph, node, limits.depth, limits.children_from, &reading, &mut used);
     if let Some(references) = raw.and_then(|raw| property_references(session_graph, node, raw)) {
         out["componentPropertyReferences"] = references;
     }
@@ -192,16 +201,8 @@ fn explicit_modes(graph: &SceneGraph, raw: &Raw) -> Option<Data> {
     (!modes.is_empty()).then_some(Data::Map(modes))
 }
 
-fn subtree(
-    graph: &SceneGraph,
-    node: &SceneNode,
-    depth: usize,
-    limits: &Limits,
-    skip: usize,
-    measure: &dyn Measure,
-    drawn: &DrawnPaths,
-    used: &mut usize,
-) -> Data {
+fn subtree(graph: &SceneGraph, node: &SceneNode, depth: usize, skip: usize, reading: &Reading, used: &mut usize) -> Data {
+    let Reading { limits, measure, drawn } = *reading;
     let mut view = properties(graph, node, limits.geometry);
     if node.fill_geometry.is_empty() && node.stroke_geometry.is_empty() {
         let paths = drawn(node);
@@ -231,7 +232,7 @@ fn subtree(
     let mut cut_at = None;
     for (position, child) in graph.children(node.id).enumerate().skip(skip) {
         let before = *used;
-        let child_view = subtree(graph, child, depth - 1, limits, 0, measure, drawn, used);
+        let child_view = subtree(graph, child, depth - 1, 0, reading, used);
         if *used > limits.budget && !children.is_empty() {
             *used = before;
             cut_at = Some(position);

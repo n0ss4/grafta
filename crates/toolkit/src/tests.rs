@@ -1575,10 +1575,16 @@ fn a_vector_grafta_wrote_gives_its_paths_when_asked() {
     let line = call(&mut kit, "read_node", json!({ "handle": handle, "id": stroked["id"], "geometry": true })).unwrap();
     assert_eq!(line["vectorPaths"][0]["windingRule"], "NONE", "{line}");
 
+    // A stroked icon with a closed loop and an open line keeps both.
+    let icon = call(&mut kit, "create_vector", json!({ "handle": handle, "parent": "1:1", "path": ["M0 0H10V10H0Z", "M2 5L8 5"], "viewBox": [0, 0, 10, 10] })).unwrap();
+    let icon = call(&mut kit, "read_node", json!({ "handle": handle, "id": icon["id"], "geometry": true })).unwrap();
+    assert_eq!(icon["vectorPaths"][0]["windingRule"], "NONE", "{icon}");
+    assert_eq!(icon["vectorPaths"][0]["data"].as_str().unwrap().matches('M').count(), 2, "{icon}");
+
     // Inside a frame's view too.
     let page = call(&mut kit, "read_node", json!({ "handle": handle, "id": "1:1", "depth": 1, "geometry": true })).unwrap();
     let shown = page["children"].as_array().unwrap().iter().filter(|c| c.get("vectorPaths").is_some()).count();
-    assert_eq!(shown, 2, "{page}");
+    assert_eq!(shown, 3, "{page}");
 }
 
 #[test]

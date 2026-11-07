@@ -18,7 +18,8 @@ use crate::view::num;
 use crate::{Output, Session, ToolError, Toolkit};
 
 /// A vector's paths from the network it stores, at its size, in the plugin API's
-/// `vectorPaths` shape. A path with no region is only stroked, as `NONE` says.
+/// `vectorPaths` shape: what it fills, and what it strokes, as `NONE` says, every
+/// segment of it, open or closed.
 pub fn drawn_paths(session: &Session, node: &SceneNode) -> Vec<(String, &'static str)> {
     let network = session.raw(node.id).and_then(|raw| raw.field(Field::VectorData)).and_then(|data| {
         let blob = session.fig.blobs.get(data.field(Field::VectorNetworkBlob)?.as_u32()? as usize)?;
@@ -28,13 +29,19 @@ pub fn drawn_paths(session: &Session, node: &SceneNode) -> Vec<(String, &'static
         Some((model::path::Network::decode(blob)?, scale))
     });
     let Some((network, scale)) = network else { return Vec::new() };
-    match network.fill_path(scale) {
-        Some((d, nonzero)) => vec![(d, if nonzero { "NONZERO" } else { "EVENODD" })],
-        None => {
-            let d = network.stroke_path(scale);
-            if d.is_empty() { Vec::new() } else { vec![(d, "NONE")] }
+    let mut paths = Vec::new();
+    if node.fills.iter().any(|fill| fill.visible) {
+        if let Some((d, nonzero)) = network.fill_path(scale) {
+            paths.push((d, if nonzero { "NONZERO" } else { "EVENODD" }));
         }
     }
+    if node.strokes.iter().any(|stroke| stroke.visible) {
+        let d = network.stroke_path(scale);
+        if !d.is_empty() {
+            paths.push((d, "NONE"));
+        }
+    }
+    paths
 }
 
 /// A vector drawn from SVG path data, scaled to its size.
