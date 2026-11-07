@@ -64,6 +64,7 @@ grafta never writes over your file: it saves a new one, and reads it back before
 Claude Desktop installs the bundle from *Settings → Extensions* when you open
 it; no terminal and no Node.js. The binaries are not signed: if macOS says it cannot check grafta
 the first time it runs, allow it in *System Settings → Privacy & Security*.
+If something does not work, [Troubleshooting](docs/TROUBLESHOOTING.md) goes by what you see.
 
 The Claude Code plugin registers the server and teaches the model how to use it.
 Anywhere else, register it once:
