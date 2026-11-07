@@ -2,13 +2,14 @@ import { Page } from "~/components/chrome/Page";
 import type { Recording } from "~/components/client/types";
 import { Demo } from "~/components/demo/Demo";
 import { Ask } from "~/components/home/Ask";
-import { Hero } from "~/components/home/Hero";
+import { Hero } from "~/components/hero/Hero";
 import { Install } from "~/components/home/Install";
 import { Questions } from "~/components/home/Questions";
 import { Difference } from "~/components/home/Difference";
 import { Trust } from "~/components/home/Trust";
 import { Picker } from "~/components/install/Picker";
 import { meta as pageMeta, SITE } from "~/lib/seo";
+import { talkFrom, type Layer } from "~/content/talk";
 import type { Route } from "./+types/home";
 
 export const meta: Route.MetaFunction = () => [
@@ -36,20 +37,27 @@ export const meta: Route.MetaFunction = () => [
   },
 ];
 
-// The demo's real recording is read at build time and pre-rendered without JavaScript.
+// The real recordings are read at build time and pre-rendered without JavaScript.
 export async function loader() {
   const { readFile } = await import("node:fs/promises");
   const path = await import("node:path");
-  const recording = JSON.parse(
-    await readFile(path.join(process.cwd(), "public", "sessions", "image.claude-code.json"), "utf8"),
-  ) as Recording;
-  return { recording };
+  const { marked } = await import("marked");
+  const read = async (...parts: string[]) =>
+    JSON.parse(await readFile(path.join(process.cwd(), "public", ...parts), "utf8")) as unknown;
+  const recording = (await read("sessions", "image.claude-code.json")) as Recording;
+  // The hero's conversation, recorded, reduced to what it shows (content/talk.ts).
+  const talk = await talkFrom(
+    (await read("sessions", "talk.claude-code.json")) as Recording,
+    (await read("showcase", "talk", "layers.json")) as Layer,
+    (markdown) => marked.parse(markdown),
+  );
+  return { recording, talk };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   return (
     <Page home>
-      <Hero />
+      <Hero talk={loaderData.talk} />
       <Demo recording={loaderData.recording} />
       <Ask />
       <Difference />

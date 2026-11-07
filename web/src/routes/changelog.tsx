@@ -24,7 +24,7 @@ export async function loader() {
 export default function Changelog({ loaderData }: Route.ComponentProps) {
   return (
     <Page>
-      <article className="grid-lines grid grid-cols-4 px-4 py-20 lg:grid-cols-8 lg:px-0 lg:py-28">
+      <article className="grid grid-cols-4 px-4 py-20 lg:grid-cols-8 lg:px-0 lg:py-28">
         <p className="micro col-span-4 text-muted lg:col-start-2">— Changelog</p>
         <h1 className="col-span-4 mt-6 text-[40px] leading-[1.05] font-normal tracking-[-0.03em] sm:text-[64px] lg:col-span-5 lg:col-start-2">
           What changed, newest first.
