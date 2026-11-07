@@ -85,16 +85,34 @@ and are squashed into `develop`, so each pull request is one commit whose title 
 the next version. `develop` is merged into `main` with a merge commit, keeping them
 apart. `conventions.yml` checks the branch, the title and the target.
 
-| Type | Next version | CI |
-|---|---|---|
-| `feat` | minor: 0.1.0 → 0.2.0 | runs |
-| `fix`, `perf` | patch: 0.1.0 → 0.1.1 | runs |
-| `feat!`, or a `BREAKING CHANGE:` footer | minor before 1.0, major after | runs |
-| `docs`, `chore`, `ci`, `refactor`, `test`, `build`, `style` | none | runs, unless only prose changed |
+| Type | Next version |
+|---|---|
+| `feat` | minor: 0.1.0 → 0.2.0 |
+| `fix`, `perf` | patch: 0.1.0 → 0.1.1 |
+| `feat!`, or a `BREAKING CHANGE:` footer | minor before 1.0, major after |
+| `docs`, `chore`, `ci`, `refactor`, `test`, `build`, `style` | none |
 
 A commit that touches nothing but `web/` or `docs/` makes no release, whatever its
-type: the website deploys from `main` by itself. CI skips a change to nothing but
-the prose listed in `ci.yml`; `ci` is the one check to require.
+type: the website deploys from `main` by itself.
+
+What CI runs depends on the paths a change touches, not on its type. The
+`changes` job in `ci.yml` decides it with `git diff`, and prints the files and
+what it decided:
+
+| A change to | Runs |
+|---|---|
+| prose: Markdown, `docs/`, issue templates | nothing |
+| the README, `docs/TOOLS.md`, `web/src/content`, `components`, `routes` | `packaging`, whose checks read them, and `web` for the site's |
+| `web/`, `CHANGELOG.md`, `docs/assets`, `docs/brand`, the install scripts | `web` |
+| `crates/`, `Cargo.toml`, `Cargo.lock`, or a file no rule names | `test` on three systems, and `packaging` |
+| npm, the plugins, `server.json`, `scripts/`, the release workflows | `packaging` |
+| `ci.yml` itself, or a run started by hand | everything |
+
+CI runs on pull requests and on `develop`, not on `main`, which only checked pull
+requests reach. A newer push to a pull request cancels its older run. Rust caches
+are saved by `develop`'s runs alone, as the default branch's are the ones every
+pull request can read. `ci` is the one check to require: it passes when every job
+that ran passed.
 
 ## Releasing
 

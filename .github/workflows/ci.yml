@@ -2,54 +2,101 @@
 # on a clone with no fixtures, on every platform a release ships for.
 name: ci
 
+# main moves only by pull requests checked here, so it is not run again there.
+# develop is the default branch: its runs save the caches pull requests read.
 on:
   pull_request:
   push:
-    branches: [main, develop]
+    branches: [develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to a pull request cancels its older run; on develop each commit
+# runs, as the group names it.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  # A change to nothing but prose runs nothing. This names the prose by file,
-  # so a new file runs everything until it is listed here: docs/TOOLS.md is
-  # checked against the server, and the site is built from CHANGELOG.md.
+  # Which jobs a change needs, from the paths it touches, as Ruff decides it:
+  # `git diff --quiet` per job. The jobs everything feeds are written by
+  # exclusion, so a file nobody listed runs them; the site, fed by a few
+  # paths, by inclusion. A change to this file, a manual run, or a push that
+  # cannot be compared runs everything.
   changes:
     runs-on: ubuntu-24.04
     outputs:
-      code: ${{ steps.diff.outputs.code }}
+      test: ${{ steps.diff.outputs.test }}
+      packaging: ${{ steps.diff.outputs.packaging }}
+      web: ${{ steps.diff.outputs.web }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - id: diff
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
-          prose='^(README\.md|AGENTS\.md|SECURITY\.md|LICENSE|docs/(ROADMAP|CONTRIBUTING|ARCHITECTURE)\.md)$'
-          # What cannot be compared, a new branch's first push, runs everything.
-          if files="$(git diff --name-only "$BASE...$HEAD")" && [ -n "$files" ] && ! printf '%s\n' "$files" | grep -Evq "$prose"; then
-            echo "Only prose changed:" && printf '%s\n' "$files"
-            echo "code=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "code=true" >> "$GITHUB_OUTPUT"
-          fi
+          everything() {
+            echo "$1, so every job runs"
+            printf 'test=true\npackaging=true\nweb=true\n' | tee -a "$GITHUB_OUTPUT"
+            exit 0
+          }
+          [ "$GITHUB_EVENT_NAME" != workflow_dispatch ] || everything "a manual run"
+          git cat-file -e "$BASE^{commit}" 2>/dev/null || everything "nothing to compare with"
+          git diff --name-only "$BASE...HEAD"
+          git diff --quiet "$BASE...HEAD" -- .github/workflows/ci.yml || everything "CI itself changed"
+
+          # true when the change touches a path the pathspecs select.
+          touches() { git diff --quiet "$BASE...HEAD" -- "$@" && echo false || echo true; }
+
+          # Prose, read by no job.
+          set -- ':!*.md' ':!LICENSE' ':!docs' ':!.gitignore' ':!.github/ISSUE_TEMPLATE' \
+            ':!.github/dependabot.yml' ':!.github/workflows/conventions.yml'
+
+          # The workspace's tests: all but prose, the site and what packages the binary.
+          test="$(touches "$@" ':!web' ':!npm' ':!plugin' ':!.claude-plugin' ':!.agents' ':!packaging' \
+            ':!server.json' ':!install.sh' ':!install.ps1' ':!scripts' ':!release-please-config.json' \
+            ':!.release-please-manifest.json' ':!.github')"
+
+          # The binary, the channels and the public figures: all but prose and the
+          # site, and the prose and site files its checks read.
+          packaging="$(touches "$@" ':!web' ':!.github/workflows/pages.yml')"
+          [ "$packaging" = true ] || packaging="$(touches README.md npm/grafta/README.md docs/TOOLS.md \
+            web/src/content web/src/components web/src/routes web/src/generated)"
+
+          # The site, its changelog page, the pictures and brand it copies, the scripts it serves.
+          web="$(touches web CHANGELOG.md docs/assets docs/brand install.sh install.ps1 \
+            'scripts/snapshot.*' .github/workflows/pages.yml)"
+
+          printf 'test=%s\npackaging=%s\nweb=%s\n' "$test" "$packaging" "$web" | tee -a "$GITHUB_OUTPUT"
 
   test:
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    if: needs.changes.outputs.test == 'true'
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, macos-26, windows-2025]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: stable
           components: clippy
-      - uses: Swatinem/rust-cache@v2
+      # Saved on develop alone, whose caches every pull request can read.
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          save-if: ${{ github.ref == 'refs/heads/develop' }}
       # The text tests draw in Inter; a runner image's own fonts change
       # under us, so the font they name is installed, not left to chance.
       - if: runner.os == 'Linux'
@@ -59,17 +106,24 @@ jobs:
 
   packaging:
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    if: needs.changes.outputs.packaging == 'true'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - run: sh -n install.sh
       - run: node --check npm/grafta/bin/grafta.js
       - run: scripts/set-version.sh --check
       # The Claude Desktop bundle's manifest, validated with the Linux binary
       # standing in for the macOS and Windows ones.
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: stable
+      # Saved on develop alone, whose caches every pull request can read.
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          save-if: ${{ github.ref == 'refs/heads/develop' }}
       - run: cargo build --release --locked -p grafta
       - run: python3 scripts/mcpb.py target/release/grafta target/release/grafta grafta.mcpb
       # docs/TOOLS.md and the website's web/src/generated/tools.json are the server's own tool list.
@@ -80,14 +134,16 @@ jobs:
   # browser's view of it (routes, keyboard, scripts off, axe, Lighthouse).
   web:
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: web/.nvmrc
           cache: npm
