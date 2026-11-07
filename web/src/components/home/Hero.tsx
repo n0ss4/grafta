@@ -1,22 +1,17 @@
 import { ArrowRight } from "../editorial/icons";
-import { FrameName, Selection } from "../figma";
 import { GetGraftaButton } from "../install/Picker";
 
 /** The product in five seconds: what it does, where it works, and how to get it. */
 export function Hero() {
   return (
-    <header
-      id="hero"
-      className="grid-lines relative overflow-hidden px-4 pt-20 pb-20 lg:px-0 lg:pt-28 lg:pb-24"
-    >
-      <FrameName className="absolute top-24 right-5 hidden lg:inline-flex">Hero</FrameName>
+    <header id="hero" className="relative overflow-hidden px-4 pt-20 pb-20 lg:px-0 lg:pt-28 lg:pb-24">
       <div className="grid grid-cols-4 lg:grid-cols-8">
         <div className="col-span-4 lg:col-span-4 lg:col-start-2 lg:pr-8">
-          <Selection label="Promise" size="680 × 150" className="mt-8 lg:mt-10">
+          <div className="mt-8 lg:mt-10">
             <h1 className="text-[40px] leading-[1.04] font-normal tracking-[-0.03em] sm:text-[56px] lg:text-[64px]">
               Talk to <span className="text-accent-text">your Figma files.</span>
             </h1>
-          </Selection>
+          </div>
         </div>
         <div className="col-span-4 mt-16 lg:col-span-2 lg:col-start-6 lg:mt-12">
           <p className="max-w-[380px] text-[17px] leading-relaxed text-muted">

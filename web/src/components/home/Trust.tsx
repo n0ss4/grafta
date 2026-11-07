@@ -1,5 +1,5 @@
 import { products } from "~/content/products";
-import { ComponentMark, FrameName, Measure } from "../figma";
+import { ComponentMark } from "../figma";
 
 const reasons = [
   ["No account", "There is nothing to sign in to."],
@@ -10,22 +10,16 @@ const reasons = [
 
 export function Trust() {
   return (
-    <section
-      id="trust"
-      aria-labelledby="trust-title"
-      className="tone-ink grid-lines px-4 py-24 lg:px-0 lg:py-32"
-    >
+    <section id="trust" aria-labelledby="trust-title" className="tone-ink px-4 py-24 lg:px-0 lg:py-32">
       <div className="grid grid-cols-4 lg:grid-cols-8">
         <div className="col-span-4 lg:col-span-6 lg:col-start-2">
-          <FrameName>Your files stay yours</FrameName>
-          <h2 id="trust-title" className="mt-6 text-[36px] font-normal tracking-[-0.03em] sm:text-[48px]">
+          <h2 id="trust-title" className="text-[36px] font-normal tracking-[-0.03em] sm:text-[48px]">
             Your files stay yours.
           </h2>
           <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {reasons.map(([title, text], index) => (
+            {reasons.map(([title, text]) => (
               <article key={title} className="border-t border-line pt-5">
-                <Measure>0{index + 1}</Measure>
-                <h3 className="mt-5 text-[22px] font-normal">{title}</h3>
+                <h3 className="text-[22px] font-normal">{title}</h3>
                 <p className="mt-2 text-[14px] leading-relaxed text-muted">{text}</p>
               </article>
             ))}

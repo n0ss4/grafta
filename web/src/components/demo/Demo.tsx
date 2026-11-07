@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Recording } from "../client/types";
 import { Design } from "../client/Design";
-import { Cursor, FrameName } from "../figma";
+import { Cursor } from "../figma";
 import { useReducedMotion } from "~/lib/motion";
 import { sessions } from "~/content/sessions";
 import { cn } from "~/lib/cn";
@@ -61,7 +61,6 @@ function Stage({ recording, active }: { recording: Recording; active: number }) 
   const at = turnFor(recording, step.beat);
   return (
     <div className="relative min-h-[460px] overflow-hidden rounded-2xl border border-line bg-bg p-5 sm:p-8">
-      <FrameName>How it works / {step.title}</FrameName>
       <Cursor
         className={cn(
           "transition-all duration-500",
@@ -130,7 +129,7 @@ export function Demo({ recording }: { recording: Recording }) {
     refs.current[next]?.querySelector("button")?.focus();
   };
   return (
-    <section id="how" aria-labelledby="how-title" className="grid-lines bg-sunk px-4 py-24 lg:px-0 lg:py-32">
+    <section id="how" aria-labelledby="how-title" className="bg-sunk px-4 py-24 lg:px-0 lg:py-32">
       <div className="grid grid-cols-4 lg:grid-cols-8">
         <div className="col-span-4 lg:col-span-6 lg:col-start-2">
           <h2 id="how-title" className="text-[36px] font-normal tracking-[-0.03em] sm:text-[48px]">

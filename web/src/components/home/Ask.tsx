@@ -1,14 +1,13 @@
 import { asks } from "~/content/editorial";
 import { Check } from "../editorial/icons";
-import { ComponentMark, FrameName } from "../figma";
+import { ComponentMark } from "../figma";
 
 export function Ask() {
   return (
-    <section id="ask" aria-labelledby="ask-title" className="grid-lines px-4 py-24 lg:px-0 lg:py-32">
+    <section id="ask" aria-labelledby="ask-title" className="px-4 py-24 lg:px-0 lg:py-32">
       <div className="grid grid-cols-4 lg:grid-cols-8">
         <div className="col-span-4 lg:col-span-6 lg:col-start-2">
-          <FrameName>What you can ask</FrameName>
-          <h2 id="ask-title" className="mt-6 text-[36px] font-normal tracking-[-0.03em] sm:text-[48px]">
+          <h2 id="ask-title" className="text-[36px] font-normal tracking-[-0.03em] sm:text-[48px]">
             Plain words. Real files back.
           </h2>
           <p className="mt-3 max-w-[660px] text-[17px] leading-relaxed text-muted">

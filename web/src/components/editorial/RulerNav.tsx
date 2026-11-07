@@ -12,7 +12,7 @@ const links = [
   { label: "Questions", to: "#faq" },
 ];
 
-/** The nav as a ruler: its links on the grid's columns, a tick under each. */
+/** The nav: the mark, the page's sections, and the ways out. */
 export function RulerNav({ home = false }: { home?: boolean }) {
   const at = (to: string) => (to.startsWith("#") ? (home ? to : href(`/${to}`)) : href(to));
   return (
@@ -29,19 +29,19 @@ export function RulerNav({ home = false }: { home?: boolean }) {
           <a
             key={link.label}
             href={at(link.to)}
-            className="relative hidden h-full items-center text-[14px] font-medium text-text no-underline after:absolute after:bottom-0 after:left-0 after:h-2 after:w-px after:bg-text/50 hover:text-accent-text lg:flex"
+            className="relative hidden h-full items-center text-[14px] font-medium text-text no-underline hover:text-accent-text lg:flex"
           >
             {link.label}
           </a>
         ))}
         {home ? (
-          <GetGraftaButton className="relative hidden h-full items-center text-left text-[14px] font-medium text-text after:absolute after:bottom-0 after:left-0 after:h-2 after:w-px after:bg-text/50 hover:text-accent-text lg:flex">
+          <GetGraftaButton className="relative hidden h-full items-center text-left text-[14px] font-medium text-text hover:text-accent-text lg:flex">
             Get grafta
           </GetGraftaButton>
         ) : (
           <a
             href={at("#get")}
-            className="relative hidden h-full items-center text-[14px] font-medium text-text no-underline after:absolute after:bottom-0 after:left-0 after:h-2 after:w-px after:bg-text/50 lg:flex"
+            className="relative hidden h-full items-center text-[14px] font-medium text-text no-underline lg:flex"
           >
             Get grafta
           </a>
@@ -68,7 +68,7 @@ export function RulerNav({ home = false }: { home?: boolean }) {
             className="inline-flex items-center gap-1.5 text-[14px] font-medium text-text no-underline hover:text-accent-text"
           >
             <GitHubMark size={14} />
-            <span className="hidden sm:inline">GitHub ↗</span>
+            <span className="hidden sm:inline">GitHub</span>
           </a>
           <span aria-hidden="true" className="h-5 w-px bg-line" />
           <ThemeToggle />
