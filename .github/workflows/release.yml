@@ -184,6 +184,14 @@ jobs:
       - name: Publish server.json
         if: env.NODE_AUTH_TOKEN != ''
         run: |
+          # npm takes minutes to show a version it has just accepted, and the
+          # registry checks npm for it: wait up to 15 minutes.
+          version="${GITHUB_REF_NAME#v}"
+          for attempt in $(seq 1 90); do
+            curl -fsS -o /dev/null "https://registry.npmjs.org/grafta/$version" && break
+            [ "$attempt" = 90 ] && { echo "grafta@$version is still not on npm"; exit 1; }
+            sleep 10
+          done
           curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER}/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
           ./mcp-publisher login github-oidc
           ./mcp-publisher publish
