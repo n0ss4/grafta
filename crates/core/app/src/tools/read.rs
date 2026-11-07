@@ -170,7 +170,8 @@ impl Query for ReadNode {
     fn run(&self, kit: &Toolkit) -> Result<Output, ToolError> {
         let session = kit.session(&self.handle)?;
         let node = require_node(session, &self.id)?;
-        let mut out = view::node(&session.graph, session.raw(node.id), node, &self.limits, &session.ports, session.products);
+        let drawn = |node: &SceneNode| super::vector::drawn_paths(session, node);
+        let mut out = view::node(&session.graph, session.raw(node.id), node, &self.limits, &session.ports, session.products, &drawn);
         out["path"] = data!(path_of(&session.graph, node));
         Ok(Output::Data(out))
     }
