@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("home tells the complete story without JavaScript", async ({ page }) => {
   await page.goto("./");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Ask your AI. Get a Figma file back.");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Talk to your Figma files.");
   await expect(page.locator("#how [data-demo-step]")).toHaveCount(6);
   await expect(page.locator("#how")).toContainText("poster-editable.fig");
   await expect(page.locator("#ask article")).toHaveCount(6);

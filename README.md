@@ -3,30 +3,50 @@
 </p>
 
 <p align="center">
-  <b>Figma's file format for your agent.</b><br>
-  Your model reads and edits <code>.fig</code> files: exactly, offline, with no Figma account.
+  <b>Talk to your Figma files.</b><br>
+  Get a Figma file, and talk to it. Ask your AI what's in it, change it, or turn it into code, in whatever language you work in.<br>
+  No Figma account, no Figma app running, no API limits.
 </p>
 
 <p align="center">
-  <a href="https://github.com/n0ss4/grafta/actions/workflows/ci.yml"><img src="https://github.com/n0ss4/grafta/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-1F9D6B" alt="MIT licence"></a>
-  <a href="https://modelcontextprotocol.io"><img src="https://img.shields.io/badge/MCP-server-15171C" alt="MCP server"></a>
-  <img src="https://img.shields.io/badge/macOS%20%C2%B7%20Linux%20%C2%B7%20Windows-prebuilt-13704B" alt="Prebuilt for macOS, Linux and Windows">
+  <img src="docs/assets/talk.png" alt="Three requests to an AI about one Figma file. What's in this file: it answers an order tracking card with 9 colour variables. Make it light and check the contrast: the card in its light theme, 9 of 9 texts passing WCAG AA, saved as a new file. Now turn it into code: CSS, and the same card drawn from it.">
 </p>
 
 <p align="center">
+  <a href="#try-it">Try it</a> ·
   <a href="#install">Install</a> ·
-  <a href="#quickstart">Quickstart</a> ·
-  <a href="#four-products">Products</a> ·
-  <a href="#what-to-ask">Examples</a> ·
-  <a href="docs/TOOLS.md">Tool reference</a> ·
+  <a href="#what-to-ask">What to ask</a> ·
+  <a href="docs/TOOLS.md">Tools</a> ·
+  <a href="#limits">Limits</a> ·
   <a href="#faq">FAQ</a> ·
   <a href="https://n0ss4.github.io/grafta">Website</a>
 </p>
 
 <p align="center">
-  <img src="docs/assets/how-it-fits.svg" alt="You ask a model; the model calls grafta's tools; grafta reads and writes the .fig file exactly, offline; Figma opens the file." width="880">
+  <a href="https://github.com/n0ss4/grafta/actions/workflows/ci.yml"><img src="https://github.com/n0ss4/grafta/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-1F9D6B" alt="MIT licence"></a>
+  <img src="https://img.shields.io/badge/macOS%20%C2%B7%20Linux%20%C2%B7%20Windows-prebuilt-13704B" alt="Prebuilt for macOS, Linux and Windows">
 </p>
+
+**What is it?** A free, open-source tool your AI app uses: Claude, Cursor, Codex and others. It connects through [MCP](https://modelcontextprotocol.io), the way AI apps connect to tools. It reads a Figma file on your computer exactly, so your AI works from the real values and never guesses.
+
+**What is a `.fig`?** A Figma file. In Figma: *File → Save local copy…* Somebody may also just send you one. Slides, FigJam and Sites files work too.
+
+**Is it for me?** If you have a Figma file and an AI app. A designer changes it, a developer turns it into code, and someone who was sent it asks what it is.
+
+## Try it
+
+1. [Install grafta](#install) in your AI app.
+2. Get a file: yours, or [this sample](https://n0ss4.github.io/grafta/sample/order.fig), the card above.
+3. Ask, in words:
+
+   > Open order.fig with grafta. What's in it?
+
+   > Make it light, check the contrast, and save a new file.
+
+   > Now turn it into code.
+
+grafta never writes over your file: it saves a new one, and reads it back before it says it is done. Open it in Figma to see it. How good the code is depends on your AI: grafta gives it exact values, and writes no code itself.
 
 ## Install
 
@@ -73,24 +93,9 @@ same setup. ChatGPT on the web reads no local server, so it cannot use grafta ye
 ## Why
 
 A model is good at reading intent into a design and deciding what to build. It
-is bad at binary formats, and it guesses numbers. grafta is the opposite. It is
-an [MCP](https://modelcontextprotocol.io) server that gives your model 43 tools
+is bad at binary formats, and it guesses numbers. grafta is the opposite. It gives your model 43 tools
 to open a `.fig`, read every node, colour, variable and component in it, change
 it, draw it to check, and save a new file that Figma opens.
-
-## Quickstart
-
-1. **Get a `.fig`** (or a Slides `.deck`, a FigJam `.jam`, a Sites `.site`). In Figma, *File → Save local copy…*
-2. **Ask your model**, in words:
-
-   > Open `~/Desktop/checkout.fig` with grafta. Find the payment screen, give it
-   > a dark mode using colour variables, show me a render of both, and save the
-   > result as `checkout-dark.fig`.
-
-3. **Open the result.** Drag `checkout-dark.fig` into Figma's file browser.
-
-grafta does not write over your file: it saves a new one, and reads it back before
-it says it is done.
 
 ## Four products
 
@@ -128,6 +133,8 @@ Prompts that work as written. The model chooses the tools.
 
 | Job | Ask | Tools it reaches for |
 |---|---|---|
+| **Understand it** | *Open handoff.fig with grafta. What's in it, how is it organised, and which colours and components does it use?* | `summarize`, `search_nodes`, `read_node` |
+| **Turn it into code** | *Open checkout.fig with grafta. Build the payment screen in our stack, with the file's exact sizes, colours and icons.* | `read_node`, `list_variables`, `render_node` |
 | **Dark mode** | *Open app.fig with grafta. Turn the colours on the Settings screen into Light and Dark variables, bind every fill to them, render both modes, and save as app-dark.fig.* | `create_variable` `set_properties` `render_node` |
 | **Design-system audit** | *Open library.fig with grafta. List its components, variables and styles, and tell me which colours are used on screens without being a variable or a style.* | `list_components` `list_variables` `search_nodes` |
 | **Accessibility** | *Open checkout.fig with grafta and check every screen's text contrast against WCAG AA. Fix what fails with the file's own colours, and show me before and after.* | `check_contrast` `set_properties` `render_node` |
@@ -169,6 +176,9 @@ lists them in a terminal.
 
 - **It does not interpret designs.** Your model does. grafta answers what is in
   the file, and writes what it is told.
+- **It is not live, and not collaborative.** You work on a saved copy, and open the new file it gives back. For the live file, use [Figma's own server](https://developers.figma.com/docs/figma-mcp-server/).
+- **How good the code is depends on your model.** grafta gives it exact values, and writes no code itself. Figma's server and [Framelink](https://github.com/GLips/Figma-Context-MCP) also serve design to code, from a Figma link, with an account.
+- **It is not affiliated with Figma**, and reads and writes its format with no help from it.
 - **It works on files**, not Figma's cloud: `.fig` from Figma Design, `.deck`
   from Figma Slides, `.jam` from FigJam and `.site` from Figma Sites. Save a local copy, and open the result in Figma. `new_file` takes Figma's format from a `.fig` you have;
   grafta does not ship it.

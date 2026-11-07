@@ -13,9 +13,9 @@ import type { Route } from "./+types/home";
 
 export const meta: Route.MetaFunction = () => [
   ...pageMeta({
-    title: "grafta · Ask your AI. Get a Figma file back.",
+    title: "grafta · Talk to your Figma files.",
     description:
-      "An open-source MCP server that lets your AI agent read and edit Figma files on your disk, offline, with no account: .fig, .deck, .jam and .site.",
+      "Talk to any Figma file with your AI: ask what's in it, change it, or turn it into code. No Figma account, no app running, no API limits. Free and open source.",
     path: "/",
   }),
   {
