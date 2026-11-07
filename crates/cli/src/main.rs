@@ -10,14 +10,13 @@ mod tests;
 
 use std::path::PathBuf;
 
-use anyhow::Result;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(
     name = "grafta",
     version,
-    about = "Figma's file format for your agent: read and write .fig files, exactly and offline"
+    about = "Talk to any Figma file with your AI: ask what's in it, change it, or turn it into code"
 )]
 struct Cli {
     #[command(subcommand)]
@@ -52,8 +51,8 @@ enum Commands {
     },
 }
 
-fn main() -> Result<()> {
-    match Cli::parse().command {
+fn main() {
+    let result = match Cli::parse().command {
         Some(Commands::Mcp) => mcp::serve().map_err(|error| anyhow::anyhow!("{error}")),
         Some(Commands::Tool { batch: Some(batch), .. }) => command::tool::batch(&batch),
         Some(Commands::Tool { name, args, batch: None, out }) => {
@@ -63,8 +62,20 @@ fn main() -> Result<()> {
         // instead of failing.
         None => {
             use clap::CommandFactory;
-            Cli::command().print_help()?;
-            Ok(())
+            Cli::command().print_help().map_err(Into::into)
         }
+    };
+    if let Err(error) = result {
+        std::process::exit(exit_status(&error));
     }
+}
+
+/// Show an error, unless it was shown where it happened, and give the exit
+/// status it calls for.
+fn exit_status(error: &anyhow::Error) -> i32 {
+    if let Some(command::tool::Shown(status)) = error.downcast_ref() {
+        return *status;
+    }
+    anstream::eprintln!("{}", command::view::error(&format!("{error:#}"), &[]));
+    1
 }

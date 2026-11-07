@@ -21,6 +21,9 @@ toolkit.workspace = true
 anyhow.workspace = true
 clap.workspace = true
 serde_json.workspace = true
+anstream.workspace = true
+anstyle.workspace = true
+terminal_size.workspace = true
 
 [dev-dependencies]
 testkit.workspace = true

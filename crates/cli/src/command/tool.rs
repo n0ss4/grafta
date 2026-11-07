@@ -4,45 +4,118 @@
 //! tried by hand, and how a script without a model client gets at the
 //! toolkit. Exit status separates "fix your request" from "it broke": 1 for a
 //! bad argument, a missing thing or a refusal, 2 for a failure.
+//!
+//! A result is JSON. In a terminal it is coloured, a batch shows one short
+//! line per call, and an error says what to try; through a pipe the output is
+//! plain JSON, as a script expects (see [`view`]).
 
 use anyhow::{bail, Result};
 use serde_json::Value;
 use toolkit::app::data::Data;
 use toolkit::edge::data::to_json;
+use toolkit::tools::{Tool, ALL};
 use toolkit::{Output, ToolError};
+
+use super::view;
+
+/// An error already shown to the person, with the exit status to leave with.
+#[derive(Debug)]
+pub struct Shown(pub i32);
+
+impl std::fmt::Display for Shown {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "exit {}", self.0)
+    }
+}
+
+impl std::error::Error for Shown {}
+
+fn find(name: &str) -> Option<&'static dyn Tool> {
+    ALL.iter().copied().find(|tool| tool.name() == name)
+}
 
 pub fn run(name: Option<&str>, args: Option<&str>, out: Option<&std::path::Path>) -> Result<()> {
     let Some(name) = name else {
-        for tool in toolkit::tools::ALL {
-            let first_sentence = tool.description().split(". ").next().unwrap_or_default();
-            println!("{:<22} {first_sentence}", tool.name());
-        }
+        anstream::println!("{}", view::tool_list(ALL, view::width()));
         return Ok(());
+    };
+
+    let Some(tool) = find(name) else {
+        let mut hints = Vec::new();
+        if let Some(closest) = view::closest(name, ALL.iter().map(|tool| tool.name())) {
+            hints.push(format!("did you mean `{closest}`?"));
+        }
+        hints.push("`grafta tool` lists them all".to_owned());
+        anstream::eprintln!("{}", view::error(&format!("no tool named `{name}`"), &hints));
+        return Err(Shown(1).into());
     };
 
     let args: Value = match args {
         Some(text) => match serde_json::from_str(text) {
             Ok(value) => value,
-            Err(error) => bail!("arguments are not JSON: {error}"),
+            Err(error) => {
+                let hints = vec![
+                    "arguments are one JSON object, in single quotes: '{\"path\":\"design.fig\"}'".to_owned(),
+                    format!("`grafta tool {name}` shows what it takes"),
+                ];
+                anstream::eprintln!("{}", view::error(&format!("arguments are not JSON: {error}"), &hints));
+                return Err(Shown(1).into());
+            }
         },
+        // With nothing to call it with, a tool that needs arguments says what
+        // they are, as a bare `grafta` prints its help.
+        None if requires_arguments(tool) => {
+            anstream::println!("{}", view::tool_help(tool, view::width()));
+            return Ok(());
+        }
         None => Value::Object(serde_json::Map::new()),
     };
 
+    let terminal = view::stdout_is_terminal();
     let mut kit = toolkit::new();
     match toolkit::edge::call(&mut kit, name, &args) {
         Ok(Output::Data(value)) => {
-            println!("{}", serde_json::to_string_pretty(&to_json(&value))?);
+            let value = to_json(&value);
+            if terminal {
+                anstream::println!("{}", view::json(&value));
+            } else {
+                println!("{}", serde_json::to_string_pretty(&value)?);
+            }
             Ok(())
         }
         Ok(Output::Image { mime, bytes, caption }) => {
-            println!("{}", serde_json::to_string_pretty(&image_summary(mime, &bytes, caption, out)?)?);
+            let summary = image_summary(mime, &bytes, caption, out)?;
+            if terminal {
+                anstream::println!("{}", view::json(&summary));
+                if out.is_none() {
+                    anstream::eprintln!("{} add --out picture.png to save the picture", view::paint_hint());
+                }
+            } else {
+                println!("{}", serde_json::to_string_pretty(&summary)?);
+            }
             Ok(())
         }
         Err(error) => {
-            eprintln!("{error}");
-            std::process::exit(exit_code(&error));
+            anstream::eprintln!("{}", view::error(&error.to_string(), &hints_for(tool, &args, &error)));
+            Err(Shown(exit_code(&error)).into())
         }
     }
+}
+
+/// What to try next after a tool's error, when the command line can tell.
+fn hints_for(tool: &dyn Tool, args: &Value, error: &ToolError) -> Vec<String> {
+    match error {
+        ToolError::NotFound(message) if args.get("handle").is_some() && message.contains("handle") => vec![
+            "each `grafta tool` call starts afresh, so a handle from another call is gone".to_owned(),
+            "run open_file and the calls after it together: `grafta tool --batch calls.json`".to_owned(),
+        ],
+        ToolError::BadArgument(_) => vec![format!("`grafta tool {}` shows what it takes", tool.name())],
+        _ => Vec::new(),
+    }
+}
+
+fn requires_arguments(tool: &dyn Tool) -> bool {
+    tool.input_schema().get("required").and_then(Value::as_array).is_some_and(|required| !required.is_empty())
 }
 
 /// Run a file of calls, in order, against one toolkit, so that a handle
@@ -54,6 +127,10 @@ pub fn batch(path: &std::path::Path) -> Result<()> {
     let calls: Vec<Value> = serde_json::from_str(&text)
         .map_err(|error| anyhow::anyhow!("{} is not a JSON array of calls: {error}", path.display()))?;
 
+    let width = view::width();
+    let terminal = view::stdout_is_terminal();
+    let column = calls.iter().filter_map(|entry| entry.get("tool").and_then(Value::as_str)).map(str::len).max().unwrap_or(0);
+    let started = std::time::Instant::now();
     let mut kit = toolkit::new();
     let mut results: Vec<Value> = Vec::new();
     for (index, entry) in calls.iter().enumerate() {
@@ -62,23 +139,32 @@ pub fn batch(path: &std::path::Path) -> Result<()> {
         };
         let args = entry.get("args").cloned().unwrap_or_else(|| Value::Object(serde_json::Map::new()));
         let args = toolkit::edge::batch::substitute(&args, &results).map_err(|error| anyhow::anyhow!("call {index}: {error}"))?;
-        match toolkit::edge::call(&mut kit, tool, &args) {
-            Ok(Output::Data(value)) => {
-                let value = to_json(&value);
-                println!("[{index}] {tool} → {value}");
-                results.push(value);
-            }
+        let result = match toolkit::edge::call(&mut kit, tool, &args) {
+            Ok(Output::Data(value)) => to_json(&value),
             Ok(Output::Image { mime, bytes, caption }) => {
                 let out = entry.get("out").and_then(Value::as_str).map(std::path::Path::new);
-                let summary = image_summary(mime, &bytes, caption, out)?;
-                println!("[{index}] {tool} → {summary}");
-                results.push(summary);
+                image_summary(mime, &bytes, caption, out)?
             }
             Err(error) => {
-                eprintln!("[{index}] {tool} failed: {error}");
-                std::process::exit(exit_code(&error));
+                if terminal {
+                    let hints = find(tool).map(|found| hints_for(found, &args, &error)).unwrap_or_default();
+                    anstream::eprintln!("{}", view::error(&format!("call {index}, {tool}: {error}"), &hints));
+                } else {
+                    eprintln!("[{index}] {tool} failed: {error}");
+                }
+                return Err(Shown(exit_code(&error)).into());
             }
+        };
+        if terminal {
+            anstream::println!("{}", view::batch_line(index, tool, &result, column, width));
+        } else {
+            println!("[{index}] {tool} → {result}");
         }
+        results.push(result);
+    }
+    if terminal {
+        let calls = if results.len() == 1 { "1 call".to_owned() } else { format!("{} calls", results.len()) };
+        anstream::println!("{}", view::done(&format!("{calls} in {:.1} s", started.elapsed().as_secs_f64())));
     }
     Ok(())
 }
