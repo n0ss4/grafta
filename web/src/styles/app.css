@@ -267,3 +267,47 @@
   font-weight: 500;
   letter-spacing: 0.04em;
 }
+
+/* The hero's steps, reply and pictures arriving: a fade, with their space kept
+   so nothing below moves; none under reduced motion. */
+.talk-fade {
+  transition: opacity 0.35s ease-out;
+}
+.talk-fade[data-visible="false"] {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .talk-fade {
+    transition: none;
+  }
+}
+
+/* The hero's other answers: shown without scripts, hidden once they run. */
+html[data-js] [data-talk-panel][data-inactive="true"] {
+  display: none;
+}
+[data-talk-panel] + [data-talk-panel] {
+  margin-top: 24px;
+}
+html[data-js] [data-talk-panel] + [data-talk-panel] {
+  margin-top: 0;
+}
+
+/* A reply the model wrote, in the hero: its lists and tables, small. */
+.talk-reply {
+  font-size: 14px;
+  & p {
+    @apply my-2;
+  }
+  & ul,
+  & ol {
+    @apply my-2 space-y-1;
+  }
+  & table {
+    @apply my-2 block overflow-x-auto text-[12px];
+  }
+  & th,
+  & td {
+    @apply border-b border-line px-2 py-1 text-left;
+  }
+}

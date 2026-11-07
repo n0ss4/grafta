@@ -3,6 +3,16 @@ import { expect, test } from "@playwright/test";
 test("home tells the complete story without JavaScript", async ({ page }) => {
   await page.goto("./");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Talk to your Figma files.");
+  // Every request of the hero answered, still.
+  for (const words of [
+    "what's in order.fig?",
+    "Make it light, and check the contrast.",
+    "Now turn it into code.",
+  ]) {
+    await expect(page.locator("#hero")).toContainText(words);
+  }
+  await expect(page.locator("#hero [data-talk-panel]:visible")).toHaveCount(3);
+  await expect(page.locator("#hero")).toContainText("order-light.fig");
   await expect(page.locator("#how [data-demo-step]")).toHaveCount(6);
   await expect(page.locator("#how")).toContainText("poster-editable.fig");
   await expect(page.locator("#ask article")).toHaveCount(6);

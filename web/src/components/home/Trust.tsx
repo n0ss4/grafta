@@ -26,9 +26,9 @@ export function Trust() {
           </div>
           <ul className="mt-16 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-line sm:grid-cols-4">
             {products.map((product) => (
-              <li key={product.extension} className="bg-ink p-5">
-                <ComponentMark className="text-bud" />
-                <p className="mt-4 text-[24px] font-medium text-bud">{product.extension}</p>
+              <li key={product.extension} className="bg-surface p-5">
+                <ComponentMark className="text-accent-text" />
+                <p className="mt-4 text-[24px] font-medium text-accent-text">{product.extension}</p>
                 <p className="text-[13px] text-muted">{product.name}</p>
               </li>
             ))}
