@@ -4,6 +4,20 @@ What changed for someone using grafta, newest first. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.3.0](https://github.com/n0ss4/grafta/compare/v0.2.3...v0.3.0) (2026-11-07)
+
+
+### Added
+
+* **cli:** make grafta tool readable in a terminal ([#35](https://github.com/n0ss4/grafta/issues/35)) ([6b2587d](https://github.com/n0ss4/grafta/commit/6b2587dd41eef21714a78796398eccfb4a69d45b))
+* **release:** publish to the official MCP registry ([#32](https://github.com/n0ss4/grafta/issues/32)) ([504063d](https://github.com/n0ss4/grafta/commit/504063d42e9c35f38909a0f445c5e657783ffb65))
+
+
+### Fixed
+
+* **read:** give a vector's paths when only its network is stored ([#30](https://github.com/n0ss4/grafta/issues/30)) ([5a91904](https://github.com/n0ss4/grafta/commit/5a919047edaff9460e6a120feff83cdd731d008f))
+* **render:** draw the linear blend modes as the nearest the renderer has ([#28](https://github.com/n0ss4/grafta/issues/28)) ([4ef0976](https://github.com/n0ss4/grafta/commit/4ef097619f78a3903fa4452ce31f3002f2c590b4))
+
 ## [0.2.3](https://github.com/n0ss4/grafta/compare/v0.2.2...v0.2.3) (2026-11-06)
 
 
