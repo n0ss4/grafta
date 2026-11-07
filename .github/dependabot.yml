@@ -1,0 +1,20 @@
+# Keeps the actions the workflows pin by SHA up to date, the version comment
+# beside each SHA with it. One pull request a week for all of them, for versions
+# out a week or more. Named so conventions.yml takes it as it takes any other:
+# branches ci/github_actions/…, titles "ci: bump …", which make no release.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci
+    pull-request-branch-name:
+      prefix: ci
+      separator: /
