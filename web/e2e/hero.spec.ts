@@ -45,6 +45,8 @@ test("picking a request shows its answer, on the same file", async ({ page }) =>
 test("the requests play by themselves, and stop once one is picked", async ({ page }) => {
   await page.clock.install();
   await page.goto("./");
+  // The player's timers start once the page has hydrated: advance the clock after.
+  await expect(page.locator("#hero")).toHaveAttribute("data-ready", "true");
   const selected = page.locator("#hero [role=tab][aria-selected=true]");
   await expect(selected).toContainText("What's in order.fig?");
   await page.clock.runFor(8000);

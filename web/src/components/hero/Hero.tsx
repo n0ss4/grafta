@@ -31,7 +31,11 @@ export function Hero({ talk }: { talk: Talk }) {
   });
 
   return (
-    <header id="hero" className="px-4 pt-8 pb-14 sm:pt-12 lg:px-[6.25%] lg:pt-14 lg:pb-20">
+    <header
+      id="hero"
+      data-ready={mounted}
+      className="px-4 pt-8 pb-14 sm:pt-12 lg:px-[6.25%] lg:pt-14 lg:pb-20"
+    >
       <div className="grid gap-x-10 gap-y-4 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
         <h1 className="text-[38px] leading-[1.02] font-semibold tracking-[-0.035em] text-balance sm:text-[56px] lg:text-[60px]">
           Talk to your Figma files.
