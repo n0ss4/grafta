@@ -218,6 +218,7 @@ The same tools, without a model:
 
 ```bash
 grafta tool                                     # list the tools
+grafta tool read_node                           # what one takes, with an example
 grafta tool open_file '{"path":"design.fig"}'   # call one: each call starts afresh
 grafta tool --batch calls.json                  # a sequence on one open file
 ```

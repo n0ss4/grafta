@@ -4,3 +4,5 @@
 //! line can change without any of this changing with it.
 
 pub mod tool;
+
+pub mod view;
