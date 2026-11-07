@@ -4,7 +4,7 @@ test("the page follows the approved product story", async ({ page }) => {
   await page.goto("./");
   const ids = await page.locator("main > [id]").evaluateAll((nodes) => nodes.map((node) => node.id));
   expect(ids).toEqual(["hero", "how", "ask", "difference", "trust", "faq", "get"]);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Ask your AI. Get a Figma file back.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Talk to your Figma files.");
   await expect(page.locator("#how [data-demo-step]")).toHaveCount(6);
   await expect(page.locator("#ask article")).toHaveCount(6);
   await expect(page.locator("#difference article")).toHaveCount(2);

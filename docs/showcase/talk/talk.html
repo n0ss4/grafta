@@ -1,0 +1,35 @@
+<!doctype html>
+<!-- The first picture of the README and the site. Every result in it is real: see demo.md. -->
+<html><meta charset="utf-8"><style>
+*{box-sizing:border-box;margin:0}
+body{width:1320px;font-family:Inter,sans-serif;background:#F6F4EE;color:#15171C;padding:32px}
+.row{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.ask{background:#fff;border:1px solid #E6E2D8;border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:14px;min-height:0}
+.you{align-self:flex-end;background:#15171C;color:#fff;border-radius:16px 16px 4px 16px;padding:10px 14px;font-size:17px;line-height:23px;font-weight:500;max-width:92%}
+.ai{font-size:16px;line-height:24px;color:#30343A}
+.ai b{color:#15171C}
+.shot{border-radius:14px;overflow:hidden;border:1px solid #E6E2D8;display:block;width:100%;height:auto}
+ul{padding-left:18px}
+li{margin:3px 0}
+.pass{font-size:14px;font-weight:600;color:#13704B}
+pre{font:13px/20px Menlo,monospace;background:#0D1117;color:#C9D1D9;border-radius:14px;padding:14px;overflow:hidden;white-space:pre}
+pre i{color:#C6F26B;font-style:normal}
+/* talk-phone: stacked, for narrow screens. */
+@media (max-width:800px){body{width:680px;padding:16px}.row{grid-template-columns:1fr}}
+</style>
+<div class="row">
+  <div class="ask"><div class="you">What's in this file?</div>
+    <div class="ai"><b>An order tracking card</b>, 360 wide, in auto-layout:
+      <ul><li>A title, and when it was placed</li><li>A status card with an icon and a progress bar at “Out for delivery”</li><li>A “Track order” button</li></ul>
+      <br><b>9 colour variables</b> in a Theme with Light and Dark modes. It is showing Dark. All 9 texts are in Inter.</div>
+    <img class="shot" src="code-grafta.png" style="margin-top:auto;height:230px;object-fit:cover;object-position:top"></div>
+  <div class="ask"><div class="you">Make it light, and check the contrast.</div>
+    <img class="shot" src="light.png"><div class="pass">✓ 9 of 9 texts pass WCAG AA · saved as a new file</div></div>
+  <div class="ask"><div class="you">Now turn it into code.</div>
+    <pre><i>.card</i> { padding: 20px; gap: 14px;
+  border-radius: 20px;
+  background: var(<i>--surface</i>); }
+<i>.done</i> { width: 196px; height: 8px;
+  background: var(<i>--accent</i>); }</pre>
+    <img class="shot" src="code.png"></div>
+</div></html>

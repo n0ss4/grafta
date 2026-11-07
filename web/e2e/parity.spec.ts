@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("the home page keeps its products, questions and metadata", async ({ page }) => {
   await page.goto("./");
-  await expect(page).toHaveTitle("grafta · Ask your AI. Get a Figma file back.");
+  await expect(page).toHaveTitle("grafta · Talk to your Figma files.");
   for (const extension of [".fig", ".deck", ".jam", ".site"]) {
     await expect(page.locator("#trust").getByText(extension, { exact: true })).toBeVisible();
   }
