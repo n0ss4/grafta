@@ -15,10 +15,12 @@ export function Dock() {
   if (out >= 1) return null;
   return (
     <AbsoluteFill style={{ opacity: 1 - out, transform: `scale(${1 - out * 0.06})` }}>
-      <Appear at={4} style={{ position: "absolute", top: 250, width: "100%", textAlign: "center" }}>
-        <div style={{ fontSize: 76, fontWeight: 650, letterSpacing: "-0.035em" }}>Talk to your Figma files.</div>
+      {/* shown from the very first frame, which is also what a paused video shows */}
+      <div style={{ position: "absolute", top: 150, width: "100%", textAlign: "center" }}>
+        <Img src={staticFile("brand/logo-light.svg")} style={{ height: 64 }} />
+        <div style={{ fontSize: 76, fontWeight: 650, letterSpacing: "-0.035em", marginTop: 40 }}>Talk to your Figma files.</div>
         <div style={{ fontSize: 30, color: C.muted, marginTop: 18 }}>From the AI app you already use.</div>
-      </Appear>
+      </div>
       {APPS.map((app, i) => (
         <AppTile key={app.name} i={i} />
       ))}
@@ -62,7 +64,8 @@ export function AppIcon({ i, size }: { i: number; size: number }) {
 function AppTile({ i }: { i: number }) {
   const frame = useCurrentFrame();
   const app = APPS[i]!;
-  const pop = useSpring(18 + i * 5, 13);
+  // the apps are there from the first frame too, and settle in
+  const pop = 0.85 + 0.15 * useSpring(i * 4, 13);
   const chosen = i === 0;
   const press = chosen ? 1 - 0.08 * Math.sin(Math.PI * ramp(frame, T.click - 2, T.click + 6)) : 1;
   const dim = chosen ? 0 : ramp(frame, T.click, T.click + 8) * 0.55;
