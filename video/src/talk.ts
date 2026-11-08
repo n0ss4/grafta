@@ -1,20 +1,23 @@
 // What the video shows inside the chat: the words, grafta's calls and the
 // replies of a real session (web/public/sessions/talk.claude-code.json,
 // Claude Code with claude-opus-5-5, 2026-11-07), shortened, never rewritten.
+// The code is the file the model wrote, whole, read from the recording.
 // The pictures are grafta's renders and the model's page, from web/public.
+
+import recording from "../../web/public/sessions/talk.claude-code.json";
 
 export const RECORDED = "Claude Code · claude-opus-5-5 · 7 Nov 2026";
 
-/** The apps grafta documents, as web/src/content/clients.ts names them. */
-export const APPS = [
-  { name: "Claude Desktop", short: "Cl", tint: "#D97757" },
-  { name: "Claude Code", short: ">_", tint: "#1F1E1D" },
-  { name: "ChatGPT", short: "GP", tint: "#0F0F0F" },
-  { name: "Codex", short: "Cx", tint: "#3B3B3F" },
-  { name: "Cursor", short: "Cu", tint: "#141414" },
-  { name: "VS Code", short: "VS", tint: "#1F6FB5" },
-  { name: "Windsurf", short: "Ws", tint: "#0B6E63" },
-] as const;
+/** The apps grafta documents, as web/src/content/clients.ts names them, with their own marks (assets/logos). */
+export const APPS: { name: string; logo: string; tile?: string; pad?: number; invert?: boolean }[] = [
+  { name: "Claude Desktop", logo: "logos/claude.png" },
+  { name: "Claude Code", logo: "logos/claudecode.svg", tile: "#D97757", pad: 30, invert: true },
+  { name: "ChatGPT", logo: "logos/chatgpt.png" },
+  { name: "Codex", logo: "logos/chatgpt.png", tile: "#0D0D0D", pad: 0, invert: true },
+  { name: "Cursor", logo: "logos/cursor.svg", tile: "#141414", pad: 30, invert: true },
+  { name: "VS Code", logo: "logos/visual-studio-code.png" },
+  { name: "Windsurf", logo: "logos/windsurf.svg", tile: "#0B100F", pad: 30, invert: true },
+];
 
 export interface Exchange {
   words: string;
@@ -42,7 +45,7 @@ export const EXCHANGES: Exchange[] = [
   {
     words: "Now turn it into code.",
     steps: [{ label: "Read the exact values of its icons", tools: ["read_node", "read_node", "read_node"] }],
-    lead: "Nothing points to a framework, so it's plain HTML and CSS, with both themes as CSS variables: order.html.",
+    lead: "I turned the screen into a single HTML file, order.html. Nothing pointed to a framework, so it's plain HTML and CSS, with both themes as CSS variables.",
   },
 ];
 
@@ -54,22 +57,22 @@ export const CONTRAST = [
   { text: "Placed 2 Oct · 3 items", pair: ["#6B6F76", "#F6F4EE"], ratio: "4.58", needs: "4.5" },
 ];
 
-/** Lines of the model's order.html, picked, in its order. */
-export const CODE = `:root {
-  --background: #F6F4EE;
-  --ink: #15171C;
-  --accent: #13704B;
-}
-[data-theme="dark"] {
-  --background: #0D1117;
-  --accent: #C6F26B;
-}
-.order {
-  width: 360px;
-  display: flex;
-  gap: 20px;
-  padding: 24px;
-}`;
+/** The page the model wrote, order.html, as its Write and Edit calls left it. */
+export const ORDER_HTML: string = (() => {
+  let content = "";
+  for (const turn of recording.turns) {
+    if (turn.kind !== "tools" || !turn.other) continue;
+    for (const call of turn.calls) {
+      const args = call.args as Record<string, unknown>;
+      if (call.tool === "Write" && typeof args.content === "string") content = args.content;
+      if (call.tool === "Edit" && typeof args.old_string === "string" && typeof args.new_string === "string") {
+        content = content.replace(args.old_string, args.new_string);
+      }
+    }
+  }
+  if (!content) throw new Error("talk: the recording has no Write of order.html");
+  return content;
+})();
 
 /** order-light.fig's layers, from web/public/showcase/talk/layers.json. */
 export const LAYERS: { name: string; type: "FRAME" | "TEXT" | "VECTOR"; depth: number }[] = [
