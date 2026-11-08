@@ -18,7 +18,7 @@ test("home tells the complete story without JavaScript", async ({ page }) => {
   }
   await expect(page.locator("#hero-video-scenes li")).toHaveCount(6);
   await expect(page.locator("#hero-video-scenes")).toContainText("It saves a new file, never over yours.");
-  await expect(page.locator("#hero video")).toHaveAttribute("poster", /poster\.jpg$/);
+  await expect(page.locator("#hero video")).toHaveAttribute("poster", /poster\.webp$/);
   await expect(page.locator("#trust")).toContainText("No account");
   // Getting grafta works without scripts: the first app's step, and links to it.
   await expect(page.locator("#get")).toContainText("Install it in Claude Desktop");

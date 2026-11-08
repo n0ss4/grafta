@@ -90,3 +90,17 @@ test("its files are served", async ({ page, request }) => {
   const poster = await page.locator("#hero video").evaluate((node: HTMLVideoElement) => node.poster);
   expect((await request.get(poster)).ok()).toBe(true);
 });
+
+test("the poster is a small WebP, asked for first at high priority (internal: specs/106)", async ({
+  page,
+  request,
+}) => {
+  await page.goto("./");
+  const preload = page.locator('head link[rel="preload"][as="image"]');
+  await expect(preload).toHaveAttribute("href", /poster\.webp$/);
+  await expect(preload).toHaveAttribute("fetchpriority", "high");
+  const poster = await page.locator("#hero video").evaluate((node: HTMLVideoElement) => node.poster);
+  const answer = await request.get(poster);
+  expect(answer.headers()["content-type"]).toBe("image/webp");
+  expect((await answer.body()).length).toBeLessThanOrEqual(20_000);
+});

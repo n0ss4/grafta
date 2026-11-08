@@ -4,7 +4,7 @@ import { Install } from "~/components/home/Install";
 import { Questions } from "~/components/home/Questions";
 import { Trust } from "~/components/home/Trust";
 import { Picker } from "~/components/install/Picker";
-import { meta as pageMeta, SITE } from "~/lib/seo";
+import { href, meta as pageMeta, SITE } from "~/lib/seo";
 import { readScenes } from "~/lib/vtt";
 import type { Route } from "./+types/home";
 
@@ -30,6 +30,18 @@ export const meta: Route.MetaFunction = () => [
       offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
       sameAs: ["https://github.com/n0ss4/grafta"],
     },
+  },
+];
+
+// The video's poster is the first screen's largest paint: asked for from the head,
+// first, as a <video poster> cannot carry a priority (internal: specs/106).
+export const links: Route.LinksFunction = () => [
+  {
+    rel: "preload",
+    as: "image",
+    href: href("showcase/video/poster.webp"),
+    type: "image/webp",
+    fetchPriority: "high",
   },
 ];
 
