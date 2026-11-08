@@ -1,0 +1,25 @@
+{
+  "name": "grafta-video",
+  "private": true,
+  "type": "module",
+  "description": "The home page's demo video, as a Remotion composition.",
+  "scripts": {
+    "studio": "remotion studio src/index.ts --public-dir ../web/public",
+    "render": "remotion render src/index.ts Demo out/demo.mp4 --public-dir ../web/public",
+    "still": "remotion still src/index.ts Demo out/still.png --public-dir ../web/public"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
+    "@remotion/cli": "4.0.537",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.537"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "typescript": "5.9.3"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true
+  }
+}
