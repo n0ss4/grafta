@@ -91,7 +91,7 @@ function AppTile({ i }: { i: number }) {
 
 // ——— The file on the desktop ———
 
-export const FILE = { x: 112, y: 470 };
+export const FILE = { x: 158, y: 470 };
 
 export function FigFile({ size = 1, name = "order.fig" }: { size?: number; name?: string }) {
   return (

@@ -1,74 +1,98 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { href } from "~/lib/seo";
+import type { Scene } from "~/lib/vtt";
 import { GetGrafta } from "./GetGrafta";
+import { SceneRail } from "./SceneRail";
 
-/** What the video shows, in words: for screen readers, search, and pages without video. */
-export const SCENES = [
-  "A Figma file, order.fig, is dragged into a chat in Claude Desktop, where grafta is connected.",
-  "“What's in order.fig?” Claude reads its layers and variables through grafta, and describes the screen.",
-  "“Make it light, and check the contrast.” It switches the file to its Light mode, checks every text against WCAG AA, and saves a new file, order-light.fig.",
-  "“Now turn it into code.” The model writes order.html, opened in VS Code beside the page it draws.",
-  "order-light.fig opens in Figma, with its layers and variables, to keep editing.",
-];
+const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /**
- * The first screen: the line, then a video of grafta used from a chat, ending
- * in Figma. The requests, replies, code and pictures in it are a real
- * session's (video/src/talk.ts); the windows are drawn.
+ * The first screen: the line and the button, then the video of grafta used from
+ * a chat, ending in Figma, as large as the screen's height allows, with its
+ * scenes under it. The requests, replies, code and pictures in it are a real
+ * session's (grafta:video/src/talk.ts); the windows are drawn. Its scenes come
+ * from its captions file (demo.vtt), written by the video's own code.
  */
-export function Hero() {
+export function Hero({ scenes }: { scenes: Scene[] }) {
   const video = useRef<HTMLVideoElement>(null);
+  const [time, setTime] = useState(0);
 
   // Autoplay only when motion is welcome; the controls are there either way.
+  // While it plays, the rail follows it frame by frame.
   useEffect(() => {
     const node = video.current;
     if (!node) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) node.pause();
+    let frame = 0;
+    const follow = () => {
+      setTime(node.currentTime);
+      if (!node.paused) frame = requestAnimationFrame(follow);
+    };
+    const start = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(follow);
+    };
+    node.addEventListener("play", start);
+    node.addEventListener("seeked", follow);
+    if (reducedMotion()) node.pause();
     else void node.play().catch(() => undefined);
+    return () => {
+      cancelAnimationFrame(frame);
+      node.removeEventListener("play", start);
+      node.removeEventListener("seeked", follow);
+    };
   }, []);
 
+  const pick = (index: number) => {
+    const node = video.current;
+    const scene = scenes[index];
+    if (!node || !scene) return;
+    node.currentTime = scene.start + 0.01;
+    setTime(node.currentTime);
+    if (!reducedMotion()) void node.play().catch(() => undefined);
+  };
+
   return (
-    <header id="hero" className="px-4 pt-8 pb-14 sm:pt-12 lg:px-[6.25%] lg:pt-14 lg:pb-20">
-      <div className="grid gap-x-10 gap-y-4 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end">
-        <h1 className="text-[38px] leading-[1.02] font-semibold tracking-[-0.035em] text-balance sm:text-[56px] lg:text-[60px]">
+    <header id="hero" className="hero px-4 pt-8 pb-12 sm:pt-10 lg:px-[6.25%]">
+      <div className="grid gap-x-10 gap-y-4 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-end">
+        <h1 className="text-[38px] leading-[1.02] font-semibold tracking-[-0.035em] text-balance sm:text-[52px] lg:whitespace-nowrap">
           Talk to your Figma files.
         </h1>
-        <div className="lg:pb-1.5">
-          <p className="max-w-[520px] text-[16px] leading-relaxed text-muted sm:text-[17px]">
-            Ask your AI what's in a file, change it, or turn it into code, in whatever language you work in.
-            No Figma account, no Figma app running, no API limits.
+        <div className="lg:justify-self-end">
+          <p className="hero-support max-w-[540px] text-[16px] leading-relaxed text-muted sm:text-[17px]">
+            Ask your AI what's in a file, change it, or turn it into code. No Figma account, no app running,
+            no API limits.
           </p>
           <GetGrafta />
         </div>
       </div>
 
-      <figure className="mt-8 sm:mt-10">
-        <video
-          ref={video}
-          className="aspect-video h-auto w-full rounded-2xl border border-line bg-sunk"
-          poster={href("showcase/video/poster.jpg")}
-          width={1920}
-          height={1080}
-          muted
-          loop
-          playsInline
-          controls
-          preload="metadata"
-          aria-label="grafta used from Claude Desktop, VS Code and Figma"
-          aria-describedby="hero-video-scenes"
-        >
-          <source src={href("showcase/video/demo.webm")} type="video/webm" />
-          <source src={href("showcase/video/demo.mp4")} type="video/mp4" />
-        </video>
-        <figcaption className="mt-3 text-[13px] text-muted">
-          48 seconds, no sound. The requests, replies, code and pictures are from a real session, shortened;
-          the windows are drawn.
-        </figcaption>
-        <ol id="hero-video-scenes" className="sr-only">
-          {SCENES.map((scene) => (
-            <li key={scene}>{scene}</li>
-          ))}
-        </ol>
+      <figure className="hero-stage mt-6 sm:mt-8">
+        <div className="hero-frame">
+          <video
+            ref={video}
+            className="block aspect-[2/1] h-auto w-full rounded-xl border border-line bg-sunk"
+            poster={href("showcase/video/poster.jpg")}
+            width={1920}
+            height={960}
+            muted
+            loop
+            playsInline
+            controls
+            preload="metadata"
+            aria-label="grafta used from Claude Desktop, VS Code and Figma"
+            aria-describedby="hero-video-scenes"
+          >
+            <source src={href("showcase/video/demo.webm")} type="video/webm" />
+            <source src={href("showcase/video/demo.mp4")} type="video/mp4" />
+            <track kind="captions" src={href("showcase/video/demo.vtt")} srcLang="en" label="English" />
+          </video>
+          <SceneRail scenes={scenes} time={time} onPick={pick} />
+          <ol id="hero-video-scenes" className="sr-only">
+            {scenes.map((scene) => (
+              <li key={scene.name}>{scene.text}</li>
+            ))}
+          </ol>
+        </div>
       </figure>
     </header>
   );

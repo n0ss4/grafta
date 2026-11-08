@@ -4,7 +4,8 @@ import { DOCK, Dock, FILE, dockX } from "./Dock";
 import { EndCard } from "./End";
 import { FIG, FigmaWindow } from "./Figma";
 import { RECORDED } from "./talk";
-import { C, SANS, T, clamp, figmaReady, openCodeAt, openFigAt, ramp, sendOf } from "./shared";
+import { SCENES } from "./scenes";
+import { C, SANS, T, clamp, figmaReady, openCodeAt, openFigAt, ramp } from "./shared";
 import { FIG_ROW, VS, VSCodeWindow } from "./VSCode";
 
 // One scene, drawn from the frame number, so the same component plays on the
@@ -14,7 +15,7 @@ import { FIG_ROW, VS, VSCodeWindow } from "./VSCode";
 export { FPS, HEIGHT, WIDTH } from "./shared";
 export const DURATION = T.total;
 
-export function Demo() {
+export function Demo({ captions = true }: { captions?: boolean }) {
   return (
     <AbsoluteFill style={{ background: C.bg, fontFamily: SANS, color: C.ink }}>
       <Dock />
@@ -23,7 +24,7 @@ export function Demo() {
       <CarriedFile />
       <VSCodeWindow />
       <FigmaWindow />
-      <Captions />
+      {captions ? <Captions /> : null}
       <EndCard />
       <Cursor />
     </AbsoluteFill>
@@ -32,13 +33,13 @@ export function Demo() {
 
 // ——— Words under the picture ———
 
-const CAPTIONS: { from: number; to: number; text: string }[] = [
-  { from: T.dragFrom - 10, to: sendOf(0) + 10, text: "Get a Figma file, and add it to the chat." },
-  { from: sendOf(0) + 10, to: sendOf(1), text: "Ask what's in it." },
-  { from: sendOf(1), to: sendOf(2), text: "Change it, and check it. It saves a new file, never over yours." },
-  { from: sendOf(2), to: openFigAt() - 20, text: "Turn it into code, in whatever language you work in." },
-  { from: openFigAt() - 20, to: T.end, text: "Open the new file in Figma: real layers and variables, to keep editing." },
-];
+// The shared file's captions: the scenes that burn their words, the last
+// ending with the scene before the end card.
+const CAPTIONS = SCENES.filter((scene) => scene.burn).map((scene) => ({
+  from: scene.from,
+  to: Math.min(scene.to, T.end),
+  text: scene.text,
+}));
 
 function Captions() {
   const frame = useCurrentFrame();
@@ -73,8 +74,8 @@ function Captions() {
 // ——— The pointer ———
 
 const PATH: [number, number, number][] = [
-  [0, 1180, 900],
-  [60, 1180, 900],
+  [0, 1180, 820],
+  [60, 1180, 820],
   [T.click - 4, dockX(0) + 10, DOCK.y + 70],
   [T.click + 30, 700, 700],
   [T.dragFrom - 6, FILE.x + 6, FILE.y + 6],

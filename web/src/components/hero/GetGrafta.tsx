@@ -1,15 +1,15 @@
 import { GetGraftaButton } from "../install/Picker";
 
-/** Under the hero: one way to get it, and the questions people ask. */
+/** Beside the line: one way to get it, and what the video below is. */
 export function GetGrafta() {
   return (
-    <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
+    <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
       <GetGraftaButton className="rounded-full bg-button px-5 py-2.5 text-[15px] font-medium text-on-button">
         Get grafta
       </GetGraftaButton>
-      <a href="#faq" className="text-[15px] font-medium text-text underline underline-offset-4">
-        Questions
-      </a>
+      <p className="max-w-[300px] text-[13px] leading-snug text-muted">
+        The video: a real session, shortened. The windows are drawn.
+      </p>
     </div>
   );
 }

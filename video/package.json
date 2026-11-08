@@ -6,8 +6,11 @@
   "scripts": {
     "prepare-assets": "node scripts/prepare.mjs",
     "studio": "npm run prepare-assets && remotion studio src/index.ts",
-    "render": "npm run prepare-assets && remotion render src/index.ts Demo out/demo.mp4 --crf 26 --port 3191 && ffmpeg -loglevel error -y -i out/demo.mp4 -c:v libvpx-vp9 -b:v 0 -crf 38 -row-mt 1 -an out/demo.webm",
-    "still": "remotion still src/index.ts Demo --port 3191"
+    "vtt": "node scripts/vtt.mjs",
+    "render": "npm run prepare-assets && npm run vtt && npm run render:web && npm run render:social",
+    "render:web": "remotion render src/index.ts Web out/demo.mp4 --crf 24 --port 3191 && ffmpeg -loglevel error -y -i out/demo.mp4 -c:v libvpx-vp9 -b:v 0 -crf 36 -row-mt 1 -an out/demo.webm && ffmpeg -loglevel error -y -i out/demo.mp4 -frames:v 1 -vf scale=1600:-1 -q:v 4 out/poster.jpg && cp out/demo.mp4 out/demo.webm out/poster.jpg ../web/public/showcase/video/",
+    "render:social": "remotion render src/index.ts Social out/demo-social.mp4 --crf 26 --port 3191",
+    "still": "remotion still src/index.ts Web --port 3191"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",
@@ -19,6 +22,7 @@
   },
   "devDependencies": {
     "@types/react": "19.2.2",
+    "esbuild": "^0.28.1",
     "typescript": "5.9.3"
   },
   "allowScripts": {

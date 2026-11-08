@@ -267,3 +267,36 @@
   font-weight: 500;
   letter-spacing: 0.04em;
 }
+
+/* The first screen holds the line, the button and the whole video (internal:
+   specs/103). Where the screen is wide and tall enough, the hero is one screen
+   less the nav, and the video is as large as the height left allows, at 2:1,
+   with its scene rail (3.25rem) under it. Elsewhere it takes the width. */
+@media (min-width: 64rem) and (min-height: 37.5rem) {
+  .hero {
+    display: flex;
+    flex-direction: column;
+    height: calc(100svh - 4rem);
+    padding-bottom: 1.25rem;
+  }
+  .hero-stage {
+    flex: 1 1 0;
+    min-height: 0;
+    container-type: size;
+  }
+  .hero-frame {
+    width: min(100cqw, calc((100cqh - 3.25rem) * 2));
+  }
+}
+/* On a short screen the line and the button share one row, and the support
+   is left to the video and to screen readers, so the video keeps its size. */
+@media (min-width: 64rem) and (min-height: 37.5rem) and (max-height: 55rem) {
+  .hero-support {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
