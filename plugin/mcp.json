@@ -4,7 +4,7 @@
     "grafta": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "grafta@0.3.0", "mcp"]
+      "args": ["-y", "grafta@0.4.0", "mcp"]
     }
   }
 }
