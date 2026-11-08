@@ -4,6 +4,13 @@ What changed for someone using grafta, newest first. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.4.0](https://github.com/n0ss4/grafta/compare/v0.3.0...v0.4.0) (2026-11-08)
+
+
+### Added
+
+* **web:** a home page led by a video of grafta at work ([#48](https://github.com/n0ss4/grafta/issues/48)) ([58975cc](https://github.com/n0ss4/grafta/commit/58975ccfc7d77d76c8e0050e71e02fe37a5fcb47))
+
 ## [0.3.0](https://github.com/n0ss4/grafta/compare/v0.2.3...v0.3.0) (2026-11-07)
 
 
