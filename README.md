@@ -50,6 +50,8 @@
 
    > Now turn it into code.
 
+In Claude Desktop, say where the file is, like `~/Downloads/order.fig`. A file uploaded to the chat lives in Claude's cloud, so Claude copies it to a folder on your Mac that you allow, and grafta opens it there.
+
 grafta never writes over your file: it saves a new one, and reads it back before it says it is done. Open it in Figma to see it. How good the code is depends on your AI: grafta gives it exact values, and writes no code itself.
 
 ## Install

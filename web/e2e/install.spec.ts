@@ -41,6 +41,8 @@ test("the second step offers the sample and the first request", async ({ page, r
   await page.goto("./");
   const step = page.locator("#get").getByRole("region", { name: "Try it on a Figma file" });
   await expect(step).toContainText("Using grafta, what's in order.fig?");
+  // in Claude Desktop, where the file is to be found
+  await expect(step).toContainText("~/Downloads/order.fig");
   const sample = await step
     .getByRole("link", { name: "Download" })
     .evaluate((node) => (node as HTMLAnchorElement).href);

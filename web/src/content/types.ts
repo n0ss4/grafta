@@ -30,6 +30,8 @@ export interface Client {
   snippet: string;
   file?: string;
   note: string;
+  /** What to know when trying it on a file in this app, if anything. */
+  tryNote?: string;
 }
 
 export interface Card {

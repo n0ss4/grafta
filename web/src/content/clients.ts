@@ -14,6 +14,8 @@ export const clients: Client[] = [
     kind: "download",
     snippet: "https://github.com/n0ss4/grafta/releases/latest/download/grafta.mcpb",
     note: "Download it and open it: Claude Desktop installs it from Settings → Extensions. No terminal, no Node.js. The binary is not signed, so your system may ask first.",
+    tryNote:
+      "Say where the file is, like ~/Downloads/order.fig. A file uploaded to the chat lives in Claude's cloud, so Claude copies it to a folder on your Mac that you allow, and grafta opens it there.",
   },
   {
     id: "claude-code",

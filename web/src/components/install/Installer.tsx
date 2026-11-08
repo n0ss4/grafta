@@ -67,6 +67,9 @@ export function Installer({ compact = false }: { compact?: boolean }) {
             <span className="min-w-0 text-[15px]">“{firstRequest}”</span>
             <CopyButton text={firstRequest} label="Copy" />
           </div>
+          {client.tryNote ? (
+            <p className="mt-3 text-[13px] leading-relaxed text-muted">{client.tryNote}</p>
+          ) : null}
         </Step>
       </div>
     </div>
