@@ -5,10 +5,16 @@ interface Props {
   onQuery: (query: string) => void;
   matches: number;
   total: number;
+  allOpen: boolean;
+  onOpenAll: (open: boolean) => void;
 }
 
-/** Narrows the reference by tool or argument name as the reader types; "/" focuses it. */
-export function ToolSearch({ query, onQuery, matches, total }: Props) {
+/**
+ * Sticky under the nav: narrows the reference by a tool's name, its arguments or
+ * what it does, as the reader types ("/" focuses it); says how many; opens or
+ * closes every tool.
+ */
+export function ToolSearch({ query, onQuery, matches, total, allOpen, onOpenAll }: Props) {
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -25,25 +31,39 @@ export function ToolSearch({ query, onQuery, matches, total }: Props) {
   }, []);
 
   return (
-    <div role="search" className="mb-8">
-      <label htmlFor="tool-search" className="mb-2 block text-[14px] font-semibold">
-        Find a tool or an argument
+    <div
+      role="search"
+      className="sticky top-16 z-30 -mx-4 mt-8 mb-10 border-b border-line bg-bg/90 px-4 py-3 backdrop-blur-md lg:mx-0 lg:px-0"
+    >
+      <label htmlFor="tool-search" className="sr-only">
+        Find a tool by its name, an argument, or what it does
       </label>
-      <input
-        ref={input}
-        id="tool-search"
-        type="search"
-        value={query}
-        onChange={(event) => {
-          onQuery(event.target.value);
-        }}
-        placeholder="fill, variable, render…   ( / )"
-        autoComplete="off"
-        className="w-full rounded-xl border border-line bg-surface px-4 py-3 font-mono text-[15px] text-text placeholder:text-muted"
-      />
-      <p aria-live="polite" className="mt-2 text-[13.5px] text-muted">
-        {query ? `${matches} of ${total} tools` : `${total} tools`}
-      </p>
+      <div className="flex items-center gap-3">
+        <input
+          ref={input}
+          id="tool-search"
+          type="search"
+          value={query}
+          onChange={(event) => {
+            onQuery(event.target.value);
+          }}
+          placeholder="Find a tool…"
+          autoComplete="off"
+          className="min-w-0 flex-1 rounded-xl border border-line bg-surface px-4 py-2.5 text-[15px] text-text placeholder:text-muted"
+        />
+        <p aria-live="polite" className="text-[13.5px] whitespace-nowrap text-muted">
+          {query ? `${matches} of ${total} tools` : `${total} tools`}
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            onOpenAll(!allOpen);
+          }}
+          className="cursor-pointer rounded-lg border border-line px-3 py-2 text-[14px] whitespace-nowrap text-text hover:border-text"
+        >
+          {allOpen ? "Close all" : "Open all"}
+        </button>
+      </div>
     </div>
   );
 }
