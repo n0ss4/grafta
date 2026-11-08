@@ -21,6 +21,11 @@ set -eu
 root="$(cd "$(dirname "$0")/.." && pwd)"
 work="$(cd "$1" && pwd)"; rec="$(mkdir -p "$2" && cd "$2" && pwd)"; shift 2
 ids="${*:-theme audit contrast data html}"
+# The specs to read: sessions.json, or another file of one session or many
+# (web/src/content/talk.json, the hero's conversation). A session's
+# followUps are sent in order, each resuming the same session.
+specs="${SPECS:-$root/web/src/content/sessions.json}"
+specs="$(cd "$(dirname "$specs")" && pwd)/$(basename "$specs")"
 printf '{ "mcpServers": { "grafta": { "command": "%s", "args": ["mcp"] } } }\n' "$root/target/release/grafta" > "$rec/mcp.json"
 printf '{ "mcpServers": {} }\n' > "$rec/no-mcp.json"
 for id in $ids; do
@@ -31,14 +36,22 @@ for id in $ids; do
   done
   cd "$dir"
   base="${id%-without}"
-  prompt="$(python3 -c "import json,sys; print(next(s['prompt'] for s in json.load(open(sys.argv[1])) if s['id']==sys.argv[2]))" "$root/web/src/content/sessions.json" "$base")"
+  spec_of() { python3 -c "import json,sys; d=json.load(open(sys.argv[1])); d=d if isinstance(d,list) else [d]; s=next(s for s in d if s['id']==sys.argv[2]); print(json.dumps(s))" "$specs" "$base"; }
+  prompt="$(spec_of | python3 -c "import json,sys; print(json.load(sys.stdin)['prompt'])")"
   sid="$(uuidgen | tr 'A-Z' 'a-z')"
   if [ "$base" = "$id" ]; then
+    # No skill: grafta as its only MCP server, as a person who installed the
+    # server alone would have it, whatever plugins the recorder has.
     claude -p "$prompt" --session-id "$sid" --mcp-config "$rec/mcp.json" --strict-mcp-config \
-      --allowedTools "mcp__grafta" > "$rec/$id.code.out" 2> "$rec/$id.code.err" || echo "$id: claude exited $?"
+      --allowedTools "mcp__grafta" --disallowedTools "Skill" < /dev/null > "$rec/$id.code.out" 2> "$rec/$id.code.err" || echo "$id: claude exited $?"
+    spec_of | python3 -c "import json,sys; [print(f) for f in json.load(sys.stdin).get('followUps', [])]" | while IFS= read -r follow; do
+      claude -p "$follow" --resume "$sid" --mcp-config "$rec/mcp.json" --strict-mcp-config \
+        --allowedTools "mcp__grafta" "Write" "Edit" --disallowedTools "Skill" < /dev/null \
+        >> "$rec/$id.code.out" 2>> "$rec/$id.code.err" || echo "$id: claude exited $? on a follow-up"
+    done
   else
     claude -p "$prompt" --session-id "$sid" --mcp-config "$rec/no-mcp.json" --strict-mcp-config \
-      > "$rec/$id.code.out" 2> "$rec/$id.code.err" || echo "$id: claude exited $?"
+      < /dev/null > "$rec/$id.code.out" 2> "$rec/$id.code.err" || echo "$id: claude exited $?"
   fi
   f="$(ls "$HOME"/.claude/projects/*/"$sid".jsonl 2>/dev/null | head -1)"
   if [ -n "$f" ]; then

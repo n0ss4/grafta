@@ -1,6 +1,5 @@
 import { href } from "~/lib/seo";
 import { Page } from "./chrome/Page";
-import { Selection } from "./editorial/Selection";
 
 interface Props {
   title?: string;
@@ -14,15 +13,14 @@ export function NotFound({
 }: Props) {
   return (
     <Page>
-      <title>Not found · grafta</title>
+      <title>Not found: grafta</title>
       <meta name="robots" content="noindex" />
-      <section className="grid-lines grid min-h-[70vh] grid-cols-4 content-center px-4 py-28 lg:grid-cols-8 lg:px-0">
-        <p className="micro col-span-4 text-muted lg:col-start-2">404 — Not in this file</p>
-        <Selection tag="Node · not found" className="col-span-4 mt-10 lg:col-span-4 lg:col-start-2">
+      <section className="grid min-h-[70vh] grid-cols-4 content-center px-4 py-28 lg:grid-cols-8 lg:px-0">
+        <div className="col-span-4 lg:col-span-4 lg:col-start-2">
           <h1 className="text-[40px] leading-[1.05] font-normal tracking-[-0.03em] sm:text-[64px]">
             {title}
           </h1>
-        </Selection>
+        </div>
         <p className="col-span-4 mt-8 max-w-[480px] text-[17px] text-muted lg:col-start-2">{detail}</p>
         <p className="col-span-4 mt-8 flex gap-6 text-[15px] font-medium lg:col-start-2">
           <a href={href("")} className="text-text underline underline-offset-4">

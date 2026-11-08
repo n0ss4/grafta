@@ -1,38 +1,10 @@
 import { expect, test } from "@playwright/test";
 
-test("the page follows the approved product story", async ({ page }) => {
+test("the page is the video, then what to know, how to get it, and questions", async ({ page }) => {
   await page.goto("./");
   const ids = await page.locator("main > [id]").evaluateAll((nodes) => nodes.map((node) => node.id));
-  expect(ids).toEqual(["hero", "how", "ask", "difference", "trust", "faq", "get"]);
+  expect(ids).toEqual(["hero", "trust", "faq", "get"]);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Talk to your Figma files.");
-  await expect(page.locator("#how [data-demo-step]")).toHaveCount(6);
-  await expect(page.locator("#ask article")).toHaveCount(6);
-  await expect(page.locator("#difference article")).toHaveCount(2);
-});
-
-test("the guided demo advances with arrow keys", async ({ page }) => {
-  await page.goto("./");
-  const first = page.locator("#how [data-demo-step]").first().getByRole("button");
-  await first.focus();
-  await page.keyboard.press("ArrowDown");
-  await expect(page.locator("#how [data-demo-step]").nth(1).getByRole("button")).toHaveAttribute(
-    "aria-current",
-    "step",
-  );
-  await page.keyboard.press("ArrowUp");
-  await expect(first).toHaveAttribute("aria-current", "step");
-});
-
-test("reduced motion shows all six demo cards", async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("./");
-  await expect(
-    page.locator("#how [data-demo-step]").first().locator("div.relative.min-h-\\[460px\\]"),
-  ).toBeVisible();
-  await expect(
-    page.locator("#how [data-demo-step]").last().locator("div.relative.min-h-\\[460px\\]"),
-  ).toBeAttached();
 });
 
 for (const width of [375, 768, 1440]) {

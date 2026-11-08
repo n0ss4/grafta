@@ -158,6 +158,13 @@ class Import(unittest.TestCase):
         self.assertNotIn(str(self.rec), text)
         self.assertIn("[Image]", text)
 
+    def test_a_path_beside_the_working_directory_is_written_relative(self):
+        cwd = "/private/tmp/work/1a2b3c4d/designs"
+        self.assertEqual(ts.strip_paths("/private/tmp/work/1a2b3c4d/order.html", cwd), "../order.html")
+        self.assertEqual(ts.strip_paths("ls /private/tmp/work", cwd), "ls ../..")
+        # Not up to a folder two levels from the root, where it would hide a path.
+        self.assertEqual(ts.strip_paths("/Users/elsewhere/a.fig", "/Users/someone/rec"), "/Users/elsewhere/a.fig")
+
     def test_stops_when_a_path_from_the_recording_machine_is_left(self):
         calls = [("open_file", {"path": "/Users/elsewhere/order.fig"}, "{}", None)] + CALLS[1:]
         with self.assertRaisesRegex(ts.Stop, "paths from the recording's machine"):

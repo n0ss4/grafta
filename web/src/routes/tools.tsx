@@ -29,7 +29,7 @@ export default function Tools({ loaderData }: Route.ComponentProps) {
 
   return (
     <Page>
-      <div className="grid-lines grid grid-cols-[minmax(0,1fr)] gap-10 px-4 py-20 lg:grid-cols-[calc(100%/8*2)_minmax(0,1fr)] lg:gap-0 lg:px-0 lg:py-28">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-10 px-4 py-20 lg:grid-cols-[calc(100%/8*2)_minmax(0,1fr)] lg:gap-0 lg:px-0 lg:py-28">
         <aside
           aria-label="Tools"
           className="hidden lg:sticky lg:top-24 lg:block lg:max-h-[calc(100vh-120px)] lg:self-start lg:overflow-y-auto lg:pl-4"

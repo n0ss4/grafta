@@ -1,0 +1,148 @@
+{
+ "id": "1735549286:1",
+ "name": "Order",
+ "type": "FRAME",
+ "changed": true,
+ "children": [
+  {
+   "id": "1735549286:2",
+   "name": "My order",
+   "type": "TEXT",
+   "changed": false,
+   "children": []
+  },
+  {
+   "id": "1735549286:22",
+   "name": "Placed 2 Oct \u00b7 3 items",
+   "type": "TEXT",
+   "changed": false,
+   "children": []
+  },
+  {
+   "id": "1735549286:3",
+   "name": "Card",
+   "type": "FRAME",
+   "changed": false,
+   "children": [
+    {
+     "id": "1735549286:23",
+     "name": "Header",
+     "type": "FRAME",
+     "changed": false,
+     "children": [
+      {
+       "id": "1735549286:24",
+       "name": "Icon",
+       "type": "FRAME",
+       "changed": false,
+       "children": [
+        {
+         "id": "1735549286:25",
+         "name": "Package (Lucide)",
+         "type": "VECTOR",
+         "changed": false,
+         "children": []
+        }
+       ]
+      },
+      {
+       "id": "1735549286:26",
+       "name": "Labels",
+       "type": "FRAME",
+       "changed": false,
+       "children": [
+        {
+         "id": "1735549286:4",
+         "name": "Order #4821",
+         "type": "TEXT",
+         "changed": false,
+         "children": []
+        },
+        {
+         "id": "1735549286:5",
+         "name": "Arriving tomorrow",
+         "type": "TEXT",
+         "changed": false,
+         "children": []
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "1735549286:6",
+     "name": "Progress",
+     "type": "FRAME",
+     "changed": false,
+     "children": [
+      {
+       "id": "1735549286:27",
+       "name": "Done",
+       "type": "FRAME",
+       "changed": false,
+       "children": []
+      }
+     ]
+    },
+    {
+     "id": "1735549286:28",
+     "name": "Steps",
+     "type": "FRAME",
+     "changed": false,
+     "children": [
+      {
+       "id": "1735549286:29",
+       "name": "Packed",
+       "type": "TEXT",
+       "changed": false,
+       "children": []
+      },
+      {
+       "id": "1735549286:30",
+       "name": "Shipped",
+       "type": "TEXT",
+       "changed": false,
+       "children": []
+      },
+      {
+       "id": "1735549286:31",
+       "name": "Out for delivery",
+       "type": "TEXT",
+       "changed": false,
+       "children": []
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "1735549286:7",
+   "name": "Button",
+   "type": "FRAME",
+   "changed": false,
+   "children": [
+    {
+     "id": "1735549286:8",
+     "name": "Track order",
+     "type": "TEXT",
+     "changed": false,
+     "children": []
+    },
+    {
+     "id": "1735549286:32",
+     "name": "Arrow (Lucide)",
+     "type": "VECTOR",
+     "changed": false,
+     "children": []
+    }
+   ]
+  },
+  {
+   "id": "1735549286:33",
+   "name": "Delivered to the door \u00b7 no signature",
+   "type": "TEXT",
+   "changed": false,
+   "children": []
+  }
+ ]
+}

@@ -3,6 +3,7 @@
 
     python3 docs/showcase/transcripts_site.py <recordings dir> <web dir>
     python3 docs/showcase/transcripts_site.py --list <recordings dir> <id> <client>
+    python3 docs/showcase/transcripts_site.py --talk <recordings dir> <web dir>
 
 <recordings dir> holds, per session id of web/src/content/sessions.json:
 
@@ -195,6 +196,18 @@ def strip_paths(value, cwd):
         for prefix in filter(None, (cwd, str(ROOT))):
             value = value.replace("file://" + prefix.rstrip("/") + "/", "").replace(prefix.rstrip("/") + "/", "")
             value = value.replace(prefix.rstrip("/"), ".")
+        # The folders above the working directory, where a model wrote beside it
+        # or looked around, as relative paths: three levels, the session's folder
+        # and the work folder scripts/record-code.sh makes.
+        if cwd:
+            home = pathlib.PurePosixPath(pathlib.Path.home())
+            for depth, parent in enumerate(list(pathlib.PurePosixPath(cwd).parents)[:3], 1):
+                # Never a home folder, one of its parents, or a folder two levels
+                # from the root (/Users/someone): a path there would hide, not drop.
+                if len(parent.parts) <= 3 or parent == home or parent in home.parents:
+                    break
+                up = "/".join([".."] * depth)
+                value = value.replace(str(parent) + "/", up + "/").replace(str(parent), up)
         # What is left under the recorder's home folder (a parent of the working directory) as ~.
         return value.replace(str(pathlib.Path.home()), "~")
     return value
@@ -370,13 +383,16 @@ def run(rec, web, beats_path):
             raise Stop(f"theme-without in {client}: grafta was called; it was meant to be recorded without grafta")
         written[f"theme-without.{client}"] = build({**theme, "id": "theme-without", "beats": []}, client, events, meta,
                                                    [], pictures, f"theme-without-{client}")
+    # The hero's conversation (--talk) is written apart, and kept.
     if out_dir.exists():
         for old in out_dir.glob("*.json"):
-            old.unlink()
+            if not old.name.startswith(f"{TALK}."):
+                old.unlink()
     out_dir.mkdir(parents=True, exist_ok=True)
-    if pictures_dir.exists():
-        shutil.rmtree(pictures_dir)
-    pictures_dir.mkdir(parents=True)
+    pictures_dir.mkdir(parents=True, exist_ok=True)
+    for old in pictures_dir.glob("*.png"):
+        if not old.name.startswith(f"{TALK}-"):
+            old.unlink()
     for name, png in pictures.items():
         (pictures_dir / name).write_bytes(png)
     for name, recording in written.items():
@@ -390,7 +406,44 @@ def run(rec, web, beats_path):
     return written, pictures
 
 
+TALK = "talk"
+
+
+def run_talk(rec, web, beats_path):
+    """The hero's conversation: one session, its prompt and follow-ups, recorded in
+    Claude Code, written to web/public/sessions/talk.claude-code.json."""
+    spec = json.loads((web / "src" / "content" / "talk.json").read_text(encoding="utf-8"))
+    rows = (json.loads(beats_path.read_text(encoding="utf-8")).get(spec["id"]) or {}).get("claude-code")
+    if not rows:
+        raise Stop(f"{spec['id']}: no rows in beats.json (write them with --list)")
+    events, meta = load(rec, spec["id"], "claude-code")
+    said = [e["text"].strip() for e in events if e["kind"] == "user"]
+    meant = [spec["prompt"].strip(), *(f.strip() for f in spec.get("followUps", []))]
+    if said != meant:
+        raise Stop(f"{spec['id']}: the messages sent are {said}, talk.json says {meant}")
+    pictures = {}
+    recording = build(spec, "claude-code", events, meta, rows, pictures, f"{spec['id']}-claude-code")
+    out_dir, pictures_dir = web / "public" / "sessions", web / "public" / "showcase" / "sessions"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    pictures_dir.mkdir(parents=True, exist_ok=True)
+    for old in pictures_dir.glob(f"{TALK}-*.png"):
+        old.unlink()
+    for name, png in pictures.items():
+        (pictures_dir / name).write_bytes(png)
+    (out_dir / f"{spec['id']}.claude-code.json").write_text(
+        json.dumps(recording, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    return recording, pictures
+
+
 def main(argv):
+    if len(argv) == 4 and argv[1] == "--talk":
+        try:
+            recording, pictures = run_talk(pathlib.Path(argv[2]), pathlib.Path(argv[3]), ROOT / "docs" / "showcase" / "beats.json")
+        except Stop as stop:
+            sys.stderr.write(f"stopped: {stop}\n")
+            return 1
+        print(f"talk: {len(recording['turns'])} turns, {len(pictures)} pictures")
+        return 0
     if len(argv) == 5 and argv[1] == "--list":
         rec, sid, client = pathlib.Path(argv[2]), argv[3], argv[4]
         events, _ = load(rec, sid, client)
