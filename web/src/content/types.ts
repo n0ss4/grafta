@@ -24,6 +24,8 @@ export interface FaqEntry {
 export interface Client {
   id: string;
   name: string;
+  /** An AI app, or a way to install the program for any app. */
+  group: "app" | "program";
   kind: "command" | "json" | "download";
   snippet: string;
   file?: string;

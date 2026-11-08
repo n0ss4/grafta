@@ -9,7 +9,7 @@ for (const scheme of ["light", "dark"] as const) {
       await page.goto(path);
       // Exercise the modal as well as the page when JavaScript is available.
       if (path === "./") {
-        await page.locator("#hero").getByRole("button", { name: "Get grafta" }).click();
+        await page.locator("#hero").getByRole("link", { name: "Get grafta" }).click();
       }
       const results = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])

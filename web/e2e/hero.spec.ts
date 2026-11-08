@@ -21,7 +21,7 @@ for (const [width, height] of [...desktops, ...others]) {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("./");
     await expect(page.getByRole("heading", { level: 1 })).toBeInViewport({ ratio: 1 });
-    await expect(page.locator("#hero").getByRole("button", { name: "Get grafta" })).toBeInViewport({
+    await expect(page.locator("#hero").getByRole("link", { name: "Get grafta" })).toBeInViewport({
       ratio: 1,
     });
     await expect(page.locator("#hero video")).toBeInViewport({ ratio: 1 });
