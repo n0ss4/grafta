@@ -32,3 +32,9 @@ python3 scripts/tool-reference.py target/release/grafta
 - Squash pull requests into `develop`. Merge `develop` into `main` with a merge commit.
 - Do not edit `CHANGELOG.md` or the version in any file by hand: the release pull
   request writes both.
+- release-please skips commits that only touch `.claude/`, `docs/`, `video/` or
+  `web/`: the website is not a release. It can skip folders only, so a pull request
+  that also touches a file outside them (the README, a script) counts: title it
+  `docs:` or `chore:` unless it changes grafta itself. To recount a merged one, put
+  `BEGIN_COMMIT_OVERRIDE`, the new title and `END_COMMIT_OVERRIDE` in its
+  description.
