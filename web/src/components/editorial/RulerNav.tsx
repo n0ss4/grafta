@@ -6,9 +6,8 @@ import { ThemeToggle } from "./ThemeToggle";
 import { GetGraftaButton } from "../install/Picker";
 
 const links = [
-  { label: "How it works", to: "#how" },
-  { label: "What you can ask", to: "#ask" },
-  { label: "vs Figma MCP", to: "#difference" },
+  { label: "See it work", to: "#hero" },
+  { label: "Your files", to: "#trust" },
   { label: "Questions", to: "#faq" },
 ];
 
@@ -34,6 +33,8 @@ export function RulerNav({ home = false }: { home?: boolean }) {
             {link.label}
           </a>
         ))}
+        {/* the grid keeps a column for each of the page's sections */}
+        <span aria-hidden="true" className="hidden lg:block" />
         {home ? (
           <GetGraftaButton className="relative hidden h-full items-center text-left text-[14px] font-medium text-text hover:text-accent-text lg:flex">
             Get grafta
