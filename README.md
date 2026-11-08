@@ -127,6 +127,19 @@ change between them is a tool call a model would make
 | <img src="docs/assets/showcase-1-draft.png" width="260" alt="A grey wireframe of an order card"> | <img src="docs/assets/showcase-2-designed.png" width="260" alt="The same card with colour tokens, an icon, a progress bar and a green button"> | <img src="docs/assets/showcase-3-dark.png" width="260" alt="The same card in its Dark mode"> |
 | frames and text | 9 colour variables, Lucide icons, auto-layout | one property on the frame: `explicitVariableModes` |
 
+### From Figma to json-render
+
+A screen in a Figma file, written as a [json-render](https://github.com/vercel-labs/json-render)
+spec, the JSON an AI writes and json-render draws with your components. Left, the
+*Edit profile* dialog in the shadcn/ui Figma kit; right, the spec your AI wrote from
+it with grafta, drawn by json-render's shadcn components.
+
+| In Figma | Drawn by json-render |
+|:---:|:---:|
+| <img src="docs/assets/guides/json-render-figma.png" width="320" alt="The Edit profile dialog in the shadcn/ui Figma kit"> | <img src="docs/assets/guides/json-render-drawn.png" width="320" alt="The same dialog drawn by json-render with its shadcn components"> |
+
+How, step by step, and what does not match: [From Figma to json-render](docs/guides/json-render.md).
+
 ## How a model works with it
 
 <img src="docs/assets/loop.svg" alt="Open, find, read, write, look, save. Writing and looking repeat until it is right." width="880">
@@ -142,6 +155,7 @@ Prompts that work as written. The model chooses the tools.
 |---|---|---|
 | **Understand it** | *Open handoff.fig with grafta. What's in it, how is it organised, and which colours and components does it use?* | `summarize`, `search_nodes`, `read_node` |
 | **Turn it into code** | *Open checkout.fig with grafta. Build the payment screen in our stack, with the file's exact sizes, colours and icons.* | `read_node`, `list_variables`, `render_node` |
+| **A json-render spec** | *Using grafta, open shadcn.fig and write the dialog as a json-render spec for @json-render/shadcn's catalog.* ([guide](docs/guides/json-render.md)) | `search_nodes`, `read_node`, `render_node` |
 | **Dark mode** | *Open app.fig with grafta. Turn the colours on the Settings screen into Light and Dark variables, bind every fill to them, render both modes, and save as app-dark.fig.* | `create_variable` `set_properties` `render_node` |
 | **Design-system audit** | *Open library.fig with grafta. List its components, variables and styles, and tell me which colours are used on screens without being a variable or a style.* | `list_components` `list_variables` `search_nodes` |
 | **Accessibility** | *Open checkout.fig with grafta and check every screen's text contrast against WCAG AA. Fix what fails with the file's own colours, and show me before and after.* | `check_contrast` `set_properties` `render_node` |
