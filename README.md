@@ -136,7 +136,7 @@ it with grafta, drawn by json-render's shadcn components.
 
 | In Figma | Drawn by json-render |
 |:---:|:---:|
-| <img src="docs/assets/guides/json-render-figma.png" width="320" alt="The Edit profile dialog in the shadcn/ui Figma kit"> | <img src="docs/assets/guides/json-render-drawn.png" width="320" alt="The same dialog drawn by json-render with its shadcn components"> |
+| <img src="docs/assets/json-render-figma.png" width="320" alt="The Edit profile dialog in the shadcn/ui Figma kit"> | <img src="docs/assets/json-render-drawn.png" width="320" alt="The same dialog drawn by json-render with its shadcn components"> |
 
 How, step by step, and what does not match: [From Figma to json-render](docs/guides/json-render.md).
 

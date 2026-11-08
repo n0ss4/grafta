@@ -5,7 +5,7 @@ spec: the JSON that json-render draws with your components.
 
 | In Figma | Drawn by json-render |
 |---|---|
-| <img src="../assets/guides/json-render-figma.png" width="320" alt="The Edit profile dialog in the shadcn/ui Figma kit: a title, a line of text, Name and Username fields with their labels on the left, and a dark Save changes button"> | <img src="../assets/guides/json-render-drawn.png" width="320" alt="The same dialog drawn by json-render with its shadcn components: the same title, text, fields and button, with the labels above the fields"> |
+| <img src="../assets/json-render-figma.png" width="320" alt="The Edit profile dialog in the shadcn/ui Figma kit: a title, a line of text, Name and Username fields with their labels on the left, and a dark Save changes button"> | <img src="../assets/json-render-drawn.png" width="320" alt="The same dialog drawn by json-render with its shadcn components: the same title, text, fields and button, with the labels above the fields"> |
 
 The left is the *Edit profile* dialog from the
 [shadcn/ui Figma kit](https://ui.shadcn.com/figma) by Pietro Schirano. The right is the
