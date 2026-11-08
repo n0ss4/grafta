@@ -8,7 +8,7 @@ export function GetGrafta() {
         Get grafta
       </GetGraftaButton>
       <p className="max-w-[300px] text-[13px] leading-snug text-muted">
-        The video: a real session, shortened. The windows are drawn.
+        The video: real sessions in Claude Code and Claude Desktop, shortened. The windows are drawn.
       </p>
     </div>
   );

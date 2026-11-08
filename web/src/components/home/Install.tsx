@@ -3,7 +3,11 @@ import { Installer } from "../install/Installer";
 /** Getting grafta, on the page: pick the app, do its one step, try it on the sample. */
 export function Install() {
   return (
-    <section id="get" aria-labelledby="get-title" className="tone-ink scroll-mt-16 px-4 py-20 lg:px-0 lg:py-28">
+    <section
+      id="get"
+      aria-labelledby="get-title"
+      className="tone-ink scroll-mt-16 px-4 py-20 lg:px-0 lg:py-28"
+    >
       <div className="grid grid-cols-4 lg:grid-cols-8">
         <div className="col-span-4 lg:col-span-6 lg:col-start-2">
           <h2

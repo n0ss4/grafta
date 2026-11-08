@@ -3,7 +3,7 @@ import { CARD, CarriedFile, ClaudeWindow, DesktopFile, INPUT, WIN, carriedAt } f
 import { DOCK, Dock, FILE, dockX } from "./Dock";
 import { EndCard } from "./End";
 import { FIG, FigmaWindow } from "./Figma";
-import { RECORDED } from "./talk";
+import { DESKTOP, RECORDED } from "./talk";
 import { SCENES } from "./scenes";
 import { C, SANS, T, clamp, figmaReady, openCodeAt, openFigAt, ramp } from "./shared";
 import { FIG_ROW, VS, VSCodeWindow } from "./VSCode";
@@ -65,7 +65,7 @@ function Captions() {
         </div>
       ) : null}
       <div style={{ position: "absolute", bottom: 22, right: 40, fontSize: 15, color: C.faint, opacity: footnote }}>
-        Requests, replies and code from a real session, shortened: {RECORDED}
+        Requests, replies and code from real sessions, shortened: {RECORDED}; {DESKTOP}
       </div>
     </>
   );

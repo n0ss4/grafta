@@ -353,6 +353,10 @@ function InputBox() {
 // ——— One request, Claude's calls to grafta, and the reply ———
 
 const SCROLL: Record<number, [number, number][]> = {
+  0: [
+    [replyAt(0) + 22, 0],
+    [replyAt(0) + 40, 110],
+  ],
   1: [
     [replyAt(1) + 34, 0],
     [replyAt(1) + 56, 236],
@@ -466,9 +470,11 @@ function Thinking({ until }: { until: number }) {
 
 function ReplyInside() {
   const at = replyAt(0);
+  const note = EXCHANGES[0]!.note;
   return (
     <div>
       <Stream at={at} text={EXCHANGES[0]!.lead} />
+      {note ? <Stream at={at + 26} text={note} style={{ marginTop: 12, color: K.muted }} /> : null}
     </div>
   );
 }
@@ -538,11 +544,11 @@ function ReplyCode() {
             {"</>"}
           </div>
           <div>
-            <div style={{ fontSize: 15, fontWeight: 500 }}>order.html</div>
+            <div style={{ fontSize: 15, fontWeight: 500 }}>Order</div>
             <div style={{ fontSize: 13, color: K.muted }}>Code · HTML</div>
           </div>
           <div style={{ marginLeft: "auto", fontSize: 13, color: K.muted, border: `1px solid ${K.line}`, borderRadius: 7, padding: "5px 10px" }}>
-            Saved in Designs
+            order.html in Downloads
           </div>
         </div>
       </Appear>

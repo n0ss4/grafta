@@ -7,6 +7,10 @@
 import recording from "../../web/public/sessions/talk.claude-code.json";
 
 export const RECORDED = "Claude Code · claude-opus-5-5 · 7 Nov 2026";
+/** The same requests in Claude Desktop, on 8 Nov 2026, as the maintainer ran them:
+ * where it differs from the recording, the scene follows the app (the upload
+ * copied to the Mac, the code as a card). */
+export const DESKTOP = "Claude Desktop · 8 Nov 2026";
 
 /** The apps grafta documents, as web/src/content/clients.ts names them, with their own marks (assets/logos). */
 export const APPS: { name: string; logo: string; tile?: string; pad?: number; invert?: boolean }[] = [
@@ -23,6 +27,8 @@ export interface Exchange {
   words: string;
   steps: { label: string; tools: string[] }[];
   lead: string;
+  /** A second paragraph, from the Claude Desktop session. */
+  note?: string;
 }
 
 export const EXCHANGES: Exchange[] = [
@@ -33,6 +39,7 @@ export const EXCHANGES: Exchange[] = [
       { label: "Read its layers, variables and a picture", tools: ["read_node", "list_variables", "render_node"] },
     ],
     lead: "One small mobile screen: an order-status card in a dark theme. A frame “Order”, 360 wide, auto-layout with 24px padding, set in Inter. Every fill is bound to one of 9 colours in a “Theme” collection, with Light and Dark modes.",
+    note: "Grafta runs on your Mac, so to open the file I saved a copy to your Downloads folder as order.fig.",
   },
   {
     words: "Make it light, and check the contrast.",

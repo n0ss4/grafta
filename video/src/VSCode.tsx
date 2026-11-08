@@ -60,7 +60,7 @@ export function VSCodeWindow() {
       <div style={{ height: 38, background: V.title, borderBottom: `1px solid ${V.border}`, display: "flex", alignItems: "center", padding: "0 14px", position: "relative" }}>
         <TrafficLights size={12} />
         <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", fontSize: 13, background: "#2A2A2A", border: `1px solid ${V.border}`, borderRadius: 6, padding: "4px 120px", color: V.text }}>
-          Designs
+          Downloads
         </div>
       </div>
       <div style={{ position: "absolute", top: 38, bottom: 24, left: 0, right: 0, display: "flex" }}>
@@ -130,7 +130,7 @@ function Explorer() {
   return (
     <div style={{ width: 250, background: V.side, borderRight: `1px solid ${V.border}` }}>
       <div style={{ fontSize: 11, letterSpacing: "0.06em", padding: "12px 20px", color: V.text }}>EXPLORER</div>
-      <div style={{ fontSize: 11.5, fontWeight: 700, padding: "4px 12px", letterSpacing: "0.03em" }}>⌄ DESIGNS</div>
+      <div style={{ fontSize: 11.5, fontWeight: 700, padding: "4px 12px", letterSpacing: "0.03em" }}>⌄ DOWNLOADS</div>
       {row("order-light.fig", fig, undefined, frame >= openFigAt())}
       {row("order.fig", fig)}
       <div style={{ opacity: ramp(frame, T.vscode + 6, T.vscode + 14) }}>
@@ -148,7 +148,7 @@ function Editor() {
   return (
     <div style={{ flex: 1.15, minWidth: 0, borderRight: `1px solid ${V.border}` }}>
       <Tabs names={["order.html"]} />
-      <div style={{ fontSize: 12.5, color: V.dim, padding: "4px 16px", borderBottom: `1px solid ${V.border}` }}>Designs › order.html</div>
+      <div style={{ fontSize: 12.5, color: V.dim, padding: "4px 16px", borderBottom: `1px solid ${V.border}` }}>Downloads › order.html</div>
       <div style={{ fontFamily: CODE, fontSize: 14.5, lineHeight: "21.5px", paddingTop: 6, position: "relative" }}>
         {/* the :root and dark tokens, lines 11 to 33 */}
         <div style={{ position: "absolute", left: 0, right: 0, top: 6 + 10 * 21.5, height: 23 * 21.5, background: `rgb(38 79 120 / ${0.42 * mark})` }} />
@@ -253,7 +253,7 @@ function Preview() {
       <Tabs names={["Preview order.html"]} icon={<span style={{ color: "#3794FF" }}>◫</span>} />
       <div style={{ height: 34, display: "flex", alignItems: "center", gap: 10, padding: "0 12px", borderBottom: `1px solid ${V.border}`, fontSize: 12.5, color: V.dim }}>
         <span>‹ ›  ↻</span>
-        <span style={{ flex: 1, background: "#2A2A2A", borderRadius: 4, padding: "3px 10px", color: V.text }}>file:///Designs/order.html</span>
+        <span style={{ flex: 1, background: "#2A2A2A", borderRadius: 4, padding: "3px 10px", color: V.text }}>file:///Downloads/order.html</span>
       </div>
       <div style={{ position: "absolute", top: 70, bottom: 0, left: 0, right: 0, background: "#F6F4EE", display: "flex", justifyContent: "center", paddingTop: 40 }}>
         <Appear at={T.vscode + 72} dy={10}>

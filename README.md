@@ -13,7 +13,7 @@
     <img src="docs/assets/demo.gif" width="960" alt="grafta in use. In Claude Desktop, a Figma file, order.fig, is dropped into the chat. Asked what's in it, Claude reads its layers and variables through grafta. Asked to make it light and check the contrast, it switches the file to its Light mode, finds all 9 texts pass WCAG AA, and saves a new file, order-light.fig. Asked to turn it into code, it writes order.html, shown in VS Code beside the page it draws. Last, order-light.fig opens in Figma with its layers and variables.">
   </a>
   <br>
-  <sub>48 seconds, no sound. The requests, replies, code and pictures are from a real session, shortened; the windows are drawn. <a href="https://n0ss4.github.io/grafta/">Watch it on the website</a>, with its scenes.</sub>
+  <sub>48 seconds, no sound. The requests, replies, code and pictures are from real sessions in Claude Code and Claude Desktop, shortened; the windows are drawn. <a href="https://n0ss4.github.io/grafta/">Watch it on the website</a>, with its scenes.</sub>
 </p>
 
 <p align="center">
