@@ -1,3 +1,4 @@
+import { ChevronDown } from "../editorial/icons";
 import { Rich } from "../Rich";
 import { summary } from "./summary";
 import type { Tool } from "./types";
@@ -26,19 +27,22 @@ export function ToolRow({
       }}
       className="tool group scroll-mt-[9.5rem] border-b border-line last:border-0 [overflow-wrap:anywhere]"
     >
-      <summary className="grid cursor-pointer list-none grid-cols-[1rem_minmax(0,1fr)_auto] items-baseline gap-x-3 gap-y-1 px-4 py-3.5 hover:bg-bg sm:grid-cols-[1rem_13rem_minmax(0,1fr)_auto] sm:px-5 [&::-webkit-details-marker]:hidden">
-        <span aria-hidden="true" className="text-[12px] text-muted transition-transform group-open:rotate-90">
-          ▸
-        </span>
+      <summary className="grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_auto_2rem] items-center gap-x-3 gap-y-1 px-4 py-3.5 hover:bg-bg sm:grid-cols-[13rem_minmax(0,1fr)_auto_2rem] sm:px-5 [&::-webkit-details-marker]:hidden">
         <span className="font-mono text-[15px] font-semibold text-text">{tool.name}</span>
-        <span className="col-start-2 row-start-2 text-[14.5px] text-muted sm:col-start-3 sm:row-start-1 sm:truncate">
+        <span className="col-span-3 col-start-1 row-start-2 text-[14.5px] text-muted group-open:invisible max-sm:group-open:hidden sm:col-span-1 sm:col-start-2 sm:row-start-1 sm:truncate">
           <Rich text={summary(tool.description)} />
         </span>
-        <span className="col-start-3 row-start-1 text-right text-[13px] whitespace-nowrap text-muted sm:col-start-4">
+        <span className="col-start-2 row-start-1 text-right text-[13px] whitespace-nowrap text-muted sm:col-start-3">
           {count === 0 ? "no arguments" : count === 1 ? "1 argument" : `${count} arguments`}
         </span>
+        <span
+          aria-hidden="true"
+          className="col-start-3 row-start-1 grid size-8 place-items-center rounded-full border border-line text-text transition-[transform,border-color] group-open:rotate-180 group-hover:border-text sm:col-start-4"
+        >
+          <ChevronDown size={18} />
+        </span>
       </summary>
-      <div className="px-4 pb-6 sm:pr-5 sm:pl-12">
+      <div className="px-4 pb-6 sm:px-5">
         <p className="max-w-[72ch] text-[15px] leading-relaxed">
           <Rich text={tool.description} />
         </p>
