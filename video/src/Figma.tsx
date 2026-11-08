@@ -123,15 +123,22 @@ export function FigmaWindow() {
 function FigPanel({ selected }: { selected: boolean }) {
   const frame = useCurrentFrame();
   const p = ramp(frame, figmaReady() + 70, figmaReady() + 82);
-  const row: CSSProperties = { display: "flex", justifyContent: "space-between", fontSize: 14, padding: "7px 0" };
+  const row: CSSProperties = { display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 14, padding: "7px 0" };
   if (!selected) return <div style={{ padding: 18, fontSize: 14, color: "#8A8E95" }}>Design</div>;
   return (
     <div style={{ padding: 18, opacity: p }}>
-      <div style={{ fontSize: 14, fontWeight: 650, marginBottom: 10 }}>Frame · Order</div>
-      <div style={row}>
-        <span style={{ color: "#8A8E95" }}>Auto layout</span>
-        <span>Vertical, gap 20, padding 24</span>
-      </div>
+      <div style={{ fontSize: 14, fontWeight: 650, marginBottom: 14 }}>Frame · Order</div>
+      <div style={{ fontSize: 14, fontWeight: 650, marginBottom: 6 }}>Auto layout</div>
+      {[
+        ["Direction", "Vertical"],
+        ["Gap", "20"],
+        ["Padding", "24"],
+      ].map(([name, value]) => (
+        <div key={name} style={row}>
+          <span style={{ color: "#8A8E95" }}>{name}</span>
+          <span>{value}</span>
+        </div>
+      ))}
       <div style={{ height: 1, background: "#E6E6E6", margin: "12px 0" }} />
       <div style={{ fontSize: 14, fontWeight: 650, marginBottom: 6 }}>Variable modes</div>
       <div style={row}>
