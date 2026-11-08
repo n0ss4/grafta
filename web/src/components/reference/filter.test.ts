@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import tools from "~/generated/tools.json";
 import { filterFamilies } from "./filter";
 
-const names = (query: string) =>
-  filterFamilies(tools.families, query).flatMap((f) => f.tools.map((t) => t.name));
+const found = (query: string) => filterFamilies(tools.families, query).flatMap((f) => f.tools);
+const names = (query: string) => found(query).map((f) => f.tool.name);
 
 describe("filterFamilies", () => {
   it("keeps every tool for an empty query", () => {
@@ -14,5 +14,17 @@ describe("filterFamilies", () => {
     expect(names("fill")).toContain("fill_template");
     expect(names("fill")).toContain("create_text"); // `fills`
     expect(names("zzz")).toHaveLength(0);
+  });
+
+  it("finds tools by the job, in their descriptions", () => {
+    expect(names("picture")).toContain("render_node");
+    expect(names("colour").length).toBeGreaterThan(0);
+    expect(names("Contrast")).toContain("check_contrast");
+  });
+
+  it("says which matched only inside", () => {
+    const render = found("picture").find((f) => f.tool.name === "render_node");
+    expect(render?.inside).toBe(true);
+    expect(found("render_node")[0]?.inside).toBe(false);
   });
 });

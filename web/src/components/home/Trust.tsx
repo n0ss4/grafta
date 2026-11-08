@@ -1,5 +1,5 @@
 import { products } from "~/content/products";
-import { ComponentMark } from "../figma";
+import { ProductMark } from "./ProductMark";
 
 const reasons = [
   ["No account", "There is nothing to sign in to."],
@@ -27,8 +27,8 @@ export function Trust() {
           <ul className="mt-16 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-line sm:grid-cols-4">
             {products.map((product) => (
               <li key={product.extension} className="bg-surface p-5">
-                <ComponentMark className="text-accent-text" />
-                <p className="mt-4 text-[24px] font-medium text-accent-text">{product.extension}</p>
+                <ProductMark extension={product.extension} />
+                <p className="mt-4 text-[24px] font-medium">{product.extension}</p>
                 <p className="text-[13px] text-muted">{product.name}</p>
               </li>
             ))}

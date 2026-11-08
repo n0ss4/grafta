@@ -22,9 +22,8 @@ for (const path of [
 test("the old reference's address lands on the new one", async ({ page }) => {
   await page.goto("tools.html#render_node");
   await expect(page).toHaveURL(/\/grafta\/tools\/#render_node$/);
-  await expect(
-    page.getByRole("heading", { name: /tools, as the server lists them/, level: 1 }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Tool reference", level: 1 })).toBeVisible();
+  await expect(page.locator("#render_node")).toHaveAttribute("open", "");
 });
 
 test("an unknown address gets the 404 page", async ({ page }) => {
