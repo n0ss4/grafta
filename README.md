@@ -9,7 +9,11 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/talk.png" alt="Three requests to an AI about one Figma file. What's in this file: it answers an order tracking card with 9 colour variables. Make it light and check the contrast: the card in its light theme, 9 of 9 texts passing WCAG AA, saved as a new file. Now turn it into code: CSS, and the same card drawn from it.">
+  <a href="https://n0ss4.github.io/grafta/">
+    <img src="docs/assets/demo.gif" width="960" alt="grafta in use. In Claude Desktop, a Figma file, order.fig, is dropped into the chat. Asked what's in it, Claude reads its layers and variables through grafta. Asked to make it light and check the contrast, it switches the file to its Light mode, finds all 9 texts pass WCAG AA, and saves a new file, order-light.fig. Asked to turn it into code, it writes order.html, shown in VS Code beside the page it draws. Last, order-light.fig opens in Figma with its layers and variables.">
+  </a>
+  <br>
+  <sub>48 seconds, no sound. The requests, replies, code and pictures are from real sessions in Claude Code and Claude Desktop, shortened; the windows are drawn. <a href="https://n0ss4.github.io/grafta/">Watch it on the website</a>, with its scenes.</sub>
 </p>
 
 <p align="center">
@@ -37,14 +41,16 @@
 ## Try it
 
 1. [Install grafta](#install) in your AI app.
-2. Get a file: yours, or [this sample](https://n0ss4.github.io/grafta/sample/order.fig), the card above.
+2. Get a file: yours, or [this sample](https://n0ss4.github.io/grafta/sample/order.fig), the card in the video.
 3. Ask, in words:
 
-   > Open order.fig with grafta. What's in it?
+   > Using grafta, what's in order.fig?
 
-   > Make it light, check the contrast, and save a new file.
+   > Make it light, and check the contrast.
 
    > Now turn it into code.
+
+In Claude Desktop, say where the file is, like `~/Downloads/order.fig`. A file uploaded to the chat lives in Claude's cloud, so Claude copies it to a folder on your Mac that you allow, and grafta opens it there.
 
 grafta never writes over your file: it saves a new one, and reads it back before it says it is done. Open it in Figma to see it. How good the code is depends on your AI: grafta gives it exact values, and writes no code itself.
 

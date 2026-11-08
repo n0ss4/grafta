@@ -1,6 +1,6 @@
 # The first picture
 
-`talk.html` makes `docs/assets/talk.png` and `web/public/showcase/talk.webp`. Everything in it happened, on `web/public/sample/order.fig`, the card `scripts/showcase.sh` draws:
+`talk.html` makes `docs/assets/talk.png`. Everything in it happened, on `web/public/sample/order.fig`, the card `scripts/showcase.sh` draws:
 
 - **What's in this file?** `summarize`, `read_node` and `list_variables`, answered in words.
 - **Make it light, and check the contrast.** `set_properties` with `explicitVariableModes: { Theme: Light }`, then `check_contrast` (9 checked, 9 passed), `render_node` for `light.png`, and `save_as`.

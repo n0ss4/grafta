@@ -1,14 +1,11 @@
 import { Page } from "~/components/chrome/Page";
-import type { Recording } from "~/components/client/types";
-import { Demo } from "~/components/demo/Demo";
-import { Ask } from "~/components/home/Ask";
-import { Hero } from "~/components/home/Hero";
+import { Hero } from "~/components/hero/Hero";
 import { Install } from "~/components/home/Install";
 import { Questions } from "~/components/home/Questions";
-import { Difference } from "~/components/home/Difference";
 import { Trust } from "~/components/home/Trust";
 import { Picker } from "~/components/install/Picker";
 import { meta as pageMeta, SITE } from "~/lib/seo";
+import { readScenes } from "~/lib/vtt";
 import type { Route } from "./+types/home";
 
 export const meta: Route.MetaFunction = () => [
@@ -36,23 +33,19 @@ export const meta: Route.MetaFunction = () => [
   },
 ];
 
-// The demo's real recording is read at build time and pre-rendered without JavaScript.
+// The video's scenes, from its captions file, read at build time so the rail
+// and the scenes in words are in the pre-rendered page.
 export async function loader() {
   const { readFile } = await import("node:fs/promises");
   const path = await import("node:path");
-  const recording = JSON.parse(
-    await readFile(path.join(process.cwd(), "public", "sessions", "image.claude-code.json"), "utf8"),
-  ) as Recording;
-  return { recording };
+  const vtt = await readFile(path.join(process.cwd(), "public", "showcase", "video", "demo.vtt"), "utf8");
+  return { scenes: readScenes(vtt) };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   return (
     <Page home>
-      <Hero />
-      <Demo recording={loaderData.recording} />
-      <Ask />
-      <Difference />
+      <Hero scenes={loaderData.scenes} />
       <Trust />
       <Questions />
       <Install />

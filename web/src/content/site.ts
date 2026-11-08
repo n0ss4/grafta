@@ -4,8 +4,8 @@ export const GITHUB = "https://github.com/n0ss4/grafta";
 const blob = `${GITHUB}/blob/main`;
 
 export const nav: Link[] = [
-  { label: "How it works", href: "#how" },
-  { label: "Examples", href: "#ask" },
+  { label: "Get grafta", href: "#get" },
+  { label: "Questions", href: "#faq" },
   { label: "Tools", href: "tools/" },
   { label: "Changelog", href: "changelog/" },
 ];
@@ -15,7 +15,6 @@ export const footer: FooterColumn[] = [
     title: "Product",
     links: [
       { label: "Get grafta", href: "#get" },
-      { label: "Examples", href: "#ask" },
       { label: "FAQ", href: "#faq" },
     ],
   },

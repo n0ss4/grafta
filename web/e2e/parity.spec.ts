@@ -7,13 +7,12 @@ test("the home page keeps its products, questions and metadata", async ({ page }
     await expect(page.locator("#trust").getByText(extension, { exact: true })).toBeVisible();
   }
   await expect(page.locator("#faq details")).toHaveCount(11);
-  await expect(page.locator("#difference article").first().locator("dl > div")).toHaveCount(6);
   await expect(
     page.getByRole("navigation", { name: "Product" }).getByRole("link", { name: "Get grafta" }),
   ).toHaveAttribute("href", "#get");
   await expect(
-    page.getByRole("navigation", { name: "Product" }).getByRole("link", { name: "Examples" }),
-  ).toHaveAttribute("href", "#ask");
+    page.getByRole("navigation", { name: "Product" }).getByRole("link", { name: "FAQ" }),
+  ).toHaveAttribute("href", "#faq");
   const card = "https://n0ss4.github.io/grafta/assets/card.png";
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", card);
   await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute("content", card);

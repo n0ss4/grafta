@@ -14,16 +14,17 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#F6F4EE" media="(prefers-color-scheme: light)" />
-        <meta name="theme-color" content="#15171C" media="(prefers-color-scheme: dark)" />
-        {/* The visitor's choice of Paper or Ink, applied before the first paint. */}
+        <meta name="theme-color" content="#E8E8E4" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#17191D" media="(prefers-color-scheme: dark)" />
+        {/* Before the first paint: that scripts run (data-js, which the hero's panels
+            wait on), and the visitor's choice of light or dark. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var t=sessionStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}`,
+            __html: `document.documentElement.dataset.js="";try{var t=sessionStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}`,
           }}
         />
         <Meta />

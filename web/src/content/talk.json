@@ -1,0 +1,30 @@
+{
+  "id": "talk",
+  "title": "Talking to a file",
+  "prompt": "Using grafta, what's in order.fig?",
+  "followUps": ["Make it light, and check the contrast.", "Now turn it into code."],
+  "beats": [
+    {
+      "id": "inside",
+      "title": "What's in it",
+      "says": "Its layers, variables and fonts, read from the file.",
+      "needs": ["summarize|read_node|list_variables"]
+    },
+    {
+      "id": "light",
+      "title": "Make it light",
+      "says": "The Light mode set, every text checked against WCAG AA, saved as a new file.",
+      "needs": ["set_properties", "check_contrast"]
+    },
+    {
+      "id": "code",
+      "title": "Turn it into code",
+      "says": "The file's exact values read, and the model writes the code.",
+      "needs": ["read_node"]
+    }
+  ],
+  "outcome": {
+    "summary": "What the file is, a light version of it saved beside it, and its code.",
+    "writes": true
+  }
+}

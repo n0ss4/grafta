@@ -5,7 +5,7 @@ import { href } from "~/lib/seo";
 /** The footer: the columns on the grid, the brand's line, the licence. */
 export function EditorialFooter() {
   return (
-    <footer className="grid-lines border-t border-line px-4 py-16 lg:px-0">
+    <footer className="border-t border-line px-4 py-16 lg:px-0">
       <div className="grid grid-cols-4 gap-y-10 lg:grid-cols-8">
         <div className="col-span-4 lg:col-span-2 lg:col-start-2">
           <p className="flex items-center gap-2 text-[15px] font-semibold">
@@ -13,7 +13,7 @@ export function EditorialFooter() {
             grafta
           </p>
           <p className="mt-4 max-w-[300px] text-[15px] leading-relaxed text-muted">
-            Figma's file format for your agent: read and write Figma files, exactly and offline.
+            Talk to any Figma file with your AI: ask what's in it, change it, or turn it into code.
           </p>
         </div>
         {footer.map((column) => (
@@ -36,7 +36,7 @@ export function EditorialFooter() {
           </nav>
         ))}
         <p className="micro col-span-4 text-muted lg:col-span-6 lg:col-start-2">
-          MIT licence · Not affiliated with Figma. Figma is a trademark of Figma, Inc.
+          MIT licence. Not affiliated with Figma; Figma is a trademark of Figma, Inc.
         </p>
       </div>
     </footer>
