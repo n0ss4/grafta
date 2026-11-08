@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Img, interpolate, staticFile, useCurrentFrame } from "remotion";
 import { ORDER_HTML } from "./talk";
-import { Appear, T, TrafficLights, clamp, ramp, useSpring } from "./shared";
+import { Appear, T, TrafficLights, clamp, openFigAt, ramp, useSpring } from "./shared";
 
 // VS Code, in its Dark Modern theme, with the model's order.html open beside
 // the page it draws.
@@ -28,6 +28,8 @@ const UI = "'Inter Variable', Inter, system-ui, sans-serif";
 const CODE = "Menlo, 'SF Mono', ui-monospace, monospace";
 
 export const VS = { x: 150, y: 54, w: 1620, h: 846 };
+/** Where order-light.fig sits in the explorer. */
+export const FIG_ROW = { x: VS.x + 150, y: VS.y + 108 };
 const LINES = ORDER_HTML.split("\n").slice(0, 34);
 
 export function VSCodeWindow() {
@@ -129,10 +131,10 @@ function Explorer() {
     <div style={{ width: 250, background: V.side, borderRight: `1px solid ${V.border}` }}>
       <div style={{ fontSize: 11, letterSpacing: "0.06em", padding: "12px 20px", color: V.text }}>EXPLORER</div>
       <div style={{ fontSize: 11.5, fontWeight: 700, padding: "4px 12px", letterSpacing: "0.03em" }}>⌄ DESIGNS</div>
-      {row("order-light.fig", fig)}
+      {row("order-light.fig", fig, undefined, frame >= openFigAt())}
       {row("order.fig", fig)}
       <div style={{ opacity: ramp(frame, T.vscode + 6, T.vscode + 14) }}>
-        {row("order.html", html, <span style={{ color: V.green, fontSize: 12, fontWeight: 600 }}>U</span>, true)}
+        {row("order.html", html, <span style={{ color: V.green, fontSize: 12, fontWeight: 600 }}>U</span>, frame < openFigAt())}
       </div>
     </div>
   );

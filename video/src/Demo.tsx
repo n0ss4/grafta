@@ -1,11 +1,11 @@
 import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
-import { CARD, ClaudeWindow, DesktopFile, INPUT } from "./Claude";
+import { CARD, CarriedFile, ClaudeWindow, DesktopFile, INPUT, WIN, carriedAt } from "./Claude";
 import { DOCK, Dock, FILE, dockX } from "./Dock";
 import { EndCard } from "./End";
 import { FIG, FigmaWindow } from "./Figma";
 import { RECORDED } from "./talk";
-import { C, SANS, T, clamp, openCodeAt, ramp, sendOf } from "./shared";
-import { VS, VSCodeWindow } from "./VSCode";
+import { C, SANS, T, clamp, figmaReady, openCodeAt, openFigAt, ramp, sendOf } from "./shared";
+import { FIG_ROW, VS, VSCodeWindow } from "./VSCode";
 
 // One scene, drawn from the frame number, so the same component plays on the
 // page and renders to a file: the apps, Claude Desktop with grafta, the code
@@ -20,6 +20,7 @@ export function Demo() {
       <Dock />
       <DesktopFile />
       <ClaudeWindow />
+      <CarriedFile />
       <VSCodeWindow />
       <FigmaWindow />
       <Captions />
@@ -35,8 +36,8 @@ const CAPTIONS: { from: number; to: number; text: string }[] = [
   { from: T.dragFrom - 10, to: sendOf(0) + 10, text: "Get a Figma file, and add it to the chat." },
   { from: sendOf(0) + 10, to: sendOf(1), text: "Ask what's in it." },
   { from: sendOf(1), to: sendOf(2), text: "Change it, and check it. It saves a new file, never over yours." },
-  { from: sendOf(2), to: T.figma, text: "Turn it into code, in whatever language you work in." },
-  { from: T.figma + 10, to: T.end, text: "Open the result in Figma: real layers and variables, to keep editing." },
+  { from: sendOf(2), to: openFigAt() - 20, text: "Turn it into code, in whatever language you work in." },
+  { from: openFigAt() - 20, to: T.end, text: "Open the new file in Figma: real layers and variables, to keep editing." },
 ];
 
 function Captions() {
@@ -78,25 +79,34 @@ const PATH: [number, number, number][] = [
   [T.click + 30, 700, 700],
   [T.dragFrom - 6, FILE.x + 6, FILE.y + 6],
   [T.dragFrom, FILE.x + 6, FILE.y + 6],
-  [T.dragTo, INPUT.x + 40, INPUT.y - 30],
+  [T.dragTo, INPUT.x + 36, WIN.y + 406],
   [T.dragTo + 30, 1500, 980],
   [openCodeAt() - 30, 1500, 980],
   [openCodeAt() - 2, CARD.x, CARD.y],
   [T.vscode + 30, CARD.x + 100, CARD.y + 80],
   [T.vscode + 110, VS.x + 1350, VS.y + 400],
-  [T.figma + 30, FIG.x + 900, FIG.y + 560],
-  [T.figma + 60, FIG.x + 760, FIG.y + 300],
+  [openFigAt() - 50, VS.x + 1350, VS.y + 400],
+  [openFigAt() - 4, FIG_ROW.x, FIG_ROW.y],
+  [openFigAt() + 8, FIG_ROW.x, FIG_ROW.y],
+  [figmaReady() + 30, FIG.x + 900, FIG.y + 560],
+  [figmaReady() + 60, FIG.x + 760, FIG.y + 300],
   [T.end, FIG.x + 1100, FIG.y + 600],
 ];
-const CLICKS = [T.click, T.dragFrom, openCodeAt(), T.figma + 62];
+const CLICKS = [T.click, T.dragFrom, openCodeAt(), openFigAt() - 6, openFigAt(), figmaReady() + 62];
 
 function Cursor() {
   const frame = useCurrentFrame();
   if (frame >= T.end) return null;
   const fs = PATH.map((p) => p[0]);
-  const x = interpolate(frame, fs, PATH.map((p) => p[1]), { ...clamp, easing: Easing.inOut(Easing.cubic) });
-  const y = interpolate(frame, fs, PATH.map((p) => p[2]), { ...clamp, easing: Easing.inOut(Easing.cubic) });
-  const click = CLICKS.find((c) => frame >= c && frame < c + 14);
+  let x = interpolate(frame, fs, PATH.map((p) => p[1]), { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  let y = interpolate(frame, fs, PATH.map((p) => p[2]), { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  if (frame >= T.dragFrom && frame <= T.dragTo) {
+    // holding the file: the pointer moves with it
+    const held = carriedAt(frame);
+    x = held.x + 6;
+    y = held.y + 6;
+  }
+  const click = [...CLICKS].reverse().find((c) => frame >= c && frame < c + 14);
   const r = click !== undefined ? ramp(frame, click, click + 14) : 0;
   return (
     <>

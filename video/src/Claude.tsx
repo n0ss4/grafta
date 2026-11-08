@@ -38,6 +38,8 @@ const SIDE = 268;
 const COL = { left: SIDE + 120, width: 900 };
 export const INPUT = { x: WIN.x + COL.left + 60, y: WIN.y + WIN.h - 92 };
 export const CARD = { x: 760, y: 368 };
+/** Where the file is dropped: the box under the greeting. */
+const DROP_Y = WIN.y + 400;
 
 /** Claude's mark, a spark of rays. */
 export function Spark({ size, color = K.spark, spin = 0 }: { size: number; color?: string; spin?: number }) {
@@ -218,6 +220,23 @@ export function DesktopFile() {
       <div style={{ position: "absolute", left: FILE.x - 48, top: FILE.y - 44, opacity: shown * (t > 0 ? 0.35 : 1) * (1 - ramp(frame, T.dragTo, T.dragTo + 10)) }}>
         <FigFile />
       </div>
+    </>
+  );
+}
+
+/** The file while it is carried, drawn above the windows. */
+export function carriedAt(frame: number) {
+  const t = ramp(frame, T.dragFrom, T.dragTo);
+  const x = interpolate(t, [0, 1], [FILE.x, INPUT.x + 30]);
+  const y = interpolate(t, [0, 1], [FILE.y, DROP_Y]) - Math.sin(Math.PI * t) * 80;
+  return { t, x, y };
+}
+
+export function CarriedFile() {
+  const frame = useCurrentFrame();
+  const { t, x, y } = carriedAt(frame);
+  return (
+    <>
       {frame < T.dragTo && t > 0 ? (
         <div style={{ position: "absolute", left: x - 48, top: y - 44, transform: `scale(${1 - t * 0.3}) rotate(${Math.sin(Math.PI * t) * -6}deg)`, opacity: 0.95 }}>
           <FigFile />
