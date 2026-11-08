@@ -71,7 +71,7 @@ export function Hero({ scenes }: { scenes: Scene[] }) {
           <video
             ref={video}
             className="block aspect-[2/1] h-auto w-full rounded-xl border border-line bg-sunk"
-            poster={href("showcase/video/poster.jpg")}
+            poster={href("showcase/video/poster.webp")}
             width={1920}
             height={960}
             muted
