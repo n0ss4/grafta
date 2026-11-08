@@ -8,12 +8,12 @@
     "url": "https://github.com/n0ss4/grafta",
     "source": "github"
   },
-  "version": "0.3.0",
+  "version": "0.4.0",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "grafta",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "transport": { "type": "stdio" },
       "packageArguments": [{ "type": "positional", "value": "mcp" }]
     }
