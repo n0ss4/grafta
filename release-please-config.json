@@ -22,7 +22,7 @@
   ],
   "packages": {
     ".": {
-      "exclude-paths": ["web", "docs", "video", "README.md"]
+      "exclude-paths": [".claude", "docs", "video", "web"]
     }
   }
 }
