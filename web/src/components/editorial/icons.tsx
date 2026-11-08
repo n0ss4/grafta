@@ -88,6 +88,23 @@ export const Table = line([
   "M3 15h18",
 ]);
 export const Presentation = line(["M2 3h20", "M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3", "m7 21 5-5 5 5"]);
+// The products' files, by the idea of each: a pen for Design, a board for Slides,
+// a sticky note for FigJam, a globe for Sites. Lucide's, not Figma's own icons.
+export const PenTool = line([
+  "M15.707 21.293a1 1 0 0 1-1.414 0l-1.586-1.586a1 1 0 0 1 0-1.414l5.586-5.586a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 1 0 1.414z",
+  "m18 13-1.375-6.874a1 1 0 0 0-.746-.776L3.235 2.028a1 1 0 0 0-1.207 1.207L5.35 15.879a1 1 0 0 0 .776.746L13 18",
+  "m2.3 2.3 7.286 7.286",
+  "M13 11a2 2 0 1 1-4 0 2 2 0 0 1 4 0",
+]);
+export const StickyNote = line([
+  "M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z",
+  "M15 3v4a2 2 0 0 0 2 2h4",
+]);
+export const Globe = line([
+  "M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0",
+  "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20",
+  "M2 12h20",
+]);
 export const ChevronDown = line(["m6 9 6 6 6-6"]);
 export const Package = line([
   "M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z",
