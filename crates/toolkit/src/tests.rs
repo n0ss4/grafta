@@ -4766,7 +4766,8 @@ fn every_stored_interaction_reads_as_a_reaction() {
     use std::collections::BTreeMap;
     // (file, interactions, flows, actions by kind: a node's navigation, `NODE` for
     // a node with none stored, or the action's type)
-    let census: [(&str, usize, usize, &[(&str, usize)]); 5] = [
+    type Census<'a> = (&'a str, usize, usize, &'a [(&'a str, usize)]);
+    let census: [Census; 5] = [
         ("nuxtui.fig", 61_577, 3, &[("CHANGE_TO", 61_281), ("NAVIGATE", 29), ("CLOSE", 18), ("URL", 4), ("notModelled", 245)]),
         ("material3.fig", 15_146, 0, &[("CHANGE_TO", 12_493), ("notModelled", 2_653)]),
         ("UI3_ Figma's UI Kit (Community).fig", 257, 0, &[("CHANGE_TO", 246), ("NODE", 11)]),
