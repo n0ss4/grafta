@@ -46,6 +46,7 @@ pub fn summary(session: &Session) -> Data {
         "variables": graph.variables.len(),
         "styles": graph.styles.len(),
         "images": graph.images.len(),
+        "prototype": super::prototype::census(session),
         "unsaved_edits": session.edits,
     });
     if let Some((key, value)) = product.summary(graph) {
@@ -172,6 +173,7 @@ impl Query for ReadNode {
         let node = require_node(session, &self.id)?;
         let drawn = |node: &SceneNode| super::vector::drawn_paths(session, node);
         let mut out = view::node(&session.graph, session.raw(node.id), node, &self.limits, &session.ports, session.products, &drawn);
+        super::prototype::show(session, node, &mut out);
         out["path"] = data!(path_of(&session.graph, node));
         Ok(Output::Data(out))
     }

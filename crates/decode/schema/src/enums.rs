@@ -310,6 +310,13 @@ crate::wire! {
 }
 
 crate::wire! {
+    pub enum OverlayBackgroundType {
+        None = "NONE",
+        SolidColor = "SOLID_COLOR",
+    }
+}
+
+crate::wire! {
     pub enum PaintType {
         Custom = "CUSTOM",
         Emoji = "EMOJI",
@@ -322,6 +329,32 @@ crate::wire! {
         Pattern = "PATTERN",
         Solid = "SOLID",
         Video = "VIDEO",
+    }
+}
+
+crate::wire! {
+    pub enum PrototypeDeviceType {
+        Custom = "CUSTOM",
+        None = "NONE",
+        Presentation = "PRESENTATION",
+        Preset = "PRESET",
+    }
+}
+
+crate::wire! {
+    pub enum ScrollBehavior {
+        FixedWhenChildOfScrollingFrame = "FIXED_WHEN_CHILD_OF_SCROLLING_FRAME",
+        Scrolls = "SCROLLS",
+        StickyScrolls = "STICKY_SCROLLS",
+    }
+}
+
+crate::wire! {
+    pub enum ScrollDirection {
+        Both = "BOTH",
+        Horizontal = "HORIZONTAL",
+        None = "NONE",
+        Vertical = "VERTICAL",
     }
 }
 
@@ -751,7 +784,11 @@ crate::wire::wire_value!(
     NodePhase,
     NodeType,
     NumberUnits,
+    OverlayBackgroundType,
     PaintType,
+    PrototypeDeviceType,
+    ScrollBehavior,
+    ScrollDirection,
     ShapeWithTextType,
     SourceDirectionality,
     StackAlign,

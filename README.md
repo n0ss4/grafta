@@ -212,7 +212,8 @@ lists them in a terminal.
   while open and an 86 MB one 5.5 GB. Close what you
   are done with.
 - **Not yet:** auto-layout grids, component slots, boolean operations,
-  prototyping, Dev Mode annotations, and component properties on variants.
+  writing a prototype (one is read: its links, flows, scrolling and overlays),
+  Dev Mode annotations, and component properties on variants.
 - **Only grafta's own variables and styles can be changed.** The file's existing
   ones are read and bound to, not edited.
 
