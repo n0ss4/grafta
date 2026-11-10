@@ -4892,3 +4892,93 @@ fn a_prototype_reads_in_the_plugin_apis_names() {
     let summary = call(&mut kit, "summarize", json!({ "handle": handle })).unwrap();
     assert_eq!(summary["prototype"], json!({ "flows": 1, "interactions": 3 }));
 }
+
+/// A prototype written by `set_properties` reads back as written, for every
+/// kind of action, trigger and easing grafta writes; what it does not write
+/// yet, or cannot point at, is refused and nothing changes (SC-003).
+#[test]
+fn a_prototype_written_reads_back_as_written() {
+    use testkit::raw::{at, node, size};
+    let mut fig = testkit::raw::document();
+    let Raw::Object(message) = &mut fig.node_changes else { panic!() };
+    let Some(Raw::Array(changes)) = message.get_mut("nodeChanges") else { panic!() };
+    // Two screens on the page, a button and a target inside the first, and a
+    // button set of two variants.
+    changes.push(node(60, Some((1, "$")), "FRAME", "Sign in", vec![("size", size(390.0, 844.0)), ("transform", at(800.0, 0.0))]));
+    changes.push(node(61, Some((60, "!")), "RECTANGLE", "Go", vec![("size", size(100.0, 40.0)), ("transform", at(0.0, 0.0))]));
+    changes.push(node(62, Some((60, "\"")), "RECTANGLE", "Footer", vec![("size", size(390.0, 40.0)), ("transform", at(0.0, 800.0))]));
+    changes.push(node(63, Some((1, "%")), "FRAME", "Home", vec![("size", size(390.0, 844.0)), ("transform", at(1300.0, 0.0))]));
+    changes.push(node(70, Some((1, "&")), "FRAME", "Button", vec![("size", size(200.0, 40.0)), ("transform", at(0.0, 1000.0)), ("isStateGroup", Raw::Bool(true))]));
+    changes.push(node(71, Some((70, "!")), "SYMBOL", "State=Default", vec![("size", size(96.0, 32.0)), ("transform", at(0.0, 0.0))]));
+    changes.push(node(72, Some((70, "\"")), "SYMBOL", "State=Hover", vec![("size", size(96.0, 32.0)), ("transform", at(100.0, 0.0))]));
+    let mut kit = memory_toolkit();
+    let handle = kit.insert(PathBuf::from("/tmp/prototype-write.fig"), fig).unwrap().handle.to_string();
+    let set = |kit: &mut Toolkit, id: &str, properties: Value| call(kit, "set_properties", json!({ "handle": handle, "id": id, "properties": properties }));
+    let read = |kit: &mut Toolkit, id: &str| call(kit, "read_node", json!({ "handle": handle, "id": id, "depth": 0 })).unwrap();
+
+    let reactions = json!([
+        { "trigger": { "type": "ON_CLICK" }, "actions": [{ "type": "NODE", "destinationId": "1:63", "navigation": "NAVIGATE",
+            "transition": { "type": "SMART_ANIMATE", "duration": 0.4, "easing": { "type": "GENTLE" } }, "preserveScrollPosition": true }] },
+        { "trigger": { "type": "AFTER_TIMEOUT", "timeout": 2 }, "actions": [{ "type": "NODE", "destinationId": "1:63", "navigation": "OVERLAY",
+            "transition": { "type": "DISSOLVE", "duration": 0.2, "easing": { "type": "CUSTOM_CUBIC_BEZIER", "easingFunctionCubicBezier": { "x1": 0.2, "y1": 0, "x2": 0, "y2": 1 } } },
+            "overlayRelativePosition": { "x": 10, "y": 20 } }] },
+        { "trigger": { "type": "ON_KEY_DOWN", "device": "KEYBOARD", "keyCodes": [40] }, "actions": [{ "type": "NODE", "destinationId": "1:62", "navigation": "SCROLL_TO",
+            "transition": { "type": "SCROLL_ANIMATE", "duration": 1, "easing": { "type": "EASE_OUT" } } }] },
+        { "trigger": { "type": "ON_DRAG" }, "actions": [{ "type": "BACK" }, { "type": "CLOSE" }] },
+        { "trigger": { "type": "ON_PRESS" }, "actions": [{ "type": "URL", "url": "https://example.com", "openInNewTab": true }] },
+        { "trigger": { "type": "MOUSE_UP" }, "actions": [{ "type": "NODE", "destinationId": "1:63", "navigation": "SWAP", "transition": null }] },
+    ]);
+    set(&mut kit, "1:61", json!({ "reactions": reactions, "scrollBehavior": "FIXED" })).unwrap();
+    let go = read(&mut kit, "1:61");
+    let mut expected = reactions.clone();
+    // What reading adds: the destination's name, and an instant change as null.
+    for (i, name) in [(0, "Home"), (1, "Home"), (2, "Footer"), (5, "Home")] {
+        expected[i]["actions"][0]["destination"] = json!(name);
+    }
+    assert_eq!(go["reactions"], expected);
+    assert_eq!(go["scrollBehavior"], "FIXED");
+
+    // A component reacting to hover.
+    let hover = json!([{ "trigger": { "type": "ON_HOVER" }, "actions": [{ "type": "NODE", "destinationId": "1:72", "navigation": "CHANGE_TO",
+        "transition": { "type": "SMART_ANIMATE", "duration": 0.15, "easing": { "type": "BOUNCY" } } }] }]);
+    set(&mut kit, "1:71", json!({ "reactions": hover })).unwrap();
+    assert_eq!(read(&mut kit, "1:71")["reactions"][0]["actions"][0]["destination"], "State=Hover");
+
+    // A frame's scrolling, overlay settings and flows, in order.
+    set(&mut kit, "1:63", json!({ "overflowDirection": "VERTICAL", "overlayPositionType": "CENTER", "overlayBackgroundInteraction": "CLOSE_ON_CLICK_OUTSIDE",
+        "overlayBackground": { "type": "SOLID_COLOR", "color": "#00000080" }, "flowStartingPoint": { "name": "Second" } })).unwrap();
+    set(&mut kit, "1:60", json!({ "flowStartingPoint": { "name": "First", "description": "from the start" } })).unwrap();
+    let home = read(&mut kit, "1:63");
+    assert_eq!(
+        (&home["overflowDirection"], &home["overlayPositionType"], &home["overlayBackgroundInteraction"], &home["overlayBackground"]),
+        (&json!("VERTICAL"), &json!("CENTER"), &json!("CLOSE_ON_CLICK_OUTSIDE"), &json!({ "type": "SOLID_COLOR", "color": "#00000080" }))
+    );
+    let page = read(&mut kit, "1:1");
+    let flows: Vec<&str> = page["flowStartingPoints"].as_array().unwrap().iter().map(|f| f["name"].as_str().unwrap()).collect();
+    assert_eq!(flows, ["Second", "First"], "a new flow goes after the page's others");
+    assert_eq!(call(&mut kit, "summarize", json!({ "handle": handle })).unwrap()["prototype"], json!({ "flows": 2, "interactions": 7 }));
+
+    // Refused, naming what was wrong, with nothing written.
+    let before = read(&mut kit, "1:61");
+    for (properties, says) in [
+        (json!({ "reactions": [{ "trigger": { "type": "ON_CLICK" }, "actions": [{ "type": "NODE", "destinationId": "1:62", "navigation": "NAVIGATE" }] }] }), "Footer (1:62"),
+        (json!({ "reactions": [{ "trigger": { "type": "ON_CLICK" }, "actions": [{ "type": "NODE", "destinationId": "1:72", "navigation": "CHANGE_TO" }] }] }), "CHANGE_TO"),
+        (json!({ "reactions": [{ "trigger": { "type": "ON_CLICK" }, "actions": [{ "type": "NODE", "destinationId": "9:9", "navigation": "NAVIGATE" }] }] }), "9:9"),
+        (json!({ "reactions": [{ "trigger": { "type": "MOUSE_ENTER" }, "actions": [{ "type": "BACK" }] }] }), "not written yet"),
+        (json!({ "reactions": [{ "trigger": { "type": "ON_CLICK" }, "actions": [{ "type": "NODE", "destinationId": "1:63", "navigation": "NAVIGATE", "transition": { "type": "PUSH" } }] }] }), "not written yet"),
+        (json!({ "reactions": [{ "trigger": { "type": "ON_CLICK" }, "actions": [{ "type": "NODE", "destinationId": "1:63", "navigation": "NAVIGATE", "transition": { "type": "DISSOLVE", "duration": 11 } }] }] }), "from 0 to 10"),
+        (json!({ "flowStartingPoint": { "name": "Inside" }, "reactions": [] }), "top of a page"),
+    ] {
+        let id = if properties.get("flowStartingPoint").is_some() { "1:71" } else { "1:61" };
+        let error = set(&mut kit, id, properties.clone()).unwrap_err().to_string();
+        assert!(error.contains(says), "{properties}: {error}");
+    }
+    assert_eq!(read(&mut kit, "1:61"), before);
+
+    // Taken away.
+    set(&mut kit, "1:61", json!({ "reactions": [] })).unwrap();
+    assert!(read(&mut kit, "1:61").get("reactions").is_none());
+    set(&mut kit, "1:63", json!({ "flowStartingPoint": null, "overflowDirection": "NONE" })).unwrap();
+    let home = read(&mut kit, "1:63");
+    assert!(home.get("flowStartingPoint").is_none() && home.get("overflowDirection").is_none(), "{home}");
+}
