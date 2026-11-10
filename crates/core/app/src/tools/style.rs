@@ -19,7 +19,7 @@ use crate::{DomainError, Output, Session, ToolError, Toolkit};
 /// The keys accepted on an instance: it moves, hides, sizes, and keeps
 /// fills, strokes and dashes of its own; its other style is its
 /// component's.
-pub const ACCEPTED_ON_INSTANCE: [&str; 20] = [
+pub const ACCEPTED_ON_INSTANCE: [&str; 22] = [
     "x",
     "y",
     "name",
@@ -40,11 +40,13 @@ pub const ACCEPTED_ON_INSTANCE: [&str; 20] = [
     "strokeWeight",
     "strokeAlign",
     "dashPattern",
+    "reactions",
+    "scrollBehavior",
 ];
 
 /// What a vector takes: no radii, no layout of its own, no
 /// clipping; its caps and joins besides.
-pub const ACCEPTED_ON_VECTOR: [&str; 30] = [
+pub const ACCEPTED_ON_VECTOR: [&str; 32] = [
     "layoutGrow",
     "layoutAlign",
     "layoutPositioning",
@@ -75,11 +77,13 @@ pub const ACCEPTED_ON_VECTOR: [&str; 30] = [
     "constraints",
     "rotation",
     "dashPattern",
+    "reactions",
+    "scrollBehavior",
 ];
 
 /// What a shape takes: a vector's keys, its radius (not on an
 /// ellipse or a line; checked in the call), and its own values.
-pub const ACCEPTED_ON_SHAPE: [&str; 39] = [
+pub const ACCEPTED_ON_SHAPE: [&str; 41] = [
     "layoutGrow",
     "layoutAlign",
     "layoutPositioning",
@@ -119,6 +123,8 @@ pub const ACCEPTED_ON_SHAPE: [&str; 39] = [
     "constraints",
     "rotation",
     "dashPattern",
+    "reactions",
+    "scrollBehavior",
 ];
 
 /// Auto-layout on a frame, in the plugin API's names.
@@ -142,7 +148,7 @@ pub const LAYOUT: [&str; 13] = [
 pub const CHILD_LAYOUT: [&str; 3] = ["layoutGrow", "layoutAlign", "layoutPositioning"];
 
 /// The keys accepted on a text layer.
-pub const ACCEPTED_ON_TEXT: [&str; 37] = [
+pub const ACCEPTED_ON_TEXT: [&str; 39] = [
     "layoutGrow",
     "layoutAlign",
     "layoutPositioning",
@@ -181,10 +187,12 @@ pub const ACCEPTED_ON_TEXT: [&str; 37] = [
     "textCase",
     "textAlignVertical",
     "textAutoResize",
+    "reactions",
+    "scrollBehavior",
 ];
 
 /// The keys `set_properties` accepts on a frame: `read_node`'s own names.
-pub const ACCEPTED: [&str; 48] = [
+pub const ACCEPTED: [&str; 55] = [
     "layoutMode",
     "itemSpacing",
     "counterAxisSpacing",
@@ -233,6 +241,13 @@ pub const ACCEPTED: [&str; 48] = [
     "constraints",
     "rotation",
     "dashPattern",
+    "reactions",
+    "scrollBehavior",
+    "overflowDirection",
+    "overlayPositionType",
+    "overlayBackground",
+    "overlayBackgroundInteraction",
+    "flowStartingPoint",
 ];
 
 /// The plugin API's names with no counterpart in the format.
@@ -456,6 +471,8 @@ impl SetProperties {
         let (style_writes, style_removes) = super::shared_style::apply(session, properties)?;
         change.write.extend(style_writes);
         change.remove.extend(style_removes);
+        // A prototype: reactions, scrolling, overlays, a flow.
+        super::prototype::plan(session, id, properties, &mut change.write, &mut change.remove)?;
         match super::binding::consumption_map(session, id, &bindings) {
             Some(Some(map)) => change.write.push((Field::VariableConsumptionMap, map)),
             Some(None) => change.remove.push(Field::VariableConsumptionMap),
@@ -926,7 +943,7 @@ pub fn hex(name: &str, value: &Data) -> Result<(f32, f32, f32, f32), ToolError> 
     parsed.ok_or_else(|| invalid(name, "#RRGGBB or #RRGGBBAA", value))
 }
 
-fn color((r, g, b, a): (f32, f32, f32, f32)) -> Raw {
+pub(crate) fn color((r, g, b, a): (f32, f32, f32, f32)) -> Raw {
     object([
         (Field::R, Raw::Float(r)),
         (Field::G, Raw::Float(g)),

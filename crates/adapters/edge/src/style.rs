@@ -51,6 +51,24 @@ impl Tool for SetProperties {
          detaches one, and setting fills, strokes, effects or a text's font directly detaches \
          the style it came from. componentPropertyReferences binds a layer inside a component \
          to one of its properties; componentProperties sets an instance's values for them. \
+         A prototype, in read_node's names: reactions on any layer, replacing its own ([] \
+         removes them), each { trigger: { type: ON_CLICK | ON_HOVER | ON_PRESS | ON_DRAG | \
+         MOUSE_UP | MOUSE_DOWN, or AFTER_TIMEOUT with timeout (s), or ON_KEY_DOWN with keyCodes \
+         and device }, actions: [{ type: NODE, destinationId, navigation: NAVIGATE | OVERLAY | \
+         SWAP (a frame at the top of the same page) | SCROLL_TO (a layer in the same top frame) \
+         | CHANGE_TO (another variant of the layer's set), transition: null (instant) or { type: \
+         DISSOLVE | SMART_ANIMATE | SCROLL_ANIMATE (with SCROLL_TO), duration 0-10 s, easing: { \
+         type: EASE_IN | EASE_OUT | EASE_IN_AND_OUT | LINEAR | EASE_IN_BACK | EASE_OUT_BACK | \
+         GENTLE | BOUNCY, or CUSTOM_CUBIC_BEZIER with easingFunctionCubicBezier { x1, y1, x2, y2 \
+         } } }, preserveScrollPosition, resetScrollPosition, resetVideoPosition, \
+         resetInteractiveComponents, overlayRelativePosition { x, y } } or { type: URL, url, \
+         openInNewTab } or { type: BACK } or { type: CLOSE }] }; directional transitions, \
+         mouse enter and leave and the other springs are read, not written yet. scrollBehavior \
+         (SCROLLS, FIXED, STICKY_SCROLLS) on any layer; on a frame, overflowDirection (NONE, \
+         HORIZONTAL, VERTICAL, BOTH), an overlay's overlayPositionType, overlayBackground ({ \
+         type: NONE } or { type: SOLID_COLOR, color: \"#RRGGBBAA\" }) and \
+         overlayBackgroundInteraction (NONE, CLOSE_ON_CLICK_OUTSIDE), and flowStartingPoint { \
+         name, description? } (null ends it) on a frame at the top of a page. \
          On a slide (Figma Slides), a frame's properties and: transition { style (NONE, \
          DISSOLVE, SMART_ANIMATE, SLIDE_FROM_, PUSH_FROM_, MOVE_FROM_ LEFT | RIGHT | TOP | \
          BOTTOM, SLIDE_OUT_TO_, MOVE_OUT_TO_ the same), duration 0.01-10 s, curve (EASE_IN, \

@@ -4758,3 +4758,266 @@ mod layout;
 mod measure;
 mod memory;
 mod sites;
+
+/// Every interaction of the four fixtures holding them read as a reaction,
+/// counted by kind against the census of specs/107 (SC-001).
+#[test]
+fn every_stored_interaction_reads_as_a_reaction() {
+    use std::collections::BTreeMap;
+    // (file, interactions, flows, actions by kind: a node's navigation, `NODE` for
+    // a node with none stored, or the action's type)
+    type Census<'a> = (&'a str, usize, usize, &'a [(&'a str, usize)]);
+    let census: [Census; 5] = [
+        ("nuxtui.fig", 61_577, 3, &[("CHANGE_TO", 61_281), ("NAVIGATE", 29), ("CLOSE", 18), ("URL", 4), ("notModelled", 245)]),
+        ("material3.fig", 15_146, 0, &[("CHANGE_TO", 12_493), ("notModelled", 2_653)]),
+        ("UI3_ Figma's UI Kit (Community).fig", 257, 0, &[("CHANGE_TO", 246), ("NODE", 11)]),
+        ("MCP Apps for Claude (Community).fig", 165, 0, &[("CHANGE_TO", 135), ("notModelled", 30)]),
+        (
+            "Prototype Examples (Community).fig",
+            867,
+            42,
+            &[("CHANGE_TO", 329), ("NAVIGATE", 64), ("SCROLL_TO", 28), ("OVERLAY", 1), ("NODE", 2), ("BACK", 6), ("notModelled", 437)],
+        ),
+    ];
+    for (file, interactions, flows, by_kind) in census {
+        let path = testkit::fixture::dir().join(file);
+        if !path.is_file() {
+            continue;
+        }
+        let mut kit = crate::new();
+        let handle = call(&mut kit, "open_file", json!({ "path": path })).unwrap()["handle"].as_str().unwrap().to_string();
+        let summary = call(&mut kit, "summarize", json!({ "handle": handle })).unwrap();
+        assert_eq!(summary["prototype"], json!({ "flows": flows, "interactions": interactions }), "{file}");
+        let session = kit.session(&handle).unwrap();
+        let mut kinds: BTreeMap<String, usize> = BTreeMap::new();
+        let mut read = 0;
+        for node in session.graph.nodes.values() {
+            let mut out = crate::app::Data::Map(Default::default());
+            tools::prototype::show(session, node, &mut out);
+            let Some(reactions) = out.get("reactions").and_then(|r| r.as_list()) else { continue };
+            for reaction in reactions {
+                read += 1;
+                for action in reaction.get("actions").and_then(|a| a.as_list()).unwrap() {
+                    let kind = match (action.get("type").and_then(|t| t.as_str()), action.get("navigation").and_then(|n| n.as_str())) {
+                        (Some("NODE"), Some(navigation)) => navigation.to_string(),
+                        (Some(kind), _) => kind.to_string(),
+                        (None, _) => "notModelled".to_string(),
+                    };
+                    *kinds.entry(kind).or_default() += 1;
+                }
+            }
+        }
+        assert_eq!(read, interactions, "{file}");
+        let expected: BTreeMap<String, usize> = by_kind.iter().map(|(k, n)| ((*k).to_string(), *n)).collect();
+        assert_eq!(kinds, expected, "{file}");
+        // Nothing of a prototype is left unnamed.
+        let undecoded = crate::view::undecoded(session.raw(session.graph.nodes.keys().copied().find(|id| session.raw(*id).is_some_and(|r| schema::Wire::has(r, schema::Field::PrototypeInteractions))).unwrap()).unwrap(), session.products);
+        assert!(!undecoded.iter().any(|u| u == "prototypeInteractions"), "{file}: {undecoded:?}");
+    }
+}
+
+/// A hand-built prototype read in the plugin API's names: a flow, a scrolling
+/// frame, a link with a custom curve on a key, a missing destination, a
+/// deleted interaction, a URL and what is not modelled, named.
+#[test]
+fn a_prototype_reads_in_the_plugin_apis_names() {
+    use testkit::raw::{at, node, size};
+    let mut fig = testkit::raw::document();
+    let Raw::Object(message) = &mut fig.node_changes else { panic!() };
+    let Some(Raw::Array(changes)) = message.get_mut("nodeChanges") else { panic!() };
+    let f = |v: f32| Raw::Float(v);
+    let navigate = obj(vec![
+        ("id", guid(1, 900)),
+        ("event", obj(vec![("interactionType", Raw::Enum("ON_KEY_DOWN")), ("keyTrigger", obj(vec![("keyCodes", Raw::Array(vec![Raw::Int(13)])), ("triggerDevice", Raw::Enum("KEYBOARD"))]))])),
+        ("actions", Raw::Array(vec![obj(vec![
+            ("transitionNodeID", guid(1, 2)),
+            ("connectionType", Raw::Enum("INTERNAL_NODE")),
+            ("navigationType", Raw::Enum("NAVIGATE")),
+            ("transitionType", Raw::Enum("SMART_ANIMATE")),
+            ("transitionDuration", f(0.3)),
+            ("easingType", Raw::Enum("CUSTOM_CUBIC")),
+            ("easingFunction", Raw::Array(vec![f(0.2), f(0.0), f(0.0), f(1.0)])),
+            ("transitionPreserveScroll", Raw::Bool(true)),
+            ("extraScrollOffset", obj(vec![("x", f(0.0)), ("y", f(8.0))])),
+        ])])),
+        ("isDeleted", Raw::Bool(false)),
+    ]);
+    let missing = obj(vec![
+        ("id", guid(1, 901)),
+        ("event", obj(vec![("interactionType", Raw::Enum("AFTER_TIMEOUT")), ("transitionTimeout", f(2.0))])),
+        ("actions", Raw::Array(vec![obj(vec![("transitionNodeID", guid(u32::MAX, u32::MAX)), ("connectionType", Raw::Enum("INTERNAL_NODE")), ("navigationType", Raw::Enum("OVERLAY"))])])),
+    ]);
+    let deleted = obj(vec![("id", guid(1, 902)), ("event", obj(vec![("interactionType", Raw::Enum("MOUSE_OUT"))])), ("actions", Raw::Array(vec![obj(vec![("connectionType", Raw::Enum("BACK"))])])), ("isDeleted", Raw::Bool(true))]);
+    let url = obj(vec![("id", guid(1, 903)), ("event", obj(vec![("interactionType", Raw::Enum("ON_CLICK"))])), ("actions", Raw::Array(vec![obj(vec![("connectionType", Raw::Enum("URL")), ("connectionURL", Raw::Str("https://example.com".into())), ("openUrlInNewTab", Raw::Bool(true))]), obj(vec![("connectionType", Raw::Enum("SET_VARIABLE"))])]))]);
+    changes.push(node(50, Some((1, "$")), "FRAME", "Home", vec![
+        ("size", size(390.0, 844.0)), ("transform", at(800.0, 0.0)),
+        ("prototypeStartingPoint", obj(vec![("name", Raw::Str("Sign in".into())), ("description", Raw::Str("".into())), ("position", Raw::Str("!".into()))])),
+        ("scrollDirection", Raw::Enum("VERTICAL")),
+    ]));
+    changes.push(node(51, Some((50, "!")), "RECTANGLE", "Go", vec![
+        ("size", size(100.0, 40.0)), ("transform", at(0.0, 0.0)),
+        ("scrollBehavior", Raw::Enum("FIXED_WHEN_CHILD_OF_SCROLLING_FRAME")),
+        ("prototypeInteractions", Raw::Array(vec![navigate, missing, deleted, url])),
+    ]));
+    let mut kit = memory_toolkit();
+    let handle = kit.insert(PathBuf::from("/tmp/prototype.fig"), fig).unwrap().handle.to_string();
+
+    let go = call(&mut kit, "read_node", json!({ "handle": handle, "id": "1:51" })).unwrap();
+    assert_eq!(go["scrollBehavior"], "FIXED");
+    assert!(go.get("undecoded").is_none_or(|u| !u.to_string().contains("prototype")), "{go}");
+    let r = &go["reactions"];
+    assert_eq!(r[0]["trigger"], json!({ "type": "ON_KEY_DOWN", "device": "KEYBOARD", "keyCodes": [13] }));
+    assert_eq!(
+        r[0]["actions"][0],
+        json!({
+            "type": "NODE", "destinationId": "1:2", "destination": "Card", "navigation": "NAVIGATE",
+            "transition": { "type": "SMART_ANIMATE", "duration": 0.3, "easing": { "type": "CUSTOM_CUBIC_BEZIER", "easingFunctionCubicBezier": { "x1": 0.2, "y1": 0, "x2": 0, "y2": 1 } } },
+            "preserveScrollPosition": true,
+            "notModelled": { "extraScrollOffset": { "x": 0, "y": 8 } },
+        })
+    );
+    assert_eq!(r[1]["trigger"], json!({ "type": "AFTER_TIMEOUT", "timeout": 2 }));
+    assert_eq!(r[1]["actions"][0]["missing"], format!("{}:{}", u32::MAX, u32::MAX));
+    assert_eq!(r[1]["actions"][0]["destinationId"], Value::Null);
+    assert_eq!(r[2]["deleted"], true);
+    assert_eq!(r[2]["trigger"], json!({ "notModelled": { "interactionType": "MOUSE_OUT" } }));
+    assert_eq!(r[3]["actions"][0], json!({ "type": "URL", "url": "https://example.com", "openInNewTab": true }));
+    assert_eq!(r[3]["actions"][1], json!({ "notModelled": { "connectionType": "SET_VARIABLE" } }));
+
+    let home = call(&mut kit, "read_node", json!({ "handle": handle, "id": "1:50", "depth": 0 })).unwrap();
+    assert_eq!(home["overflowDirection"], "VERTICAL");
+    assert_eq!(home["flowStartingPoint"], json!({ "name": "Sign in", "description": "" }));
+    let page = call(&mut kit, "read_node", json!({ "handle": handle, "id": "1:1", "depth": 0 })).unwrap();
+    assert_eq!(page["flowStartingPoints"], json!([{ "nodeId": "1:50", "frame": "Home", "name": "Sign in", "description": "" }]));
+    let summary = call(&mut kit, "summarize", json!({ "handle": handle })).unwrap();
+    assert_eq!(summary["prototype"], json!({ "flows": 1, "interactions": 3 }));
+}
+
+/// A prototype written by `set_properties` reads back as written, for every
+/// kind of action, trigger and easing grafta writes; what it does not write
+/// yet, or cannot point at, is refused and nothing changes (SC-003).
+#[test]
+fn a_prototype_written_reads_back_as_written() {
+    use testkit::raw::{at, node, size};
+    let mut fig = testkit::raw::document();
+    let Raw::Object(message) = &mut fig.node_changes else { panic!() };
+    let Some(Raw::Array(changes)) = message.get_mut("nodeChanges") else { panic!() };
+    // Two screens on the page, a button and a target inside the first, and a
+    // button set of two variants.
+    changes.push(node(60, Some((1, "$")), "FRAME", "Sign in", vec![("size", size(390.0, 844.0)), ("transform", at(800.0, 0.0))]));
+    changes.push(node(61, Some((60, "!")), "RECTANGLE", "Go", vec![("size", size(100.0, 40.0)), ("transform", at(0.0, 0.0))]));
+    changes.push(node(62, Some((60, "\"")), "RECTANGLE", "Footer", vec![("size", size(390.0, 40.0)), ("transform", at(0.0, 800.0))]));
+    changes.push(node(63, Some((1, "%")), "FRAME", "Home", vec![("size", size(390.0, 844.0)), ("transform", at(1300.0, 0.0))]));
+    changes.push(node(70, Some((1, "&")), "FRAME", "Button", vec![("size", size(200.0, 40.0)), ("transform", at(0.0, 1000.0)), ("isStateGroup", Raw::Bool(true))]));
+    changes.push(node(71, Some((70, "!")), "SYMBOL", "State=Default", vec![("size", size(96.0, 32.0)), ("transform", at(0.0, 0.0))]));
+    changes.push(node(72, Some((70, "\"")), "SYMBOL", "State=Hover", vec![("size", size(96.0, 32.0)), ("transform", at(100.0, 0.0))]));
+    let mut kit = memory_toolkit();
+    let handle = kit.insert(PathBuf::from("/tmp/prototype-write.fig"), fig).unwrap().handle.to_string();
+    let set = |kit: &mut Toolkit, id: &str, properties: Value| call(kit, "set_properties", json!({ "handle": handle, "id": id, "properties": properties }));
+    let read = |kit: &mut Toolkit, id: &str| call(kit, "read_node", json!({ "handle": handle, "id": id, "depth": 0 })).unwrap();
+
+    let reactions = json!([
+        { "trigger": { "type": "ON_CLICK" }, "actions": [{ "type": "NODE", "destinationId": "1:63", "navigation": "NAVIGATE",
+            "transition": { "type": "SMART_ANIMATE", "duration": 0.4, "easing": { "type": "GENTLE" } }, "preserveScrollPosition": true }] },
+        { "trigger": { "type": "AFTER_TIMEOUT", "timeout": 2 }, "actions": [{ "type": "NODE", "destinationId": "1:63", "navigation": "OVERLAY",
+            "transition": { "type": "DISSOLVE", "duration": 0.2, "easing": { "type": "CUSTOM_CUBIC_BEZIER", "easingFunctionCubicBezier": { "x1": 0.2, "y1": 0, "x2": 0, "y2": 1 } } },
+            "overlayRelativePosition": { "x": 10, "y": 20 } }] },
+        { "trigger": { "type": "ON_KEY_DOWN", "device": "KEYBOARD", "keyCodes": [40] }, "actions": [{ "type": "NODE", "destinationId": "1:62", "navigation": "SCROLL_TO",
+            "transition": { "type": "SCROLL_ANIMATE", "duration": 1, "easing": { "type": "EASE_OUT" } } }] },
+        { "trigger": { "type": "ON_DRAG" }, "actions": [{ "type": "BACK" }, { "type": "CLOSE" }] },
+        { "trigger": { "type": "ON_PRESS" }, "actions": [{ "type": "URL", "url": "https://example.com", "openInNewTab": true }] },
+        { "trigger": { "type": "MOUSE_UP" }, "actions": [{ "type": "NODE", "destinationId": "1:63", "navigation": "SWAP", "transition": null }] },
+    ]);
+    set(&mut kit, "1:61", json!({ "reactions": reactions, "scrollBehavior": "FIXED" })).unwrap();
+    let go = read(&mut kit, "1:61");
+    let mut expected = reactions.clone();
+    // What reading adds: the destination's name, and an instant change as null.
+    for (i, name) in [(0, "Home"), (1, "Home"), (2, "Footer"), (5, "Home")] {
+        expected[i]["actions"][0]["destination"] = json!(name);
+    }
+    assert_eq!(go["reactions"], expected);
+    assert_eq!(go["scrollBehavior"], "FIXED");
+
+    // A component reacting to hover.
+    let hover = json!([{ "trigger": { "type": "ON_HOVER" }, "actions": [{ "type": "NODE", "destinationId": "1:72", "navigation": "CHANGE_TO",
+        "transition": { "type": "SMART_ANIMATE", "duration": 0.15, "easing": { "type": "BOUNCY" } } }] }]);
+    set(&mut kit, "1:71", json!({ "reactions": hover })).unwrap();
+    assert_eq!(read(&mut kit, "1:71")["reactions"][0]["actions"][0]["destination"], "State=Hover");
+
+    // A frame's scrolling, overlay settings and flows, in order.
+    set(&mut kit, "1:63", json!({ "overflowDirection": "VERTICAL", "overlayPositionType": "CENTER", "overlayBackgroundInteraction": "CLOSE_ON_CLICK_OUTSIDE",
+        "overlayBackground": { "type": "SOLID_COLOR", "color": "#00000080" }, "flowStartingPoint": { "name": "Second" } })).unwrap();
+    set(&mut kit, "1:60", json!({ "flowStartingPoint": { "name": "First", "description": "from the start" } })).unwrap();
+    let home = read(&mut kit, "1:63");
+    assert_eq!(
+        (&home["overflowDirection"], &home["overlayPositionType"], &home["overlayBackgroundInteraction"], &home["overlayBackground"]),
+        (&json!("VERTICAL"), &json!("CENTER"), &json!("CLOSE_ON_CLICK_OUTSIDE"), &json!({ "type": "SOLID_COLOR", "color": "#00000080" }))
+    );
+    let page = read(&mut kit, "1:1");
+    let flows: Vec<&str> = page["flowStartingPoints"].as_array().unwrap().iter().map(|f| f["name"].as_str().unwrap()).collect();
+    assert_eq!(flows, ["Second", "First"], "a new flow goes after the page's others");
+    assert_eq!(call(&mut kit, "summarize", json!({ "handle": handle })).unwrap()["prototype"], json!({ "flows": 2, "interactions": 7 }));
+
+    // Refused, naming what was wrong, with nothing written.
+    let before = read(&mut kit, "1:61");
+    for (properties, says) in [
+        (json!({ "reactions": [{ "trigger": { "type": "ON_CLICK" }, "actions": [{ "type": "NODE", "destinationId": "1:62", "navigation": "NAVIGATE" }] }] }), "Footer (1:62"),
+        (json!({ "reactions": [{ "trigger": { "type": "ON_CLICK" }, "actions": [{ "type": "NODE", "destinationId": "1:72", "navigation": "CHANGE_TO" }] }] }), "CHANGE_TO"),
+        (json!({ "reactions": [{ "trigger": { "type": "ON_CLICK" }, "actions": [{ "type": "NODE", "destinationId": "9:9", "navigation": "NAVIGATE" }] }] }), "9:9"),
+        (json!({ "reactions": [{ "trigger": { "type": "MOUSE_ENTER" }, "actions": [{ "type": "BACK" }] }] }), "not written yet"),
+        (json!({ "reactions": [{ "trigger": { "type": "ON_CLICK" }, "actions": [{ "type": "NODE", "destinationId": "1:63", "navigation": "NAVIGATE", "transition": { "type": "PUSH" } }] }] }), "not written yet"),
+        (json!({ "reactions": [{ "trigger": { "type": "ON_CLICK" }, "actions": [{ "type": "NODE", "destinationId": "1:63", "navigation": "NAVIGATE", "transition": { "type": "DISSOLVE", "duration": 11 } }] }] }), "from 0 to 10"),
+        (json!({ "flowStartingPoint": { "name": "Inside" }, "reactions": [] }), "top of a page"),
+    ] {
+        let id = if properties.get("flowStartingPoint").is_some() { "1:71" } else { "1:61" };
+        let error = set(&mut kit, id, properties.clone()).unwrap_err().to_string();
+        assert!(error.contains(says), "{properties}: {error}");
+    }
+    assert_eq!(read(&mut kit, "1:61"), before);
+
+    // Taken away.
+    set(&mut kit, "1:61", json!({ "reactions": [] })).unwrap();
+    assert!(read(&mut kit, "1:61").get("reactions").is_none());
+    set(&mut kit, "1:63", json!({ "flowStartingPoint": null, "overflowDirection": "NONE" })).unwrap();
+    let home = read(&mut kit, "1:63");
+    assert!(home.get("flowStartingPoint").is_none() && home.get("overflowDirection").is_none(), "{home}");
+}
+
+
+/// A duplicated screen's interactions are its own: new ids, links inside it
+/// pointing inside the copy, links out kept, and no second flow (FR-008).
+#[test]
+fn a_duplicated_screen_keeps_its_own_prototype() {
+    use testkit::raw::{at, node, size};
+    let mut fig = testkit::raw::document();
+    let Raw::Object(message) = &mut fig.node_changes else { panic!() };
+    let Some(Raw::Array(changes)) = message.get_mut("nodeChanges") else { panic!() };
+    changes.push(node(60, Some((1, "$")), "FRAME", "Sign in", vec![("size", size(390.0, 844.0)), ("transform", at(800.0, 0.0))]));
+    changes.push(node(61, Some((60, "!")), "RECTANGLE", "Go", vec![("size", size(100.0, 40.0)), ("transform", at(0.0, 0.0))]));
+    changes.push(node(62, Some((60, "\"")), "RECTANGLE", "Footer", vec![("size", size(390.0, 40.0)), ("transform", at(0.0, 800.0))]));
+    changes.push(node(63, Some((1, "%")), "FRAME", "Home", vec![("size", size(390.0, 844.0)), ("transform", at(1300.0, 0.0))]));
+    let mut kit = memory_toolkit();
+    let handle = kit.insert(PathBuf::from("/tmp/prototype-duplicate.fig"), fig).unwrap().handle.to_string();
+    let reactions = json!([
+        { "trigger": { "type": "ON_CLICK" }, "actions": [{ "type": "NODE", "destinationId": "1:63", "navigation": "NAVIGATE", "transition": null }] },
+        { "trigger": { "type": "ON_PRESS" }, "actions": [{ "type": "NODE", "destinationId": "1:62", "navigation": "SCROLL_TO", "transition": null }] },
+    ]);
+    call(&mut kit, "set_properties", json!({ "handle": handle, "id": "1:61", "properties": { "reactions": reactions } })).unwrap();
+    call(&mut kit, "set_properties", json!({ "handle": handle, "id": "1:60", "properties": { "flowStartingPoint": { "name": "Sign in" } } })).unwrap();
+    let copy = call(&mut kit, "duplicate_node", json!({ "handle": handle, "id": "1:60" })).unwrap();
+    let copy_id = copy["id"].as_str().unwrap().to_string();
+    let children = call(&mut kit, "read_node", json!({ "handle": handle, "id": copy_id, "depth": 1 })).unwrap();
+    assert!(children.get("flowStartingPoint").is_none(), "{children}");
+    let go = children["children"][0]["id"].as_str().unwrap().to_string();
+    let footer = children["children"][1]["id"].as_str().unwrap().to_string();
+    let read = call(&mut kit, "read_node", json!({ "handle": handle, "id": go, "depth": 0 })).unwrap();
+    assert_eq!(read["reactions"][0]["actions"][0]["destinationId"], "1:63", "a link out keeps its destination");
+    assert_eq!(read["reactions"][1]["actions"][0]["destinationId"], json!(footer), "a link inside points inside the copy");
+    let ids = |kit: &mut Toolkit, id: &str| -> Vec<String> {
+        let raw = call(kit, "read_raw", json!({ "handle": handle, "id": id, "fields": ["prototypeInteractions"] })).unwrap();
+        raw["prototypeInteractions"].as_array().unwrap().iter().map(|i| i["id"].to_string()).collect()
+    };
+    let (original, copied) = (ids(&mut kit, "1:61"), ids(&mut kit, &go));
+    assert!(copied.iter().all(|id| !original.contains(id)), "{original:?} {copied:?}");
+    assert_eq!(call(&mut kit, "summarize", json!({ "handle": handle })).unwrap()["prototype"], json!({ "flows": 1, "interactions": 4 }));
+}

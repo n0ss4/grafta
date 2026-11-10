@@ -310,6 +310,33 @@ crate::wire! {
 }
 
 crate::wire! {
+    pub enum OverlayBackgroundInteraction {
+        CloseOnClickOutside = "CLOSE_ON_CLICK_OUTSIDE",
+        None = "NONE",
+    }
+}
+
+crate::wire! {
+    pub enum OverlayBackgroundType {
+        None = "NONE",
+        SolidColor = "SOLID_COLOR",
+    }
+}
+
+crate::wire! {
+    pub enum OverlayPositionType {
+        BottomCenter = "BOTTOM_CENTER",
+        BottomLeft = "BOTTOM_LEFT",
+        BottomRight = "BOTTOM_RIGHT",
+        Center = "CENTER",
+        Manual = "MANUAL",
+        TopCenter = "TOP_CENTER",
+        TopLeft = "TOP_LEFT",
+        TopRight = "TOP_RIGHT",
+    }
+}
+
+crate::wire! {
     pub enum PaintType {
         Custom = "CUSTOM",
         Emoji = "EMOJI",
@@ -322,6 +349,32 @@ crate::wire! {
         Pattern = "PATTERN",
         Solid = "SOLID",
         Video = "VIDEO",
+    }
+}
+
+crate::wire! {
+    pub enum PrototypeDeviceType {
+        Custom = "CUSTOM",
+        None = "NONE",
+        Presentation = "PRESENTATION",
+        Preset = "PRESET",
+    }
+}
+
+crate::wire! {
+    pub enum ScrollBehavior {
+        FixedWhenChildOfScrollingFrame = "FIXED_WHEN_CHILD_OF_SCROLLING_FRAME",
+        Scrolls = "SCROLLS",
+        StickyScrolls = "STICKY_SCROLLS",
+    }
+}
+
+crate::wire! {
+    pub enum ScrollDirection {
+        Both = "BOTH",
+        Horizontal = "HORIZONTAL",
+        None = "NONE",
+        Vertical = "VERTICAL",
     }
 }
 
@@ -563,6 +616,16 @@ crate::wire! {
 }
 
 crate::wire! {
+    pub enum TriggerDevice {
+        Keyboard = "KEYBOARD",
+        Ps4 = "PS4",
+        SwitchPro = "SWITCH_PRO",
+        UnknownController = "UNKNOWN_CONTROLLER",
+        XboxOne = "XBOX_ONE",
+    }
+}
+
+crate::wire! {
     pub enum VariableDataType {
         Alias = "ALIAS",
         Boolean = "BOOLEAN",
@@ -751,7 +814,13 @@ crate::wire::wire_value!(
     NodePhase,
     NodeType,
     NumberUnits,
+    OverlayBackgroundInteraction,
+    OverlayBackgroundType,
+    OverlayPositionType,
     PaintType,
+    PrototypeDeviceType,
+    ScrollBehavior,
+    ScrollDirection,
     ShapeWithTextType,
     SourceDirectionality,
     StackAlign,
@@ -771,6 +840,7 @@ crate::wire::wire_value!(
     TextCase,
     TextDecoration,
     TransitionType,
+    TriggerDevice,
     VariableDataType,
     VariableField,
     VariableResolvedDataType,

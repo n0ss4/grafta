@@ -49,6 +49,10 @@ const DECODED: &[Field] = &[
     Field::ComponentPropDefs, Field::ComponentPropAssignments, Field::ComponentPropRefs, Field::ArcData, Field::Count, Field::StarInnerScale, Field::VariantPropSpecs, Field::SymbolOverrides,
     Field::ExportSettings, Field::IsStateGroup, Field::StateGroupPropertyValueOrders, Field::ImageScaleMode,
     Field::ResizeToFit, Field::WindingRule,
+    // A prototype, read by `tools::prototype`.
+    Field::PrototypeInteractions, Field::PrototypeStartingPoint, Field::PrototypeDevice, Field::PrototypeBackgroundColor,
+    Field::ScrollDirection, Field::ScrollBehavior, Field::OverlayPositionType, Field::OverlayBackgroundInteraction,
+    Field::OverlayBackgroundAppearance,
 ];
 
 /// How deep and how big a view may get.
