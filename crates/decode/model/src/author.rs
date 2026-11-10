@@ -1722,6 +1722,22 @@ impl<'a> Graft<'a> {
                 let p = index.field(Field::Guid).and_then(Guid::read).and_then(copy_of).ok_or(AuthorError::UnknownNode(*old))?;
                 index.set(Field::Guid, p.to_value());
             }
+            // A copy's interactions are its own: each under a new id, and a
+            // link to a layer inside the copy points at that layer's copy;
+            // a link out keeps its destination. A copy starts no flow.
+            if let Some(Value::Array(interactions)) = fields.field_mut(Field::PrototypeInteractions) {
+                for interaction in interactions.iter_mut() {
+                    interaction.set(Field::Id, self.allocate().to_value());
+                    if let Some(Value::Array(actions)) = interaction.field_mut(Field::Actions) {
+                        for action in actions.iter_mut() {
+                            if let Some(to) = action.field(Field::TransitionNodeId).and_then(Guid::read).and_then(copy_of) {
+                                action.set(Field::TransitionNodeId, to.to_value());
+                            }
+                        }
+                    }
+                }
+            }
+            fields.take(Field::PrototypeStartingPoint);
             copies.push(Value::Object(fields));
         }
         for copy in copies {

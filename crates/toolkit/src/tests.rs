@@ -4982,3 +4982,42 @@ fn a_prototype_written_reads_back_as_written() {
     let home = read(&mut kit, "1:63");
     assert!(home.get("flowStartingPoint").is_none() && home.get("overflowDirection").is_none(), "{home}");
 }
+
+
+/// A duplicated screen's interactions are its own: new ids, links inside it
+/// pointing inside the copy, links out kept, and no second flow (FR-008).
+#[test]
+fn a_duplicated_screen_keeps_its_own_prototype() {
+    use testkit::raw::{at, node, size};
+    let mut fig = testkit::raw::document();
+    let Raw::Object(message) = &mut fig.node_changes else { panic!() };
+    let Some(Raw::Array(changes)) = message.get_mut("nodeChanges") else { panic!() };
+    changes.push(node(60, Some((1, "$")), "FRAME", "Sign in", vec![("size", size(390.0, 844.0)), ("transform", at(800.0, 0.0))]));
+    changes.push(node(61, Some((60, "!")), "RECTANGLE", "Go", vec![("size", size(100.0, 40.0)), ("transform", at(0.0, 0.0))]));
+    changes.push(node(62, Some((60, "\"")), "RECTANGLE", "Footer", vec![("size", size(390.0, 40.0)), ("transform", at(0.0, 800.0))]));
+    changes.push(node(63, Some((1, "%")), "FRAME", "Home", vec![("size", size(390.0, 844.0)), ("transform", at(1300.0, 0.0))]));
+    let mut kit = memory_toolkit();
+    let handle = kit.insert(PathBuf::from("/tmp/prototype-duplicate.fig"), fig).unwrap().handle.to_string();
+    let reactions = json!([
+        { "trigger": { "type": "ON_CLICK" }, "actions": [{ "type": "NODE", "destinationId": "1:63", "navigation": "NAVIGATE", "transition": null }] },
+        { "trigger": { "type": "ON_PRESS" }, "actions": [{ "type": "NODE", "destinationId": "1:62", "navigation": "SCROLL_TO", "transition": null }] },
+    ]);
+    call(&mut kit, "set_properties", json!({ "handle": handle, "id": "1:61", "properties": { "reactions": reactions } })).unwrap();
+    call(&mut kit, "set_properties", json!({ "handle": handle, "id": "1:60", "properties": { "flowStartingPoint": { "name": "Sign in" } } })).unwrap();
+    let copy = call(&mut kit, "duplicate_node", json!({ "handle": handle, "id": "1:60" })).unwrap();
+    let copy_id = copy["id"].as_str().unwrap().to_string();
+    let children = call(&mut kit, "read_node", json!({ "handle": handle, "id": copy_id, "depth": 1 })).unwrap();
+    assert!(children.get("flowStartingPoint").is_none(), "{children}");
+    let go = children["children"][0]["id"].as_str().unwrap().to_string();
+    let footer = children["children"][1]["id"].as_str().unwrap().to_string();
+    let read = call(&mut kit, "read_node", json!({ "handle": handle, "id": go, "depth": 0 })).unwrap();
+    assert_eq!(read["reactions"][0]["actions"][0]["destinationId"], "1:63", "a link out keeps its destination");
+    assert_eq!(read["reactions"][1]["actions"][0]["destinationId"], json!(footer), "a link inside points inside the copy");
+    let ids = |kit: &mut Toolkit, id: &str| -> Vec<String> {
+        let raw = call(kit, "read_raw", json!({ "handle": handle, "id": id, "fields": ["prototypeInteractions"] })).unwrap();
+        raw["prototypeInteractions"].as_array().unwrap().iter().map(|i| i["id"].to_string()).collect()
+    };
+    let (original, copied) = (ids(&mut kit, "1:61"), ids(&mut kit, &go));
+    assert!(copied.iter().all(|id| !original.contains(id)), "{original:?} {copied:?}");
+    assert_eq!(call(&mut kit, "summarize", json!({ "handle": handle })).unwrap()["prototype"], json!({ "flows": 1, "interactions": 4 }));
+}
