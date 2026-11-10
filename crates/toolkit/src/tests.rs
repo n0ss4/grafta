@@ -4764,13 +4764,19 @@ mod sites;
 #[test]
 fn every_stored_interaction_reads_as_a_reaction() {
     use std::collections::BTreeMap;
-    // (file, interactions, flows, [CHANGE_TO, NAVIGATE, CLOSE, URL, a node with no
-    // navigation stored, not modelled])
-    let census: [(&str, usize, usize, [usize; 6]); 4] = [
-        ("nuxtui.fig", 61_577, 3, [61_281, 29, 18, 4, 0, 245]),
-        ("material3.fig", 15_146, 0, [12_493, 0, 0, 0, 0, 2_653]),
-        ("UI3_ Figma's UI Kit (Community).fig", 257, 0, [246, 0, 0, 0, 11, 0]),
-        ("MCP Apps for Claude (Community).fig", 165, 0, [135, 0, 0, 0, 0, 30]),
+    // (file, interactions, flows, actions by kind: a node's navigation, `NODE` for
+    // a node with none stored, or the action's type)
+    let census: [(&str, usize, usize, &[(&str, usize)]); 5] = [
+        ("nuxtui.fig", 61_577, 3, &[("CHANGE_TO", 61_281), ("NAVIGATE", 29), ("CLOSE", 18), ("URL", 4), ("notModelled", 245)]),
+        ("material3.fig", 15_146, 0, &[("CHANGE_TO", 12_493), ("notModelled", 2_653)]),
+        ("UI3_ Figma's UI Kit (Community).fig", 257, 0, &[("CHANGE_TO", 246), ("NODE", 11)]),
+        ("MCP Apps for Claude (Community).fig", 165, 0, &[("CHANGE_TO", 135), ("notModelled", 30)]),
+        (
+            "Prototype Examples (Community).fig",
+            867,
+            42,
+            &[("CHANGE_TO", 329), ("NAVIGATE", 64), ("SCROLL_TO", 28), ("OVERLAY", 1), ("NODE", 2), ("BACK", 6), ("notModelled", 437)],
+        ),
     ];
     for (file, interactions, flows, by_kind) in census {
         let path = testkit::fixture::dir().join(file);
@@ -4801,8 +4807,8 @@ fn every_stored_interaction_reads_as_a_reaction() {
             }
         }
         assert_eq!(read, interactions, "{file}");
-        let count = |k: &str| kinds.get(k).copied().unwrap_or(0);
-        assert_eq!(["CHANGE_TO", "NAVIGATE", "CLOSE", "URL", "NODE", "notModelled"].map(count), by_kind, "{file}: {kinds:?}");
+        let expected: BTreeMap<String, usize> = by_kind.iter().map(|(k, n)| ((*k).to_string(), *n)).collect();
+        assert_eq!(kinds, expected, "{file}");
         // Nothing of a prototype is left unnamed.
         let undecoded = crate::view::undecoded(session.raw(session.graph.nodes.keys().copied().find(|id| session.raw(*id).is_some_and(|r| schema::Wire::has(r, schema::Field::PrototypeInteractions))).unwrap()).unwrap(), session.products);
         assert!(!undecoded.iter().any(|u| u == "prototypeInteractions"), "{file}: {undecoded:?}");
