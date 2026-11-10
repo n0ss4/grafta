@@ -4,6 +4,19 @@ What changed for someone using grafta, newest first. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.4.0](https://github.com/n0ss4/grafta/compare/v0.3.0...v0.4.0) (2026-11-10)
+
+
+### Added
+
+* read a prototype: reactions, flows, scrolling and overlays ([#63](https://github.com/n0ss4/grafta/issues/63)) ([2f65551](https://github.com/n0ss4/grafta/commit/2f65551b3e2092baa2d2429a3100975382f2d0cc))
+* write a prototype: reactions, flows, scrolling and overlays ([#64](https://github.com/n0ss4/grafta/issues/64)) ([7b95bfc](https://github.com/n0ss4/grafta/commit/7b95bfc641e53a1897fa230fe06c74f8dda3c935))
+
+
+### Fixed
+
+* a duplicated layer's interactions are its own ([#65](https://github.com/n0ss4/grafta/issues/65)) ([2e41735](https://github.com/n0ss4/grafta/commit/2e41735d53b12b83dea2692c48a5159d3cd6a222))
+
 ## [0.3.0](https://github.com/n0ss4/grafta/compare/v0.2.3...v0.3.0) (2026-11-07)
 
 
