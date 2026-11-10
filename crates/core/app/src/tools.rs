@@ -11,6 +11,7 @@ pub mod import;
 pub mod new_file;
 pub mod overrides;
 pub mod properties;
+pub mod prototype;
 pub mod read;
 pub mod rich_text;
 pub mod session;

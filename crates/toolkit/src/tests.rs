@@ -4758,3 +4758,130 @@ mod layout;
 mod measure;
 mod memory;
 mod sites;
+
+/// Every interaction of the four fixtures holding them read as a reaction,
+/// counted by kind against the census of specs/107 (SC-001).
+#[test]
+fn every_stored_interaction_reads_as_a_reaction() {
+    use std::collections::BTreeMap;
+    // (file, interactions, flows, [CHANGE_TO, NAVIGATE, CLOSE, URL, a node with no
+    // navigation stored, not modelled])
+    let census: [(&str, usize, usize, [usize; 6]); 4] = [
+        ("nuxtui.fig", 61_577, 3, [61_281, 29, 18, 4, 0, 245]),
+        ("material3.fig", 15_146, 0, [12_493, 0, 0, 0, 0, 2_653]),
+        ("UI3_ Figma's UI Kit (Community).fig", 257, 0, [246, 0, 0, 0, 11, 0]),
+        ("MCP Apps for Claude (Community).fig", 165, 0, [135, 0, 0, 0, 0, 30]),
+    ];
+    for (file, interactions, flows, by_kind) in census {
+        let path = testkit::fixture::dir().join(file);
+        if !path.is_file() {
+            continue;
+        }
+        let mut kit = crate::new();
+        let handle = call(&mut kit, "open_file", json!({ "path": path })).unwrap()["handle"].as_str().unwrap().to_string();
+        let summary = call(&mut kit, "summarize", json!({ "handle": handle })).unwrap();
+        assert_eq!(summary["prototype"], json!({ "flows": flows, "interactions": interactions }), "{file}");
+        let session = kit.session(&handle).unwrap();
+        let mut kinds: BTreeMap<String, usize> = BTreeMap::new();
+        let mut read = 0;
+        for node in session.graph.nodes.values() {
+            let mut out = crate::app::Data::Map(Default::default());
+            tools::prototype::show(session, node, &mut out);
+            let Some(reactions) = out.get("reactions").and_then(|r| r.as_list()) else { continue };
+            for reaction in reactions {
+                read += 1;
+                for action in reaction.get("actions").and_then(|a| a.as_list()).unwrap() {
+                    let kind = match (action.get("type").and_then(|t| t.as_str()), action.get("navigation").and_then(|n| n.as_str())) {
+                        (Some("NODE"), Some(navigation)) => navigation.to_string(),
+                        (Some(kind), _) => kind.to_string(),
+                        (None, _) => "notModelled".to_string(),
+                    };
+                    *kinds.entry(kind).or_default() += 1;
+                }
+            }
+        }
+        assert_eq!(read, interactions, "{file}");
+        let count = |k: &str| kinds.get(k).copied().unwrap_or(0);
+        assert_eq!(["CHANGE_TO", "NAVIGATE", "CLOSE", "URL", "NODE", "notModelled"].map(count), by_kind, "{file}: {kinds:?}");
+        // Nothing of a prototype is left unnamed.
+        let undecoded = crate::view::undecoded(session.raw(session.graph.nodes.keys().copied().find(|id| session.raw(*id).is_some_and(|r| schema::Wire::has(r, schema::Field::PrototypeInteractions))).unwrap()).unwrap(), session.products);
+        assert!(!undecoded.iter().any(|u| u == "prototypeInteractions"), "{file}: {undecoded:?}");
+    }
+}
+
+/// A hand-built prototype read in the plugin API's names: a flow, a scrolling
+/// frame, a link with a custom curve on a key, a missing destination, a
+/// deleted interaction, a URL and what is not modelled, named.
+#[test]
+fn a_prototype_reads_in_the_plugin_apis_names() {
+    use testkit::raw::{at, node, size};
+    let mut fig = testkit::raw::document();
+    let Raw::Object(message) = &mut fig.node_changes else { panic!() };
+    let Some(Raw::Array(changes)) = message.get_mut("nodeChanges") else { panic!() };
+    let f = |v: f32| Raw::Float(v);
+    let navigate = obj(vec![
+        ("id", guid(1, 900)),
+        ("event", obj(vec![("interactionType", Raw::Enum("ON_KEY_DOWN")), ("keyTrigger", obj(vec![("keyCodes", Raw::Array(vec![Raw::Int(13)])), ("triggerDevice", Raw::Enum("KEYBOARD"))]))])),
+        ("actions", Raw::Array(vec![obj(vec![
+            ("transitionNodeID", guid(1, 2)),
+            ("connectionType", Raw::Enum("INTERNAL_NODE")),
+            ("navigationType", Raw::Enum("NAVIGATE")),
+            ("transitionType", Raw::Enum("SMART_ANIMATE")),
+            ("transitionDuration", f(0.3)),
+            ("easingType", Raw::Enum("CUSTOM_CUBIC")),
+            ("easingFunction", Raw::Array(vec![f(0.2), f(0.0), f(0.0), f(1.0)])),
+            ("transitionPreserveScroll", Raw::Bool(true)),
+            ("extraScrollOffset", obj(vec![("x", f(0.0)), ("y", f(8.0))])),
+        ])])),
+        ("isDeleted", Raw::Bool(false)),
+    ]);
+    let missing = obj(vec![
+        ("id", guid(1, 901)),
+        ("event", obj(vec![("interactionType", Raw::Enum("AFTER_TIMEOUT")), ("transitionTimeout", f(2.0))])),
+        ("actions", Raw::Array(vec![obj(vec![("transitionNodeID", guid(u32::MAX, u32::MAX)), ("connectionType", Raw::Enum("INTERNAL_NODE")), ("navigationType", Raw::Enum("OVERLAY"))])])),
+    ]);
+    let deleted = obj(vec![("id", guid(1, 902)), ("event", obj(vec![("interactionType", Raw::Enum("MOUSE_OUT"))])), ("actions", Raw::Array(vec![obj(vec![("connectionType", Raw::Enum("BACK"))])])), ("isDeleted", Raw::Bool(true))]);
+    let url = obj(vec![("id", guid(1, 903)), ("event", obj(vec![("interactionType", Raw::Enum("ON_CLICK"))])), ("actions", Raw::Array(vec![obj(vec![("connectionType", Raw::Enum("URL")), ("connectionURL", Raw::Str("https://example.com".into())), ("openUrlInNewTab", Raw::Bool(true))]), obj(vec![("connectionType", Raw::Enum("SET_VARIABLE"))])]))]);
+    changes.push(node(50, Some((1, "$")), "FRAME", "Home", vec![
+        ("size", size(390.0, 844.0)), ("transform", at(800.0, 0.0)),
+        ("prototypeStartingPoint", obj(vec![("name", Raw::Str("Sign in".into())), ("description", Raw::Str("".into())), ("position", Raw::Str("!".into()))])),
+        ("scrollDirection", Raw::Enum("VERTICAL")),
+    ]));
+    changes.push(node(51, Some((50, "!")), "RECTANGLE", "Go", vec![
+        ("size", size(100.0, 40.0)), ("transform", at(0.0, 0.0)),
+        ("scrollBehavior", Raw::Enum("FIXED_WHEN_CHILD_OF_SCROLLING_FRAME")),
+        ("prototypeInteractions", Raw::Array(vec![navigate, missing, deleted, url])),
+    ]));
+    let mut kit = memory_toolkit();
+    let handle = kit.insert(PathBuf::from("/tmp/prototype.fig"), fig).unwrap().handle.to_string();
+
+    let go = call(&mut kit, "read_node", json!({ "handle": handle, "id": "1:51" })).unwrap();
+    assert_eq!(go["scrollBehavior"], "FIXED");
+    assert!(go.get("undecoded").is_none_or(|u| !u.to_string().contains("prototype")), "{go}");
+    let r = &go["reactions"];
+    assert_eq!(r[0]["trigger"], json!({ "type": "ON_KEY_DOWN", "device": "KEYBOARD", "keyCodes": [13] }));
+    assert_eq!(
+        r[0]["actions"][0],
+        json!({
+            "type": "NODE", "destinationId": "1:2", "destination": "Card", "navigation": "NAVIGATE",
+            "transition": { "type": "SMART_ANIMATE", "duration": 0.3, "easing": { "type": "CUSTOM_CUBIC_BEZIER", "easingFunctionCubicBezier": { "x1": 0.2, "y1": 0, "x2": 0, "y2": 1 } } },
+            "preserveScrollPosition": true,
+            "notModelled": { "extraScrollOffset": { "x": 0, "y": 8 } },
+        })
+    );
+    assert_eq!(r[1]["trigger"], json!({ "type": "AFTER_TIMEOUT", "timeout": 2 }));
+    assert_eq!(r[1]["actions"][0]["missing"], format!("{}:{}", u32::MAX, u32::MAX));
+    assert_eq!(r[1]["actions"][0]["destinationId"], Value::Null);
+    assert_eq!(r[2]["deleted"], true);
+    assert_eq!(r[2]["trigger"], json!({ "notModelled": { "interactionType": "MOUSE_OUT" } }));
+    assert_eq!(r[3]["actions"][0], json!({ "type": "URL", "url": "https://example.com", "openInNewTab": true }));
+    assert_eq!(r[3]["actions"][1], json!({ "notModelled": { "connectionType": "SET_VARIABLE" } }));
+
+    let home = call(&mut kit, "read_node", json!({ "handle": handle, "id": "1:50", "depth": 0 })).unwrap();
+    assert_eq!(home["overflowDirection"], "VERTICAL");
+    assert_eq!(home["flowStartingPoint"], json!({ "name": "Sign in", "description": "" }));
+    let page = call(&mut kit, "read_node", json!({ "handle": handle, "id": "1:1", "depth": 0 })).unwrap();
+    assert_eq!(page["flowStartingPoints"], json!([{ "nodeId": "1:50", "frame": "Home", "name": "Sign in", "description": "" }]));
+    let summary = call(&mut kit, "summarize", json!({ "handle": handle })).unwrap();
+    assert_eq!(summary["prototype"], json!({ "flows": 1, "interactions": 3 }));
+}

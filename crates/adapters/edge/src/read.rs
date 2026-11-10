@@ -18,7 +18,7 @@ impl Tool for Summarize {
     fn description(&self) -> &'static str {
         "Overview of an open file: every page with its id, node count and number of top-level \
          frames, plus totals for nodes, components, component sets, instances, text nodes, \
-         variables, styles and images."
+         variables, styles and images, and the prototype's flows and live interactions."
     }
     fn input_schema(&self) -> Value {
         schema(json!({ "handle": handle_property() }), &["handle"])
@@ -74,7 +74,10 @@ impl Tool for ReadNode {
     fn description(&self) -> &'static str {
         "Read one node exactly, in Figma's terms: geometry, fills/strokes (hex colours, bound \
          variable names), effects, corner radii, auto-layout, constraints, text and its style, \
-         and for an instance its component and variant. Children to `depth` (default 1). \
+         and for an instance its component and variant. A layer's prototype is `reactions` \
+         (trigger, actions, destination, transition), as the plugin API names them; a page \
+         gives its `flowStartingPoints`, a frame `overflowDirection` and overlay settings. \
+         Children to `depth` (default 1). \
          Properties at Figma's default are left out: visible true, opacity 1, rotation 0, no \
          fills/strokes/effects, radius 0, no auto-layout, constraints MIN/MIN. `undecoded` \
          names stored fields this view does not model; read_raw returns them."
