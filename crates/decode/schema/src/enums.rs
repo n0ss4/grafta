@@ -310,9 +310,29 @@ crate::wire! {
 }
 
 crate::wire! {
+    pub enum OverlayBackgroundInteraction {
+        CloseOnClickOutside = "CLOSE_ON_CLICK_OUTSIDE",
+        None = "NONE",
+    }
+}
+
+crate::wire! {
     pub enum OverlayBackgroundType {
         None = "NONE",
         SolidColor = "SOLID_COLOR",
+    }
+}
+
+crate::wire! {
+    pub enum OverlayPositionType {
+        BottomCenter = "BOTTOM_CENTER",
+        BottomLeft = "BOTTOM_LEFT",
+        BottomRight = "BOTTOM_RIGHT",
+        Center = "CENTER",
+        Manual = "MANUAL",
+        TopCenter = "TOP_CENTER",
+        TopLeft = "TOP_LEFT",
+        TopRight = "TOP_RIGHT",
     }
 }
 
@@ -596,6 +616,16 @@ crate::wire! {
 }
 
 crate::wire! {
+    pub enum TriggerDevice {
+        Keyboard = "KEYBOARD",
+        Ps4 = "PS4",
+        SwitchPro = "SWITCH_PRO",
+        UnknownController = "UNKNOWN_CONTROLLER",
+        XboxOne = "XBOX_ONE",
+    }
+}
+
+crate::wire! {
     pub enum VariableDataType {
         Alias = "ALIAS",
         Boolean = "BOOLEAN",
@@ -784,7 +814,9 @@ crate::wire::wire_value!(
     NodePhase,
     NodeType,
     NumberUnits,
+    OverlayBackgroundInteraction,
     OverlayBackgroundType,
+    OverlayPositionType,
     PaintType,
     PrototypeDeviceType,
     ScrollBehavior,
@@ -808,6 +840,7 @@ crate::wire::wire_value!(
     TextCase,
     TextDecoration,
     TransitionType,
+    TriggerDevice,
     VariableDataType,
     VariableField,
     VariableResolvedDataType,

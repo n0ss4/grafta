@@ -14,14 +14,14 @@ const FIXTURES: &str = "GRAFTA_FIXTURES";
 const DEFAULT_FIXTURES: &str = "../../../fixtures";
 
 /// The schema's enums grafta reads or writes.
-const USED: [&str; 47] = [
+const USED: [&str; 50] = [
     "AnimationPhase", "AnimationType", "BlendMode", "ComponentPropNodeField", "ComponentPropType",
     "ConnectionType", "ConnectorLineStyle", "ConnectorMagnet", "ConstraintType", "EasingType", "EffectType",
     "ImageScaleMode", "InteractionType", "LineType", "NavigationType", "NodePhase", "NodeType", "MaskType", "NumberUnits",
-    "OverlayBackgroundType", "PaintType", "PrototypeDeviceType", "ScrollBehavior", "ScrollDirection", "ShapeWithTextType", "SourceDirectionality", "StackAlign", "StackCounterAlign",
+    "OverlayBackgroundInteraction", "OverlayBackgroundType", "OverlayPositionType", "PaintType", "PrototypeDeviceType", "ScrollBehavior", "ScrollDirection", "ShapeWithTextType", "SourceDirectionality", "StackAlign", "StackCounterAlign",
     "StackJustify", "StackMode", "StackPositioning", "StackSize", "StackWrap", "StrokeAlign", "StrokeCap",
     "StrokeJoin", "StyleType", "TextAlignHorizontal", "TextAlignVertical", "TextAutoResize", "TextCase",
-    "TextDecoration", "TransitionType", "VariableDataType", "VariableField", "VariableResolvedDataType",
+    "TextDecoration", "TransitionType", "TriggerDevice", "VariableDataType", "VariableField", "VariableResolvedDataType",
     "WindingRule",
 ];
 
