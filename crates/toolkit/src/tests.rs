@@ -3735,6 +3735,190 @@ fn every_paint_and_dash_refusal_names_its_reason_and_changes_nothing() {
 
 // ── modes in the picture ───────────────────────────────────────────────
 
+// ── token export ────────────────────────────────────────────────────────
+
+/// The hand-built document, plus a variable whose alias points at one the
+/// file does not hold, and a two-mode collection made with the tools: a
+/// colour, a group's own token, an alias within the collection and one to the
+/// document's own "Tokens", a number, a string, a boolean and a name with a dot.
+fn tokens_document() -> (Toolkit, String) {
+    let mut file = document();
+    let Raw::Object(message) = &mut file.node_changes else { unreachable!() };
+    let Some((_, Raw::Array(changes))) = message.iter_mut().find(|(k, _)| *k == "nodeChanges") else { unreachable!() };
+    changes.push(testkit::raw::variable(24, "broken/link", "COLOR", obj(vec![("alias", obj(vec![("guid", guid(9, 9))]))]), vec![]));
+    let mut kit = memory_toolkit();
+    let handle = kit.insert(PathBuf::from("/tmp/tokens.fig"), file).unwrap().handle.to_string();
+    collection(&mut kit, &handle, "Theme", &["Light", "Dark"]).unwrap();
+    for (name, kind, values) in [
+        ("Brand", "COLOR", json!({ "Light": "#111111", "Dark": "#EEEEEE" })),
+        ("Brand/Primary", "COLOR", json!({ "Light": "#7C3AED", "Dark": "#A78BFA" })),
+        ("Button/Background", "COLOR", json!({ "Light": { "alias": "Brand/Primary" }, "Dark": { "alias": "primary/500" } })),
+        ("Radius", "FLOAT", json!({ "Light": 4, "Dark": 8.5 })),
+        ("Font/Family", "STRING", json!({ "Light": "Inter", "Dark": "Inter" })),
+        ("Flags/Rounded", "BOOLEAN", json!({ "Light": true, "Dark": false })),
+        ("Space/0.5", "FLOAT", json!({ "Light": 2, "Dark": 2 })),
+    ] {
+        new_variable(&mut kit, &handle, "Theme", name, kind, values).unwrap();
+    }
+    (kit, handle)
+}
+
+/// `name` in `dir`, as the tool joins it on this system (`\\` on Windows).
+fn in_dir(dir: &str, name: &str) -> String {
+    Path::new(dir).join(name).display().to_string()
+}
+
+fn token_file(kit: &Toolkit, name: &str) -> Value {
+    let path = in_dir("/out", name);
+    serde_json::from_slice(&stored(kit, &path).unwrap_or_else(|| panic!("{path} written"))).unwrap()
+}
+
+#[test]
+fn tokens_are_written_a_file_per_collection_and_mode_as_figma_imports_them() {
+    let (mut kit, handle) = tokens_document();
+    let out = call(&mut kit, "export_tokens", json!({ "handle": handle, "dir": "/out" })).unwrap();
+    let files: Vec<&str> = out["files"].as_array().unwrap().iter().map(|f| f["path"].as_str().unwrap()).collect();
+    assert_eq!(files, ["Tokens.Light.tokens.json", "Theme.Light.tokens.json", "Theme.Dark.tokens.json"].map(|n| in_dir("/out", n)), "{out}");
+
+    let light = token_file(&kit, "Theme.Light.tokens.json");
+    let primary = &light["Brand"]["Primary"];
+    assert_eq!(primary["$type"], "color", "{light}");
+    assert_eq!(primary["$value"]["colorSpace"], "srgb");
+    assert_eq!(primary["$value"]["hex"], "#7C3AED");
+    assert_eq!(primary["$value"]["alpha"], 1);
+    let components: Vec<f64> = primary["$value"]["components"].as_array().unwrap().iter().map(|c| c.as_f64().unwrap()).collect();
+    let stored = kit.session(&handle).unwrap().graph.variables.values().find(|v| v.name == "Brand/Primary").unwrap().clone();
+    let Some(model::VariableValue::Color { value }) = stored.values_by_mode.values().next() else { panic!() };
+    assert_eq!(components, [f64::from(value.r), f64::from(value.g), f64::from(value.b)].map(|c| format!("{}", c as f32).parse::<f64>().unwrap()), "exact, not through hex");
+
+    assert_eq!(light["Brand"]["$root"]["$value"]["hex"], "#111111", "a token named as a group is the group's $root: {light}");
+    assert_eq!(light["Button"]["Background"]["$value"], "{Brand.Primary}", "an alias within its collection is a reference");
+    assert_eq!(light["Radius"], json!({ "$type": "number", "$value": 4 }), "no unit is invented");
+    assert_eq!(light["Font"]["Family"]["$type"], "string");
+    assert_eq!(light["Flags"]["Rounded"], json!({ "$type": "number", "$value": 1, "$extensions": { "com.figma.type": "boolean" } }));
+    assert_eq!(light["Space"]["0_5"]["$extensions"]["com.figma"]["name"], "Space/0.5", "{light}");
+
+    let dark = token_file(&kit, "Theme.Dark.tokens.json");
+    assert_eq!(dark["Radius"]["$value"], 8.5);
+    let across = &dark["Button"]["Background"];
+    assert_eq!(across["$value"]["hex"], "#1E88E5", "another collection's alias is its value: {dark}");
+    assert_eq!(across["$extensions"]["com.figma.aliasData"], json!({ "targetVariableName": "primary/500", "targetVariableSetName": "Tokens" }));
+}
+
+#[test]
+fn what_tokens_cannot_hold_is_said() {
+    let (mut kit, handle) = tokens_document();
+    let out = call(&mut kit, "export_tokens", json!({ "handle": handle, "dir": "/out" })).unwrap();
+    assert_eq!(out["unresolved"], json!([{ "variable": "broken/link", "mode": "Light", "alias": "9:9" }]), "{out}");
+    assert!(token_file(&kit, "Tokens.Light.tokens.json").get("broken").is_none(), "not written");
+    assert!(out["renamed"].as_array().unwrap().contains(&json!({ "from": "Space/0.5", "to": "Space/0_5" })), "{out}");
+    assert!(out["notes"][0].as_str().unwrap().contains("STRING"), "{out}");
+}
+
+#[test]
+fn tokens_are_never_written_over_and_nothing_is_half_written() {
+    let (mut kit, handle) = tokens_document();
+    put(&kit, &in_dir("/out", "Theme.Dark.tokens.json"), "mine");
+    let error = call(&mut kit, "export_tokens", json!({ "handle": handle, "dir": "/out" })).unwrap_err();
+    assert!(error.to_string().contains("Theme.Dark.tokens.json"), "{error}");
+    assert_eq!(stored(&kit, &in_dir("/out", "Theme.Dark.tokens.json")).unwrap(), b"mine");
+    assert!(stored(&kit, &in_dir("/out", "Theme.Light.tokens.json")).is_none(), "none of the others either");
+}
+
+#[test]
+fn a_name_no_file_can_hold_is_changed_and_said() {
+    let (mut kit, handle) = kit();
+    collection(&mut kit, &handle, "Brand: Web\u{2028}2026", &["Light/Dark"]).unwrap();
+    new_variable(&mut kit, &handle, "Brand: Web\u{2028}2026", "Ink", "COLOR", json!({ "Light/Dark": "#000000" })).unwrap();
+    let out = call(&mut kit, "export_tokens", json!({ "handle": handle, "dir": "/out", "collection": "Brand: Web\u{2028}2026" })).unwrap();
+    assert_eq!(out["files"][0]["path"], in_dir("/out", "Brand_ Web_2026.Light_Dark.tokens.json"), "{out}");
+    assert_eq!(out["renamed"][0]["to"], "Brand_ Web_2026.Light_Dark.tokens.json", "{out}");
+}
+
+#[test]
+fn real_files_export_every_variable_once_per_mode() {
+    for (name, collection, light_alias) in [("MCP Apps for Claude (Community).fig", None, None), ("nuxtui.fig", Some("Elements/Badge"), Some(("Colors/Red/Subtle-Soft/backgroundColor", "UIColors/Red/50", "0 - Nuxt UI Colors")))] {
+        let path = testkit::fixture::dir().join(name);
+        if !path.is_file() {
+            continue;
+        }
+        let dir = std::env::temp_dir().join(format!("grafta-tokens-{}-{}", std::process::id(), name.len()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let mut kit = crate::new();
+        let handle = call(&mut kit, "open_file", json!({ "path": path })).unwrap()["handle"].as_str().unwrap().to_string();
+        let mut args = json!({ "handle": handle, "dir": dir });
+        if let Some(collection) = collection {
+            args["collection"] = json!(collection);
+        }
+        let out = call(&mut kit, "export_tokens", args).unwrap();
+        assert_eq!(out["unresolved"], json!([]), "{name}: {out}");
+        // Every variable of each collection exported, once per mode.
+        let graph = &kit.session(&handle).unwrap().graph;
+        let expected: usize = graph
+            .collections
+            .values()
+            .filter(|c| collection.is_none_or(|w| c.name == w))
+            .map(|c| c.variable_ids.iter().filter(|id| graph.variables.contains_key(*id)).count() * c.modes.len())
+            .sum();
+        let written: u64 = out["files"].as_array().unwrap().iter().map(|f| f["tokens"].as_u64().unwrap()).sum();
+        assert_eq!(written, expected as u64, "{name}");
+        if let Some((token, target, set)) = light_alias {
+            let light = out["files"].as_array().unwrap().iter().find(|f| f["mode"] == "Light").unwrap()["path"].as_str().unwrap().to_owned();
+            let doc: Value = serde_json::from_str(&std::fs::read_to_string(light).unwrap()).unwrap();
+            let at = token.split('/').fold(&doc, |at, part| &at[part]);
+            assert_eq!(at["$extensions"]["com.figma.aliasData"], json!({ "targetVariableName": target, "targetVariableSetName": set }), "{at}");
+        }
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+}
+
+#[test]
+fn one_collection_or_none() {
+    let (mut kit, handle) = tokens_document();
+    let out = call(&mut kit, "export_tokens", json!({ "handle": handle, "dir": "/one", "collection": "Theme" })).unwrap();
+    assert_eq!(out["files"].as_array().unwrap().len(), 2, "{out}");
+    let error = call(&mut kit, "export_tokens", json!({ "handle": handle, "dir": "/one", "collection": "Nope" })).unwrap_err();
+    assert!(matches!(&error, ToolError::NotFound(m) if m.contains("Nope")), "{error}");
+}
+
+/// The hand-built document with `changes` edited by `edit`.
+fn edited_document(edit: impl FnOnce(&mut Vec<Raw>)) -> (Toolkit, String) {
+    let mut file = document();
+    let Raw::Object(message) = &mut file.node_changes else { unreachable!() };
+    let Some((_, Raw::Array(changes))) = message.iter_mut().find(|(k, _)| *k == "nodeChanges") else { unreachable!() };
+    edit(changes);
+    let mut kit = memory_toolkit();
+    let handle = kit.insert(PathBuf::from("/tmp/edited.fig"), file).unwrap().handle.to_string();
+    (kit, handle)
+}
+
+#[test]
+fn a_file_without_variables_writes_nothing_and_says_so() {
+    let (mut kit, handle) = edited_document(|changes| {
+        changes.retain(|c| !matches!(c.get("type"), Some(Raw::Enum(t)) if t.starts_with("VARIABLE")));
+    });
+    let out = call(&mut kit, "export_tokens", json!({ "handle": handle, "dir": "/out" })).unwrap();
+    assert_eq!((out["files"].clone(), out["unresolved"].clone(), out["renamed"].clone()), (json!([]), json!([]), json!([])), "{out}");
+    assert!(out["notes"][0].as_str().unwrap().contains("no variables"), "{out}");
+}
+
+#[test]
+fn two_collections_of_one_name_write_two_files() {
+    let (mut kit, handle) = edited_document(|changes| {
+        let modes = Raw::Array(vec![obj(vec![("id", guid(1, 98)), ("name", Raw::Str("Light".into()))])]);
+        changes.push(testkit::raw::node(25, Some((0, "%")), "VARIABLE_SET", "Tokens", vec![("variableSetModes", modes)]));
+        let mut twin = testkit::raw::variable(26, "primary/500", "COLOR", testkit::raw::colour_value(0.0, 0.0, 0.0), vec![]);
+        if let Raw::Object(fields) = &mut twin {
+            fields.insert("variableSetID", obj(vec![("guid", guid(1, 25))]));
+        }
+        changes.push(twin);
+    });
+    let out = call(&mut kit, "export_tokens", json!({ "handle": handle, "dir": "/out" })).unwrap();
+    let paths: Vec<&str> = out["files"].as_array().unwrap().iter().map(|f| f["path"].as_str().unwrap()).collect();
+    assert_eq!(paths, ["Tokens.Light.tokens.json", "Tokens.Light (1-25).tokens.json"].map(|n| in_dir("/out", n)), "{out}");
+    assert!(out["renamed"].as_array().unwrap().contains(&json!({ "from": "Tokens.Light.tokens.json", "to": "Tokens.Light (1-25).tokens.json" })), "{out}");
+}
+
 /// Theme (Light, Dark) with a surface colour and a radius, and a card
 /// component bound to both. Returns the card.
 fn themed_card(kit: &mut Toolkit, handle: &str) -> String {

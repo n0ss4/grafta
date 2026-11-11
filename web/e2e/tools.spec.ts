@@ -80,7 +80,10 @@ test("on a desktop the side list marks the family in view", async ({ page }) => 
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("tools/#tokens");
   const side = page.getByRole("navigation", { name: "Families of tools" }).first();
-  await expect(side.getByRole("link", { name: "Tokens" })).toHaveAttribute("aria-current", "location");
+  await expect(side.getByRole("link", { name: "Tokens", exact: true })).toHaveAttribute(
+    "aria-current",
+    "location",
+  );
 });
 
 test("on a phone the families are links at the top", async ({ page }) => {

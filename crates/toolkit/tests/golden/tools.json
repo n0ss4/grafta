@@ -351,6 +351,31 @@
     "name": "list_variables"
   },
   {
+    "description": "Write the file's variables as W3C Design Tokens (DTCG 2025.10) JSON, one NEW file per collection and mode, the way Figma imports them: <dir>/<collection>.<mode>.tokens.json. Names split on / into groups; colours exact from the file (sRGB components and alpha, hex beside); numbers without an invented unit; an alias within its collection as a {group.token} reference, to another collection as its value with Figma's com.figma.aliasData. Lists what was not written (unresolved), every name changed to fit the format (renamed), and notes. The folder must exist; no file is written over.",
+    "inputSchema": {
+      "properties": {
+        "collection": {
+          "description": "Only this collection (name or id); all when left out.",
+          "type": "string"
+        },
+        "dir": {
+          "description": "An existing folder for the token files.",
+          "type": "string"
+        },
+        "handle": {
+          "description": "The handle open_file returned.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "handle",
+        "dir"
+      ],
+      "type": "object"
+    },
+    "name": "export_tokens"
+  },
+  {
     "description": "Make a variable collection (a set of design tokens) with named modes, e.g. modes: [\"Light\", \"Dark\"]. Then create_variable adds variables to it, and set_properties binds a fill to one by name. In a file with no Internal Only Canvas (one from new_file), grafta writes one first, where Figma keeps variables.",
     "inputSchema": {
       "properties": {
