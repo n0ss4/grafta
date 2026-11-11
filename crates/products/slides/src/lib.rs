@@ -36,7 +36,7 @@ impl ProductProfile for Slides {
         Some(("slides", data!(graph.nodes.values().filter(|n| n.node_type == NodeType::Slide).count())))
     }
     fn behaviours(&self) -> &'static [&'static dyn NodeBehavior] {
-        &[&Slide, &Row, &InteractiveElement]
+        &[&Grid, &Slide, &Row, &InteractiveElement]
     }
     /// A deck's "next slide" links follow its slides: a slide moved
     /// relinks the rows it left and joined; one about to be deleted is let go
@@ -151,6 +151,19 @@ impl NodeBehavior for Slide {
     }
     fn base_keys(&self) -> Option<&'static [&'static str]> {
         Some(&ACCEPTED)
+    }
+}
+
+/// A deck's grid: its rows of slides.
+struct Grid;
+
+impl NodeBehavior for Grid {
+    fn types(&self) -> &'static [NodeType] {
+        &[NodeType::SlideGrid]
+    }
+    /// A person sees a deck's slides, across its rows in order, not its grid.
+    fn screens(&self, graph: &SceneGraph, node: &SceneNode) -> Option<Vec<Guid>> {
+        Some(deck::grid_rows(graph, node.id).concat())
     }
 }
 

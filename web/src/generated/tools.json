@@ -1,9 +1,9 @@
 {
- "count": 43,
+ "count": 44,
  "families": [
   {
    "title": "Find your way",
-   "blurb": "Pages, counts, and nodes by name or type, with their path.",
+   "blurb": "Pages, their screens, counts, and nodes by name or type, with their path.",
    "tools": [
     {
      "name": "open_file",
@@ -32,6 +32,42 @@
        "type": "string",
        "required": true,
        "description": "The handle open_file returned."
+      }
+     ]
+    },
+    {
+     "name": "list_screens",
+     "description": "The screens of a page, as a person sees them in Figma, in their order: a page's top-level frames, components, sections and other layers; a deck's slides, across its rows; a site page's breakpoints. Each with id, name, type, size and whether it is visible, ready for render_node. Paged.",
+     "arguments": [
+      {
+       "name": "handle",
+       "type": "string",
+       "required": true,
+       "description": "The handle open_file returned."
+      },
+      {
+       "name": "page",
+       "type": "string",
+       "required": true,
+       "description": "A page's id, from summarize."
+      },
+      {
+       "name": "budget",
+       "type": "integer, 1024–98304",
+       "required": false,
+       "description": "Maximum result size in bytes. Default 32768."
+      },
+      {
+       "name": "cursor",
+       "type": "string",
+       "required": false,
+       "description": "next_cursor from the previous page."
+      },
+      {
+       "name": "limit",
+       "type": "integer, 1–1000",
+       "required": false,
+       "description": "Results per page."
       }
      ]
     },

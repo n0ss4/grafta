@@ -65,6 +65,7 @@ pub static ALL: &[&dyn Tool] = &[
     &session::CloseFile,
     &session::ListOpen,
     &read::Summarize,
+    &read::ListScreens,
     &read::SearchNodes,
     &read::ReadNode,
     &read::ReadRaw,

@@ -100,7 +100,7 @@ same setup. ChatGPT on the web reads no local server, so it cannot use grafta ye
 ## Why
 
 A model is good at reading intent into a design and deciding what to build. It
-is bad at binary formats, and it guesses numbers. grafta is the opposite. It gives your model 43 tools
+is bad at binary formats, and it guesses numbers. grafta is the opposite. It gives your model 44 tools
 to open a `.fig`, read every node, colour, variable and component in it, change
 it, draw it to check, and save a new file that Figma opens.
 
@@ -167,7 +167,7 @@ Prompts that work as written. The model chooses the tools.
 
 | Job | Tools | |
 |---|---|---|
-| **Find your way** | `open_file` `summarize` `search_nodes` `list_open` `close_file` | pages, counts, nodes by name or type, with their path |
+| **Find your way** | `open_file` `summarize` `list_screens` `search_nodes` `list_open` `close_file` | pages, a page's screens (a deck's slides, a site's breakpoints), counts, nodes by name or type, with their path |
 | **Read** | `read_node` `read_raw` `list_components` `component_instances` `get_image` | a node exactly, in the Figma plugin API's names |
 | **See** | `render_node` `export_pdf` `check_contrast` | a frame as a PNG, unsaved edits included, in its variable mode; frames as a vector PDF, a page each; every text's WCAG AA contrast against what is drawn behind it |
 | **Draw** | `create_page` `create_frame` `create_text` `create_shape` `create_vector` `create_instance` `create_section` | frames, rich text, shapes, SVG icons, instances |

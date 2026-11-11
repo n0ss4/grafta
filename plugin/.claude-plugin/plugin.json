@@ -1,7 +1,7 @@
 {
   "name": "grafta",
   "version": "0.4.0",
-  "description": "Read and write Figma .fig files, exactly and offline: an MCP server with 43 tools, and a skill for using them well.",
+  "description": "Read and write Figma .fig files, exactly and offline: an MCP server with 44 tools, and a skill for using them well.",
   "author": { "name": "Nossair Ghazouani", "url": "https://github.com/n0ss4" },
   "homepage": "https://n0ss4.github.io/grafta",
   "repository": "https://github.com/n0ss4/grafta",

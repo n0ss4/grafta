@@ -21,8 +21,8 @@ DATA = ROOT / "web" / "src" / "generated" / "tools.json"
 # The README's families, in its order. A tool the server lists and no family
 # names, or a family naming a tool the server does not list, is an error.
 FAMILIES = [
-    ("Find your way", "Pages, counts, and nodes by name or type, with their path.",
-     ["open_file", "summarize", "search_nodes", "list_open", "close_file"]),
+    ("Find your way", "Pages, their screens, counts, and nodes by name or type, with their path.",
+     ["open_file", "summarize", "list_screens", "search_nodes", "list_open", "close_file"]),
     ("Read", "A node exactly, in the Figma plugin API's names.",
      ["read_node", "read_raw", "list_components", "component_instances", "get_image"]),
     ("See", "A frame as a picture, a PDF of frames, and every text's contrast.",
