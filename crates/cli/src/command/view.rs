@@ -23,7 +23,7 @@ pub const MAGENTA: Style = AnsiColor::Magenta.on_default();
 /// The tools by job, as the README and docs/TOOLS.md group them
 /// (scripts/tool-reference.py). A test checks every tool is in one.
 pub const GROUPS: &[(&str, &[&str])] = &[
-    ("Find your way", &["open_file", "summarize", "search_nodes", "list_open", "close_file"]),
+    ("Find your way", &["open_file", "summarize", "list_screens", "search_nodes", "list_open", "close_file"]),
     ("Read", &["read_node", "read_raw", "list_components", "component_instances", "get_image"]),
     ("See", &["render_node", "export_pdf", "check_contrast"]),
     (
@@ -38,7 +38,7 @@ pub const GROUPS: &[(&str, &[&str])] = &[
     ("Design system", &["create_component", "create_variant_set", "set_variant", "add_component_property", "fill_template"]),
     (
         "Tokens",
-        &["list_variables", "create_variable_collection", "create_variable", "set_variable", "set_variable_collection"],
+        &["list_variables", "export_tokens", "create_variable_collection", "create_variable", "set_variable", "set_variable_collection"],
     ),
     ("Styles", &["list_styles", "create_style", "set_style"]),
     ("Save", &["new_file", "save_as"]),

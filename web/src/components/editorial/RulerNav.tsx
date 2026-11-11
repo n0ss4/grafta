@@ -33,8 +33,12 @@ export function RulerNav({ home = false }: { home?: boolean }) {
             {link.label}
           </a>
         ))}
-        {/* the grid keeps a column for each of the page's sections */}
-        <span aria-hidden="true" className="hidden lg:block" />
+        <a
+          href={href("open/")}
+          className="relative hidden h-full items-center text-[14px] font-medium text-text no-underline hover:text-accent-text lg:flex"
+        >
+          Open a file
+        </a>
         {home ? (
           <GetGraftaButton className="relative hidden h-full items-center text-left text-[14px] font-medium text-text hover:text-accent-text lg:flex">
             Get grafta

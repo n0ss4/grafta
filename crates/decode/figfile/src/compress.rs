@@ -3,7 +3,9 @@
 
 use std::io::Read;
 
-use flate2::read::{DeflateDecoder, DeflateEncoder};
+use flate2::read::DeflateDecoder;
+#[cfg(not(target_arch = "wasm32"))]
+use flate2::read::DeflateEncoder;
 
 use crate::FigError;
 
@@ -13,6 +15,7 @@ const ZSTD_MAGIC: [u8; 4] = [0x28, 0xB5, 0x2F, 0xFD];
 /// Figma's own chunk and faster than deflate was. Level 19 saves a further 20%,
 /// in 44 times as long. Fixed, because the output has to be the same bytes every
 /// time (I4).
+#[cfg(not(target_arch = "wasm32"))]
 const ZSTD_LEVEL: i32 = 9;
 
 /// The most a schema inflates to. Measured on 13 real files: 75 KB.
@@ -59,6 +62,7 @@ pub fn inflate(data: &[u8]) -> Result<Vec<u8>, FigError> {
 /// Runs of the same bytes reach tens of thousands of times in zstd, where deflate
 /// stops near 1,000, within the limit. What is too repetitive for zstd gets
 /// deflate, which Figma has also written and opens from grafta.
+#[cfg(not(target_arch = "wasm32"))]
 pub fn message_chunk(message: &[u8]) -> Result<Vec<u8>, FigError> {
     let packed = ::zstd::bulk::compress(message, ZSTD_LEVEL).map_err(|e| FigError::Zstd(e.to_string()))?;
     if message.len() as u64 <= message_limit(packed.len()) {
@@ -67,7 +71,14 @@ pub fn message_chunk(message: &[u8]) -> Result<Vec<u8>, FigError> {
     deflate(message).map_err(|e| FigError::Deflate(e.to_string()))
 }
 
+/// A browser has no zstd writer, and grafta writes no file there.
+#[cfg(target_arch = "wasm32")]
+pub fn message_chunk(_message: &[u8]) -> Result<Vec<u8>, FigError> {
+    Err(FigError::NotWrittenHere)
+}
+
 /// Raw deflate. The compression level is fixed, for the same reason as zstd's.
+#[cfg(not(target_arch = "wasm32"))]
 pub fn deflate(data: &[u8]) -> Result<Vec<u8>, std::io::Error> {
     let mut out = Vec::new();
     DeflateEncoder::new(data, flate2::Compression::default()).read_to_end(&mut out)?;

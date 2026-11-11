@@ -136,17 +136,40 @@ pub fn options() -> resvg::usvg::Options<'static> {
 
 pub use domain::font::is_face;
 
-/// The machine's fonts, read once per process and shared by the layout and
-/// the rasteriser, so a text is drawn in the font it was measured in.
+/// The fonts drawn with: the machine's, read once per process, and any added
+/// since. Shared by the layout and the rasteriser, so a text is drawn in the
+/// font it was measured in.
+fn font_store() -> &'static std::sync::RwLock<std::sync::Arc<Database>> {
+    static FONTS: std::sync::OnceLock<std::sync::RwLock<std::sync::Arc<Database>>> = std::sync::OnceLock::new();
+    FONTS.get_or_init(|| {
+        let mut db = Database::new();
+        db.load_system_fonts();
+        std::sync::RwLock::new(std::sync::Arc::new(db))
+    })
+}
+
+/// The fonts as they are now.
 pub fn fonts() -> std::sync::Arc<Database> {
-    static FONTS: std::sync::OnceLock<std::sync::Arc<Database>> = std::sync::OnceLock::new();
-    FONTS
-        .get_or_init(|| {
-            let mut db = Database::new();
-            db.load_system_fonts();
-            std::sync::Arc::new(db)
-        })
-        .clone()
+    match font_store().read() {
+        Ok(fonts) => fonts.clone(),
+        Err(poisoned) => poisoned.into_inner().clone(),
+    }
+}
+
+/// Add the faces in a font file's bytes (TTF, OTF or a collection); drawings
+/// made after use them. A browser has no machine fonts, so its fonts come this
+/// way. Returns how many faces were added.
+pub fn add_font(bytes: Vec<u8>) -> usize {
+    let mut store = match font_store().write() {
+        Ok(store) => store,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let mut db = (**store).clone();
+    let before = db.len();
+    db.load_font_data(bytes);
+    let added = db.len() - before;
+    *store = std::sync::Arc::new(db);
+    added
 }
 
 /// A font's ascent, descent (positive, below the baseline) and line gap, in

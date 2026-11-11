@@ -35,7 +35,7 @@ test("home tells the complete story without JavaScript", async ({ page }) => {
 
 test("tools", async ({ page }) => {
   await page.goto("tools/");
-  await expect(page.locator("details.tool")).toHaveCount(43);
+  await expect(page.locator("details.tool")).toHaveCount(45);
   // a tool opens without scripts
   await page.locator("#render_node summary").click();
   await expect(page.locator("#render_node")).toHaveAttribute("open", "");
@@ -45,4 +45,14 @@ test("tools", async ({ page }) => {
 test("changelog", async ({ page }) => {
   await page.goto("changelog/");
   await expect(page.getByRole("heading", { name: "0.1.0" })).toBeVisible();
+});
+
+test("open says what it does, and how to read a file without scripts", async ({ page }) => {
+  await page.goto("open/");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Open a Figma file, without Figma.");
+  // Chromium, with scripts off by a setting, keeps <noscript> as unparsed text, so the
+  // page as served is read: a browser with scripts off shows this paragraph.
+  const html = await (await page.request.get("open/")).text();
+  expect(html).toContain("<noscript><p");
+  expect(html).toContain("This page reads your file with JavaScript, which is off.");
 });

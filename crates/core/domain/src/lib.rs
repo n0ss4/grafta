@@ -25,7 +25,6 @@ pub use location::Location;
 
 use std::fmt;
 use std::path::{Path, PathBuf};
-use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
 use figfile::FigFile;
 use indexmap::IndexMap;
@@ -99,8 +98,11 @@ pub struct Session {
     /// The bytes `new_file` wrote, while this session is the one that made the
     /// file: only those may be saved over, as they hold nothing of anyone's.
     pub made_empty: Option<Vec<u8>>,
-    pub opened_at: u64,
-    pub open_seconds: f64,
+    /// When it was opened, in seconds since 1970; `None` where the platform
+    /// has no clock to read (a browser).
+    pub opened_at: Option<u64>,
+    /// How long opening took; `None` where there is no clock.
+    pub open_seconds: Option<f64>,
     /// How much the process's resident memory grew while opening, in MB.
     /// Approximate: an allocator that keeps pages makes a second open cheaper.
     pub opened_delta_mb: Option<u64>,
@@ -207,7 +209,7 @@ impl Toolkit {
         let handle = Handle::for_path(&path);
         let graph = model::build_scene_graph(&fig)
             .map_err(|error| DomainError::NoGraph { path: path.clone(), error: error.to_string() })?;
-        let session = Session::new(handle.clone(), path, fig, graph, 0.0, None, self.ports.clone(), self.products);
+        let session = Session::new(handle.clone(), path, fig, graph, Some(0.0), None, self.ports.clone(), self.products);
         self.sessions.insert(handle.clone(), session);
         Ok(&self.sessions[&handle])
     }
@@ -299,7 +301,7 @@ impl Session {
 
     fn open(path: &Path, handle: Handle, fingerprint: bool, ports: port::Ports, products: product::Products) -> Result<Self, ToolError> {
         let before = resident_mb();
-        let started = Instant::now();
+        let started = clock::Stopwatch::start();
         let data = ports
             .store
             .read(path)
@@ -312,7 +314,7 @@ impl Session {
         drop(data);
         let graph = model::build_scene_graph(&fig)
             .map_err(|error| DomainError::NoDocument { path: path.into(), error: error.to_string() })?;
-        let seconds = started.elapsed().as_secs_f64();
+        let seconds = started.seconds();
         let delta = match (before, resident_mb()) {
             (Some(before), Some(after)) => Some(after.saturating_sub(before)),
             _ => None,
@@ -328,7 +330,7 @@ impl Session {
         path: PathBuf,
         fig: FigFile,
         graph: SceneGraph,
-        open_seconds: f64,
+        open_seconds: Option<f64>,
         opened_delta_mb: Option<u64>,
         ports: port::Ports,
         products: product::Products,
@@ -349,7 +351,7 @@ impl Session {
             undo: model::author::Undo::default(),
             indexed: 0,
             made_empty: None,
-            opened_at: SystemTime::now().duration_since(UNIX_EPOCH).map_or(0, |d| d.as_secs()),
+            opened_at: clock::unix_seconds(),
             open_seconds,
             opened_delta_mb,
             ports,
@@ -460,8 +462,54 @@ pub fn fnv(bytes: &[u8]) -> u64 {
     bytes.iter().fold(FNV_OFFSET_BASIS, |hash, byte| (hash ^ u64::from(*byte)).wrapping_mul(FNV_PRIME))
 }
 
+/// The clock, where the platform has one std can read. A browser's
+/// WebAssembly has none: `Instant` and `SystemTime` panic there, so its
+/// figures are `None`, never made up.
+pub mod clock {
+    /// Time since it started.
+    pub struct Stopwatch(#[cfg(not(target_arch = "wasm32"))] std::time::Instant);
+
+    impl Stopwatch {
+        #[must_use]
+        pub fn start() -> Self {
+            Self(
+                #[cfg(not(target_arch = "wasm32"))]
+                std::time::Instant::now(),
+            )
+        }
+
+        /// Seconds since it started; `None` without a clock.
+        #[must_use]
+        pub fn seconds(&self) -> Option<f64> {
+            #[cfg(not(target_arch = "wasm32"))]
+            return Some(self.0.elapsed().as_secs_f64());
+            #[cfg(target_arch = "wasm32")]
+            None
+        }
+    }
+
+    /// Seconds since 1970; `None` without a clock.
+    #[must_use]
+    pub fn unix_seconds() -> Option<u64> {
+        #[cfg(not(target_arch = "wasm32"))]
+        return std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).ok().map(|d| d.as_secs());
+        #[cfg(target_arch = "wasm32")]
+        None
+    }
+}
+
 /// The process's resident memory in MB, from `ps`, which every Unix has.
 /// `None` where it is not available: then the figure is left out, not guessed.
+/// A browser has no process to ask about.
+#[cfg(target_arch = "wasm32")]
+#[must_use]
+pub fn resident_mb() -> Option<u64> {
+    None
+}
+
+/// The process's resident memory in MB, from `ps`, which every Unix has.
+/// `None` where it is not available: then the figure is left out, not guessed.
+#[cfg(not(target_arch = "wasm32"))]
 #[must_use]
 pub fn resident_mb() -> Option<u64> {
     let output = std::process::Command::new("ps")

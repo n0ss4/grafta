@@ -25,7 +25,7 @@ impl Command for OpenFile {
         let session = kit.session(handle.as_str())?;
         let mut out = super::read::summary(session);
         out["handle"] = data!(session.handle);
-        out["open_seconds"] = data!((session.open_seconds * 100.0).round() / 100.0);
+        out["open_seconds"] = data!(session.open_seconds.map(hundredths));
         Ok(Output::Data(out))
     }
 }
@@ -63,7 +63,7 @@ impl Query for ListOpen {
                     "nodes": s.graph.nodes.len(),
                     "edits": s.edits,
                     "opened_at": s.opened_at,
-                    "open_seconds": (s.open_seconds * 100.0).round() / 100.0,
+                    "open_seconds": s.open_seconds.map(hundredths),
                     "opened_delta_mb": s.opened_delta_mb,
                 })
             })
@@ -72,3 +72,7 @@ impl Query for ListOpen {
     }
 }
 
+/// Seconds to the hundredth, as a person reads a timing.
+fn hundredths(seconds: f64) -> f64 {
+    (seconds * 100.0).round() / 100.0
+}

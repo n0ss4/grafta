@@ -22,4 +22,6 @@ pub enum FigError {
     Deflate(String),
     #[error("{what} inflates past {limit} bytes, the most grafta reads")]
     TooLarge { what: &'static str, limit: u64 },
+    #[error("a .fig file is not written in a browser: install grafta to save one")]
+    NotWrittenHere,
 }

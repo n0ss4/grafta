@@ -20,10 +20,17 @@ schema.workspace = true
 flate2.workspace = true
 ruzstd.workspace = true
 thiserror.workspace = true
-zip.workspace = true
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+zip = { workspace = true, features = ["default"] }
 zstd.workspace = true
 # Only to build liblzma in (the workspace says why); not used directly.
 lzma-sys.workspace = true
+
+# In a browser: no C. A message is read with ruzstd, as everywhere, and a
+# file is never written there.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+zip = { workspace = true, features = ["deflate"] }
 
 [dev-dependencies]
 testkit.workspace = true
