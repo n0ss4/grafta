@@ -61,7 +61,7 @@ fn opening_another_file_closes_the_first() {
 fn what_is_not_a_figma_file_is_refused_in_grafta_words() {
     let mut reader = Reader::new();
     let error = reader.open(b"not a design".to_vec(), "notes.txt").unwrap_err();
-    assert!(!error.to_string().is_empty(), "{error}");
+    assert!(error.to_string().starts_with("notes.txt is not"), "named by the file, not where it is held: {error}");
     assert!(reader.store.get(Path::new("/files/notes.txt")).is_none(), "nothing kept");
 }
 
