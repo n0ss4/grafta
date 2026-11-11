@@ -21,9 +21,19 @@ use toolkit::{Output, ToolError, Toolkit};
 use wasm_bindgen::prelude::*;
 
 /// The tools a page may call: those that read. A browser saves no `.fig`, so
-/// nothing that edits a file is offered.
-pub const TOOLS: [&str; 7] =
-    ["summarize", "search_nodes", "read_node", "list_components", "list_variables", "list_styles", "check_contrast"];
+/// nothing that edits a file is offered; `export_tokens` writes its files into
+/// memory, for [`Reader::take`].
+pub const TOOLS: [&str; 9] = [
+    "summarize",
+    "list_screens",
+    "search_nodes",
+    "read_node",
+    "list_components",
+    "list_variables",
+    "export_tokens",
+    "list_styles",
+    "check_contrast",
+];
 /// The tool [`Reader::picture`] calls.
 const PICTURE: &str = "render_node";
 /// Where an opened file's bytes are kept, in the reader's memory.

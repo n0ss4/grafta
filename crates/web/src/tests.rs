@@ -86,3 +86,23 @@ fn a_name_cannot_reach_out_of_the_files() {
     assert_eq!(file_name("C:\\Users\\a\\b.fig"), "b.fig");
     assert_eq!(file_name(".."), "file.fig");
 }
+
+#[test]
+fn tokens_are_written_to_memory_and_taken() {
+    let mut reader = Reader::new();
+    let handle = opened(&mut reader)["handle"].as_str().unwrap().to_owned();
+    let out: Value = serde_json::from_str(&reader.call("export_tokens", &format!(r#"{{"handle":"{handle}","dir":"/tokens"}}"#)).unwrap()).unwrap();
+    let path = out["files"][0]["path"].as_str().unwrap().to_owned();
+    let doc: Value = serde_json::from_slice(&reader.take(&path).unwrap()).unwrap();
+    assert!(doc.as_object().is_some_and(|o| !o.is_empty()), "{doc}");
+    assert!(reader.take(&path).is_err(), "taken once");
+}
+
+#[test]
+fn a_page_lists_its_screens() {
+    let mut reader = Reader::new();
+    let opened = opened(&mut reader);
+    let (handle, page) = (opened["handle"].as_str().unwrap(), opened["pages"][0]["id"].as_str().unwrap());
+    let screens: Value = serde_json::from_str(&reader.call("list_screens", &format!(r#"{{"handle":"{handle}","page":"{page}"}}"#)).unwrap()).unwrap();
+    assert_eq!(screens["results"][0]["id"], ORDER, "{screens}");
+}
