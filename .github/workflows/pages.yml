@@ -5,7 +5,7 @@ name: pages
 on:
   push:
     branches: [main]
-    paths: [web/**, docs/assets/**, docs/brand/**, CHANGELOG.md, install.sh, install.ps1, scripts/snapshot.*, .github/workflows/pages.yml, crates/**, Cargo.toml, Cargo.lock, scripts/web-reader.sh]
+    paths: [web/**, docs/assets/**, docs/brand/**, CHANGELOG.md, install.sh, install.ps1, scripts/snapshot.*, .github/workflows/pages.yml, crates/**, Cargo.toml, Cargo.lock, scripts/web-reader.sh, scripts/install-binaryen.sh]
   workflow_dispatch:
 
 permissions:
@@ -40,7 +40,9 @@ jobs:
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           save-if: false
-      - run: sudo apt-get update && sudo apt-get install -y binaryen
+      - run: |
+          scripts/install-binaryen.sh "$RUNNER_TEMP/binaryen"
+          echo "$RUNNER_TEMP/binaryen/bin" >> "$GITHUB_PATH"
       - run: |
           pinned=$(sed -n 's/^wasm-bindgen = "=\(.*\)"/\1/p' Cargo.toml)
           wasm-bindgen --version 2>/dev/null | grep -q " $pinned$" || cargo install wasm-bindgen-cli --version "$pinned" --locked

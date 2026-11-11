@@ -77,7 +77,7 @@ jobs:
             'scripts/snapshot.*' .github/workflows/pages.yml)"
 
           # The browser reader: the crates it compiles, and the script that builds it.
-          reader="$(touches crates Cargo.toml Cargo.lock scripts/web-reader.sh)"
+          reader="$(touches crates Cargo.toml Cargo.lock scripts/web-reader.sh scripts/install-binaryen.sh)"
 
           printf 'test=%s\npackaging=%s\nweb=%s\nreader=%s\n' "$test" "$packaging" "$web" "$reader" | tee -a "$GITHUB_OUTPUT"
 
@@ -181,7 +181,9 @@ jobs:
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           save-if: ${{ github.ref == 'refs/heads/develop' }}
-      - run: sudo apt-get update && sudo apt-get install -y binaryen
+      - run: |
+          scripts/install-binaryen.sh "$RUNNER_TEMP/binaryen"
+          echo "$RUNNER_TEMP/binaryen/bin" >> "$GITHUB_PATH"
       - run: |
           pinned=$(sed -n 's/^wasm-bindgen = "=\(.*\)"/\1/p' Cargo.toml)
           wasm-bindgen --version 2>/dev/null | grep -q " $pinned$" || cargo install wasm-bindgen-cli --version "$pinned" --locked

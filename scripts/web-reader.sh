@@ -5,7 +5,7 @@
 #   scripts/web-reader.sh
 #
 # Needs the wasm32-unknown-unknown target, wasm-bindgen-cli at the version the
-# workspace pins, and wasm-opt (binaryen). Fails when the module is larger than
+# workspace pins, and wasm-opt (binaryen 133: scripts/install-binaryen.sh). Fails when the module is larger than
 # BUDGET_GZIP, so a dependency that bloats it is seen in the pull request.
 set -eu
 
@@ -38,7 +38,10 @@ rm -rf "$OUT"
 mkdir -p "$OUT/fonts"
 wasm-bindgen --target web --no-typescript --out-dir "$OUT" --out-name grafta_web \
   "$ROOT/target/wasm32-unknown-unknown/wasm/web.wasm"
-wasm-opt -Oz --enable-bulk-memory --enable-nontrapping-float-to-int \
+# The features Rust's wasm32 target emits by default, named, for a wasm-opt
+# that does not read them from the module.
+wasm-opt -Oz --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext \
+  --enable-mutable-globals --enable-reference-types --enable-multivalue \
   "$OUT/grafta_web_bg.wasm" -o "$OUT/grafta_web_bg.wasm"
 
 # Inter, from its own release, checked, kept between runs.
