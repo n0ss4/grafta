@@ -881,6 +881,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "grafta-web"
+version = "0.4.0"
+dependencies = [
+ "grafta-render",
+ "grafta-testkit",
+ "grafta-toolkit",
+ "serde_json",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "hashbrown"
 version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

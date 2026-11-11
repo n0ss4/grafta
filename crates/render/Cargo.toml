@@ -23,6 +23,8 @@ schema.workspace = true
 indexmap.workspace = true
 resvg.workspace = true
 skrifa.workspace = true
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 krilla.workspace = true
 krilla-svg.workspace = true
 

@@ -46,6 +46,8 @@ __pycache__/
 /web/public/install.ps1
 /web/public/snapshot.js
 /web/public/snapshot.sh
+# The browser reader, built by scripts/web-reader.sh.
+/web/public/reader/
 # Tracked even where a global ignore names lib/ directories.
 !/web/src/lib/
 

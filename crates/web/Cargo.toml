@@ -1,0 +1,23 @@
+[package]
+name = "grafta-web"
+description = "grafta in a browser: the read tools on bytes a page hands it, compiled to WebAssembly."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+publish = false
+
+[lib]
+name = "web"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+toolkit.workspace = true
+render.workspace = true
+
+serde_json.workspace = true
+wasm-bindgen.workspace = true
+
+[dev-dependencies]
+testkit.workspace = true
