@@ -3689,8 +3689,14 @@ fn tokens_document() -> (Toolkit, String) {
     (kit, handle)
 }
 
-fn token_file(kit: &Toolkit, path: &str) -> Value {
-    serde_json::from_slice(&stored(kit, path).unwrap_or_else(|| panic!("{path} written"))).unwrap()
+/// `name` in `dir`, as the tool joins it on this system (`\\` on Windows).
+fn in_dir(dir: &str, name: &str) -> String {
+    Path::new(dir).join(name).display().to_string()
+}
+
+fn token_file(kit: &Toolkit, name: &str) -> Value {
+    let path = in_dir("/out", name);
+    serde_json::from_slice(&stored(kit, &path).unwrap_or_else(|| panic!("{path} written"))).unwrap()
 }
 
 #[test]
@@ -3698,9 +3704,9 @@ fn tokens_are_written_a_file_per_collection_and_mode_as_figma_imports_them() {
     let (mut kit, handle) = tokens_document();
     let out = call(&mut kit, "export_tokens", json!({ "handle": handle, "dir": "/out" })).unwrap();
     let files: Vec<&str> = out["files"].as_array().unwrap().iter().map(|f| f["path"].as_str().unwrap()).collect();
-    assert_eq!(files, ["/out/Tokens.Light.tokens.json", "/out/Theme.Light.tokens.json", "/out/Theme.Dark.tokens.json"], "{out}");
+    assert_eq!(files, ["Tokens.Light.tokens.json", "Theme.Light.tokens.json", "Theme.Dark.tokens.json"].map(|n| in_dir("/out", n)), "{out}");
 
-    let light = token_file(&kit, "/out/Theme.Light.tokens.json");
+    let light = token_file(&kit, "Theme.Light.tokens.json");
     let primary = &light["Brand"]["Primary"];
     assert_eq!(primary["$type"], "color", "{light}");
     assert_eq!(primary["$value"]["colorSpace"], "srgb");
@@ -3718,7 +3724,7 @@ fn tokens_are_written_a_file_per_collection_and_mode_as_figma_imports_them() {
     assert_eq!(light["Flags"]["Rounded"], json!({ "$type": "number", "$value": 1, "$extensions": { "com.figma.type": "boolean" } }));
     assert_eq!(light["Space"]["0_5"]["$extensions"]["com.figma"]["name"], "Space/0.5", "{light}");
 
-    let dark = token_file(&kit, "/out/Theme.Dark.tokens.json");
+    let dark = token_file(&kit, "Theme.Dark.tokens.json");
     assert_eq!(dark["Radius"]["$value"], 8.5);
     let across = &dark["Button"]["Background"];
     assert_eq!(across["$value"]["hex"], "#1E88E5", "another collection's alias is its value: {dark}");
@@ -3730,7 +3736,7 @@ fn what_tokens_cannot_hold_is_said() {
     let (mut kit, handle) = tokens_document();
     let out = call(&mut kit, "export_tokens", json!({ "handle": handle, "dir": "/out" })).unwrap();
     assert_eq!(out["unresolved"], json!([{ "variable": "broken/link", "mode": "Light", "alias": "9:9" }]), "{out}");
-    assert!(token_file(&kit, "/out/Tokens.Light.tokens.json").get("broken").is_none(), "not written");
+    assert!(token_file(&kit, "Tokens.Light.tokens.json").get("broken").is_none(), "not written");
     assert!(out["renamed"].as_array().unwrap().contains(&json!({ "from": "Space/0.5", "to": "Space/0_5" })), "{out}");
     assert!(out["notes"][0].as_str().unwrap().contains("STRING"), "{out}");
 }
@@ -3738,11 +3744,11 @@ fn what_tokens_cannot_hold_is_said() {
 #[test]
 fn tokens_are_never_written_over_and_nothing_is_half_written() {
     let (mut kit, handle) = tokens_document();
-    put(&kit, "/out/Theme.Dark.tokens.json", "mine");
+    put(&kit, &in_dir("/out", "Theme.Dark.tokens.json"), "mine");
     let error = call(&mut kit, "export_tokens", json!({ "handle": handle, "dir": "/out" })).unwrap_err();
     assert!(error.to_string().contains("Theme.Dark.tokens.json"), "{error}");
-    assert_eq!(stored(&kit, "/out/Theme.Dark.tokens.json").unwrap(), b"mine");
-    assert!(stored(&kit, "/out/Theme.Light.tokens.json").is_none(), "none of the others either");
+    assert_eq!(stored(&kit, &in_dir("/out", "Theme.Dark.tokens.json")).unwrap(), b"mine");
+    assert!(stored(&kit, &in_dir("/out", "Theme.Light.tokens.json")).is_none(), "none of the others either");
 }
 
 #[test]
@@ -3751,7 +3757,7 @@ fn a_name_no_file_can_hold_is_changed_and_said() {
     collection(&mut kit, &handle, "Brand: Web\u{2028}2026", &["Light/Dark"]).unwrap();
     new_variable(&mut kit, &handle, "Brand: Web\u{2028}2026", "Ink", "COLOR", json!({ "Light/Dark": "#000000" })).unwrap();
     let out = call(&mut kit, "export_tokens", json!({ "handle": handle, "dir": "/out", "collection": "Brand: Web\u{2028}2026" })).unwrap();
-    assert_eq!(out["files"][0]["path"], "/out/Brand_ Web_2026.Light_Dark.tokens.json", "{out}");
+    assert_eq!(out["files"][0]["path"], in_dir("/out", "Brand_ Web_2026.Light_Dark.tokens.json"), "{out}");
     assert_eq!(out["renamed"][0]["to"], "Brand_ Web_2026.Light_Dark.tokens.json", "{out}");
 }
 
@@ -3835,7 +3841,7 @@ fn two_collections_of_one_name_write_two_files() {
     });
     let out = call(&mut kit, "export_tokens", json!({ "handle": handle, "dir": "/out" })).unwrap();
     let paths: Vec<&str> = out["files"].as_array().unwrap().iter().map(|f| f["path"].as_str().unwrap()).collect();
-    assert_eq!(paths, ["/out/Tokens.Light.tokens.json", "/out/Tokens.Light (1-25).tokens.json"], "{out}");
+    assert_eq!(paths, ["Tokens.Light.tokens.json", "Tokens.Light (1-25).tokens.json"].map(|n| in_dir("/out", n)), "{out}");
     assert!(out["renamed"].as_array().unwrap().contains(&json!({ "from": "Tokens.Light.tokens.json", "to": "Tokens.Light (1-25).tokens.json" })), "{out}");
 }
 
