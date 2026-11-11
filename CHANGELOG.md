@@ -4,6 +4,16 @@ What changed for someone using grafta, newest first. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.5.0](https://github.com/n0ss4/grafta/compare/v0.4.0...v0.5.0) (2026-11-11)
+
+
+### Added
+
+* export_tokens, a file's variables as W3C Design Tokens ([#71](https://github.com/n0ss4/grafta/issues/71)) ([5e4916a](https://github.com/n0ss4/grafta/commit/5e4916a45abb58583fd393c4d625327ba146e9b9))
+* grafta in the browser, the read tools compiled to WebAssembly ([#70](https://github.com/n0ss4/grafta/issues/70)) ([c14b480](https://github.com/n0ss4/grafta/commit/c14b4802241d7fbdb47b23ac520bfef384759ecc))
+* list_screens, a page's screens as a person sees them ([#69](https://github.com/n0ss4/grafta/issues/69)) ([fcd81cc](https://github.com/n0ss4/grafta/commit/fcd81cc5c1d608b04f066156254c57de76efed20))
+* **web:** open a Figma file in the browser ([#72](https://github.com/n0ss4/grafta/issues/72)) ([92d4d15](https://github.com/n0ss4/grafta/commit/92d4d15bcb3b6a2b10d62ab1d30a2b9efa2d6071))
+
 ## [0.4.0](https://github.com/n0ss4/grafta/compare/v0.3.0...v0.4.0) (2026-11-10)
 
 
