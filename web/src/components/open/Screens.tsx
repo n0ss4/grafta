@@ -335,13 +335,13 @@ function Viewer({
   const screen = screens[index];
   const count = screens.length;
 
+  // Opened once it is in the page; never closed here, as a close fires the
+  // dialog's close event, which deselects the screen: under React's StrictMode
+  // an effect is undone and done again, and the viewer would shut itself.
+  // Unmounting takes the dialog, open or not, out of the page.
   useEffect(() => {
     const element = dialog.current;
-    if (!element) return;
-    element.showModal();
-    return () => {
-      element.close();
-    };
+    if (element && !element.open) element.showModal();
   }, []);
 
   // The arrow keys go through the page's screens while the viewer is open.
