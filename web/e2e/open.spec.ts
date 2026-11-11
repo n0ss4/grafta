@@ -20,7 +20,7 @@ test("the sample opens: its page, its screen drawn, and nothing leaves the brows
 
   await page.getByRole("button", { name: /^Order,/ }).click();
   await expect(page.getByRole("img", { name: /drawn by grafta/ })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Drawn approximately" })).toBeVisible();
+  await expect(page.getByText(/^Drawn approximately/)).toBeVisible();
   expect(sent, "only GETs, none carrying the file").toEqual([]);
 });
 

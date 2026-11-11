@@ -5,10 +5,14 @@ import { type Reader, ReaderError } from "./reader";
 import { save, zip } from "./save";
 import { archiveName, pngName, unique, visiblePages } from "./state";
 
-/** The longest side of a screen's picture in the grid, in pixels. */
-const THUMB = 480;
-/** The longest side of the selected screen's picture. */
-const VIEW = 1600;
+/** A picture in the grid is drawn at its frame's size in device pixels, rounded
+ * up to a step of this, so a sharp screen gets a sharp picture. */
+const THUMB_STEP = 160;
+/** The most a picture in the grid is drawn at, on its longest side. */
+const THUMB_MOST = 2048;
+/** The most the viewer scales a small screen up, and the least render_node draws at. */
+const VIEW_MOST_SCALE = 4;
+const VIEW_LEAST_SCALE = 0.1;
 /** render_node's largest picture. */
 const LARGEST = 4096;
 const SCALES = [1, 2, 3] as const;
@@ -78,7 +82,7 @@ function PageScreens({
 }) {
   const [screens, setScreens] = useState<ScreensResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<Screen | null>(null);
+  const [selected, setSelected] = useState<number | null>(null);
 
   /** The next screens of a long page, after those shown. */
   const more = useCallback(
@@ -126,13 +130,14 @@ function PageScreens({
       {screens && (
         <>
           <PageActions reader={reader} summary={summary} screens={screens} />
-          {selected && (
-            <Selected
-              key={selected.id}
+          {selected !== null && screens.results[selected] && (
+            <Viewer
               reader={reader}
               summary={summary}
-              screen={selected}
+              screens={screens.results}
+              index={selected}
               fonts={fonts}
+              onIndex={setSelected}
               onClose={() => {
                 setSelected(null);
               }}
@@ -142,15 +147,15 @@ function PageScreens({
             <p className="mt-6 text-muted">Nothing is on this page.</p>
           ) : (
             <ul className="mt-6 grid grid-cols-[repeat(auto-fill,minmax(min(100%,15rem),1fr))] gap-x-6 gap-y-8">
-              {screens.results.map((screen) => (
+              {screens.results.map((screen, i) => (
                 <Frame
                   key={screen.id}
                   screen={screen}
                   drawn={drawn.state[screen.id]}
-                  selected={screen.id === selected?.id}
+                  selected={i === selected}
                   onSeen={drawn.want}
                   onPick={() => {
-                    setSelected(screen);
+                    setSelected(i);
                   }}
                 />
               ))}
@@ -184,7 +189,7 @@ function Frame({
   screen: Screen;
   drawn: Drawn | undefined;
   selected: boolean;
-  onSeen: (id: string) => void;
+  onSeen: (id: string, pixels: number) => void;
   onPick: () => void;
 }) {
   const ref = useRef<HTMLButtonElement>(null);
@@ -193,8 +198,10 @@ function Frame({
     if (!element) return;
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          onSeen(screen.id);
+        const seen = entries.find((e) => e.isIntersecting);
+        if (seen) {
+          const box = seen.boundingClientRect;
+          onSeen(screen.id, Math.max(box.width, box.height) * window.devicePixelRatio);
           observer.disconnect();
         }
       },
@@ -245,7 +252,7 @@ function Frame({
  */
 function useDrawing(reader: Reader, handle: string, fonts: number) {
   const [state, setState] = useState<Record<string, Drawn>>({});
-  const queue = useRef<string[]>([]);
+  const queue = useRef<{ id: string; size: number }[]>([]);
   const busy = useRef(false);
   const generation = useRef(0);
 
@@ -254,12 +261,13 @@ function useDrawing(reader: Reader, handle: string, fonts: number) {
     busy.current = true;
     const mine = generation.current;
     while (queue.current.length > 0 && mine === generation.current) {
-      const id = queue.current.shift();
-      if (id === undefined) break;
+      const next = queue.current.shift();
+      if (next === undefined) break;
+      const { id, size } = next;
       setState((s) => ({ ...s, [id]: "drawing" }));
       let result: Drawn;
       try {
-        const picture = await reader.picture({ handle, id, max_size: THUMB });
+        const picture = await reader.picture({ handle, id, max_size: size });
         result = { url: URL.createObjectURL(picture.png), caption: picture.caption };
       } catch (caught) {
         const error = caught as ReaderError;
@@ -275,9 +283,12 @@ function useDrawing(reader: Reader, handle: string, fonts: number) {
     busy.current = false;
   }, [reader, handle]);
 
+  const sizes = useRef(new Map<string, number>());
   const want = useCallback(
-    (id: string) => {
-      if (!queue.current.includes(id)) queue.current.push(id);
+    (id: string, pixels: number) => {
+      const size = Math.min(THUMB_MOST, Math.max(THUMB_STEP, Math.ceil(pixels / THUMB_STEP) * THUMB_STEP));
+      sizes.current.set(id, size);
+      if (!queue.current.some((q) => q.id === id)) queue.current.push({ id, size });
       void pump();
     },
     [pump],
@@ -288,7 +299,7 @@ function useDrawing(reader: Reader, handle: string, fonts: number) {
     // New fonts: everything drawn so far is drawn again, in the same order.
     generation.current += 1;
     setState((s) => {
-      queue.current = Object.keys(s);
+      queue.current = Object.keys(s).map((id) => ({ id, size: sizes.current.get(id) ?? THUMB_STEP * 3 }));
       return {};
     });
     busy.current = false;
@@ -298,31 +309,135 @@ function useDrawing(reader: Reader, handle: string, fonts: number) {
   return { state, want };
 }
 
-/** The selected screen, larger, with what grafta drew approximately and its downloads. */
-function Selected({
+/**
+ * A screen at the size the window allows, in a dialog over the page: as wide as
+ * it fits, scrolled when it is tall; the arrow keys go through the page's
+ * screens, Escape closes. Drawn at the scale this screen needs, up to 4×.
+ */
+function Viewer({
   reader,
   summary,
-  screen,
+  screens,
+  index,
   fonts,
+  onIndex,
   onClose,
 }: {
   reader: Reader;
   summary: Summary;
-  screen: Screen;
+  screens: Screen[];
+  index: number;
   fonts: number;
+  onIndex: (index: number) => void;
   onClose: () => void;
 }) {
-  const [picture, setPicture] = useState<{ url: string; caption: Caption } | null>(null);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const screen = screens[index];
+  const count = screens.length;
+
+  useEffect(() => {
+    const element = dialog.current;
+    if (!element) return;
+    element.showModal();
+    return () => {
+      element.close();
+    };
+  }, []);
+
+  // The arrow keys go through the page's screens while the viewer is open.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") onIndex((index + 1) % count);
+      if (e.key === "ArrowLeft") onIndex((index - 1 + count) % count);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [index, count, onIndex]);
+
+  if (!screen) return null;
+  const go = (step: number) => {
+    onIndex((index + step + count) % count);
+  };
+
+  return (
+    <dialog
+      ref={dialog}
+      aria-label={screen.name || "Untitled"}
+      onClose={onClose}
+      className="m-0 h-dvh max-h-none w-dvw max-w-none bg-bg p-0 text-text backdrop:bg-ink/70"
+    >
+      <div className="flex h-full flex-col">
+        <header className="flex items-center gap-3 border-b border-line px-4 py-3 sm:px-6">
+          <div className="min-w-0 flex-1">
+            <h2 className="truncate text-[17px] font-semibold">{screen.name || "Untitled"}</h2>
+            <p className="text-[13px] text-muted">
+              {screen.type.toLowerCase().replace(/_/g, " ")}, {Math.round(screen.width)} ×{" "}
+              {Math.round(screen.height)}
+              {count > 1 ? `. ${index + 1} of ${count}` : ""}
+            </p>
+          </div>
+          {count > 1 && (
+            <div className="flex gap-1">
+              <button
+                type="button"
+                onClick={() => {
+                  go(-1);
+                }}
+                aria-label="Previous screen"
+                className="cursor-pointer rounded-lg border border-line px-3 py-1.5 text-[15px] hover:border-text"
+              >
+                ←
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  go(1);
+                }}
+                aria-label="Next screen"
+                className="cursor-pointer rounded-lg border border-line px-3 py-1.5 text-[15px] hover:border-text"
+              >
+                →
+              </button>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={onClose}
+            className="cursor-pointer rounded-lg bg-button px-3 py-1.5 text-[14px] font-semibold text-on-button hover:opacity-90"
+          >
+            Close
+          </button>
+        </header>
+        <Shown key={`${screen.id}-${fonts}`} reader={reader} summary={summary} screen={screen} />
+      </div>
+    </dialog>
+  );
+}
+
+/** One screen in the viewer: drawn for the room it has, its notes and its download. */
+function Shown({ reader, summary, screen }: { reader: Reader; summary: Summary; screen: Screen }) {
+  const room = useRef<HTMLDivElement>(null);
+  const [picture, setPicture] = useState<{ url: string; caption: Caption; ratio: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [scale, setScale] = useState<(typeof SCALES)[number]>(2);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    const element = room.current;
+    if (!element || screen.width <= 0) return;
     let live = true;
+    // As wide as the room, in device pixels: the picture is never scaled up by the browser.
+    // The dialog opens after this runs (a parent's effects run after its
+    // children's), so a room not laid out yet is the window's width.
+    const ratio = window.devicePixelRatio;
+    const wide = Math.max(1, (element.clientWidth || window.innerWidth) - 32) * ratio;
+    const wanted = Math.min(VIEW_MOST_SCALE, Math.max(VIEW_LEAST_SCALE, wide / screen.width));
     reader
-      .picture({ handle: summary.handle, id: screen.id, max_size: VIEW })
+      .picture({ handle: summary.handle, id: screen.id, scale: wanted, max_size: LARGEST })
       .then((p) => {
-        if (live) setPicture({ url: URL.createObjectURL(p.png), caption: p.caption });
+        if (live) setPicture({ url: URL.createObjectURL(p.png), caption: p.caption, ratio });
       })
       .catch((caught: unknown) => {
         if (live) setError((caught as ReaderError).message);
@@ -330,7 +445,7 @@ function Selected({
     return () => {
       live = false;
     };
-  }, [reader, summary.handle, screen.id, fonts]);
+  }, [reader, summary.handle, screen.id, screen.width]);
 
   async function download() {
     setSaving(true);
@@ -344,78 +459,82 @@ function Selected({
     }
   }
 
+  // The picture at its own pixels, in CSS pixels, never wider than the room.
+  const width = picture ? (picture.caption.width * picture.caption.scale) / picture.ratio : 0;
   return (
-    <section aria-label={screen.name} className="mt-6 rounded-lg border border-line bg-surface p-4 sm:p-6">
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <h3 className="text-[19px] font-semibold">{screen.name || "Untitled"}</h3>
-        <p className="text-[14px] text-muted">
-          {screen.type.toLowerCase().replace(/_/g, " ")}, {Math.round(screen.width)} ×{" "}
-          {Math.round(screen.height)}
-        </p>
-      </div>
-      <div className="mt-4 flex max-h-[70vh] items-center justify-center overflow-auto rounded-sm bg-bg p-4">
+    <>
+      {/* Focusable, so a tall screen scrolls by keyboard too. */}
+      <div
+        ref={room}
+        role="region"
+        aria-label={`${screen.name || "Untitled"}, as drawn`}
+        // A scrolled region is reached by keyboard (axe: scrollable-region-focusable).
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+        tabIndex={0}
+        className="min-h-0 flex-1 overflow-auto px-4 py-6"
+      >
         {picture ? (
           <img
             src={picture.url}
             alt={`${screen.name}, drawn by grafta`}
-            className="max-h-[64vh] object-contain"
+            style={{ width: `min(100%, ${width}px)` }}
+            className="mx-auto block h-auto outline-1 outline-line"
           />
         ) : (
-          <p className="py-16 text-muted">{error ?? "Drawing…"}</p>
+          <p className="py-24 text-center text-muted">
+            {error ?? (screen.width <= 0 ? "Nothing to draw" : "Drawing…")}
+          </p>
         )}
       </div>
-      {picture && picture.caption.notes.length > 0 && (
-        <div className="mt-4">
-          <h4 className="text-[14px] font-semibold">Drawn approximately</h4>
-          <ul className="mt-1 list-disc space-y-1 pl-5 text-[14px] text-muted">
-            {picture.caption.notes.map((note) => (
-              <li key={note}>{note}</li>
+      <footer className="border-t border-line px-4 py-3 sm:px-6">
+        {picture && picture.caption.notes.length > 0 && (
+          <details className="mb-3 text-[14px]">
+            <summary className="cursor-pointer text-muted">
+              Drawn approximately ({picture.caption.notes.length})
+            </summary>
+            <ul className="mt-1 list-disc space-y-1 pl-5 text-muted">
+              {picture.caption.notes.map((note) => (
+                <li key={note}>{note}</li>
+              ))}
+            </ul>
+          </details>
+        )}
+        <div className="flex flex-wrap items-center gap-3">
+          <fieldset className="flex items-center gap-1 rounded-lg border border-line p-0.5">
+            <legend className="sr-only">Scale</legend>
+            {SCALES.map((s) => (
+              <label
+                key={s}
+                className={cn(
+                  "cursor-pointer rounded-md px-2.5 py-1 text-[14px] font-medium",
+                  s === scale ? "bg-button text-on-button" : "text-text hover:bg-sunk",
+                )}
+              >
+                <input
+                  type="radio"
+                  name="scale"
+                  value={s}
+                  checked={s === scale}
+                  onChange={() => {
+                    setScale(s);
+                  }}
+                  className="sr-only"
+                />
+                {s}×
+              </label>
             ))}
-          </ul>
+          </fieldset>
+          <button
+            type="button"
+            disabled={saving || screen.width <= 0}
+            onClick={() => void download()}
+            className="cursor-pointer rounded-lg bg-button px-3 py-1.5 text-[14px] font-semibold text-on-button hover:opacity-90 disabled:opacity-60"
+          >
+            {saving ? "Drawing the PNG…" : `Download PNG at ${scale}×`}
+          </button>
         </div>
-      )}
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        <fieldset className="flex items-center gap-1 rounded-lg border border-line p-0.5">
-          <legend className="sr-only">Scale</legend>
-          {SCALES.map((s) => (
-            <label
-              key={s}
-              className={cn(
-                "cursor-pointer rounded-md px-2.5 py-1 text-[14px] font-medium",
-                s === scale ? "bg-button text-on-button" : "text-text hover:bg-sunk",
-              )}
-            >
-              <input
-                type="radio"
-                name="scale"
-                value={s}
-                checked={s === scale}
-                onChange={() => {
-                  setScale(s);
-                }}
-                className="sr-only"
-              />
-              {s}×
-            </label>
-          ))}
-        </fieldset>
-        <button
-          type="button"
-          disabled={saving}
-          onClick={() => void download()}
-          className="cursor-pointer rounded-lg bg-button px-3 py-1.5 text-[14px] font-semibold text-on-button hover:opacity-90 disabled:opacity-60"
-        >
-          {saving ? "Drawing the PNG…" : `Download PNG at ${scale}×`}
-        </button>
-        <button
-          type="button"
-          onClick={onClose}
-          className="cursor-pointer text-[14px] font-medium text-muted hover:text-text"
-        >
-          Close
-        </button>
-      </div>
-    </section>
+      </footer>
+    </>
   );
 }
 
