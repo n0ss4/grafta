@@ -5,7 +5,7 @@ use serde_json::{json, Value};
 use super::args::{budget, optional_bool, optional_integer, optional_string, paging, string};
 use super::schema::{handle_property, merge, paging_properties, schema};
 use super::{Request, Tool};
-use crate::tools::read;
+use crate::tools::{read, screens};
 use crate::view::Limits;
 use crate::ToolError;
 
@@ -25,6 +25,39 @@ impl Tool for Summarize {
     }
     fn parse(&self, args: &Value) -> Result<Request, ToolError> {
         Ok(Request::Query(Box::new(read::Summarize { handle: string(args, "handle")?.into() })))
+    }
+}
+
+pub struct ListScreens;
+
+impl Tool for ListScreens {
+    fn name(&self) -> &'static str {
+        "list_screens"
+    }
+    fn description(&self) -> &'static str {
+        "The screens of a page, as a person sees them in Figma, in their order: a page's \
+         top-level frames, components, sections and other layers; a deck's slides, across its \
+         rows; a site page's breakpoints. Each with id, name, type, size and whether it is \
+         visible, ready for render_node. Paged."
+    }
+    fn input_schema(&self) -> Value {
+        schema(
+            merge(
+                json!({
+                    "handle": handle_property(),
+                    "page": { "type": "string", "description": "A page's id, from summarize." },
+                }),
+                paging_properties(),
+            ),
+            &["handle", "page"],
+        )
+    }
+    fn parse(&self, args: &Value) -> Result<Request, ToolError> {
+        Ok(Request::Query(Box::new(screens::ListScreens {
+            handle: string(args, "handle")?.into(),
+            page: string(args, "page")?.into(),
+            paging: paging(args)?,
+        })))
     }
 }
 

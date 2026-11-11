@@ -51,16 +51,20 @@ fn rows(session: &Session, slide_or_row: Guid) -> Vec<Vec<Guid>> {
     while let Some(id) = at {
         let Some(node) = session.graph.node(id) else { return Vec::new() };
         if node.node_type == NodeType::SlideGrid {
-            return session
-                .graph
-                .children(id)
-                .filter(|row| row.node_type == NodeType::SlideRow)
-                .map(|row| session.graph.children(row.id).filter(|n| n.node_type == NodeType::Slide).map(|n| n.id).collect())
-                .collect();
+            return grid_rows(&session.graph, id);
         }
         at = node.parent_id;
     }
     Vec::new()
+}
+
+/// A grid's rows, each its slides in order.
+pub fn grid_rows(graph: &model::SceneGraph, grid: Guid) -> Vec<Vec<Guid>> {
+    graph
+        .children(grid)
+        .filter(|row| row.node_type == NodeType::SlideRow)
+        .map(|row| graph.children(row.id).filter(|n| n.node_type == NodeType::Slide).map(|n| n.id).collect())
+        .collect()
 }
 
 /// The deck's slides in order: its grid's rows, each row's slides.

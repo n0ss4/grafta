@@ -76,6 +76,10 @@ impl NodeBehavior for Page {
     fn lays_out_children(&self) -> bool {
         false
     }
+    /// A person sees a site page's breakpoints, each a screen.
+    fn screens(&self, _graph: &SceneGraph, node: &SceneNode) -> Option<Vec<Guid>> {
+        Some(node.children.clone())
+    }
 }
 
 /// A breakpoint: a frame in a site page, one per screen width, one of them

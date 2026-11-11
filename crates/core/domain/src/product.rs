@@ -122,6 +122,12 @@ pub trait NodeBehavior: Sync {
     fn base_keys(&self) -> Option<&'static [&'static str]> {
         None
     }
+    /// The screens a node of its types holds at the top of a page, which a
+    /// person sees in its place (a deck's grid, its slides); `None` when the
+    /// node is a screen itself.
+    fn screens(&self, _graph: &SceneGraph, _node: &SceneNode) -> Option<Vec<Guid>> {
+        None
+    }
 }
 
 /// What a behaviour set on a node.
@@ -173,6 +179,19 @@ impl Products {
     /// Design file is still a sticky.
     pub fn behaviours_of(self, node_type: NodeType) -> impl Iterator<Item = &'static dyn NodeBehavior> {
         self.0.iter().flat_map(|p| p.behaviours()).copied().filter(move |b| b.types().contains(&node_type))
+    }
+
+    /// A page's screens, as a person sees them: its top-level nodes in layer
+    /// order, each replaced by the screens it holds when a behaviour says it
+    /// holds some.
+    #[must_use]
+    pub fn screens(self, graph: &SceneGraph, page: Guid) -> Vec<Guid> {
+        graph
+            .children(page)
+            .flat_map(|node| {
+                self.behaviours_of(node.node_type).find_map(|b| b.screens(graph, node)).unwrap_or_else(|| vec![node.id])
+            })
+            .collect()
     }
 
     /// Whether a behaviour reads `field`, on whatever node it is stored.

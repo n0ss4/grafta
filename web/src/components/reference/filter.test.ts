@@ -25,6 +25,6 @@ describe("filterFamilies", () => {
   it("says which matched only inside", () => {
     const render = found("picture").find((f) => f.tool.name === "render_node");
     expect(render?.inside).toBe(true);
-    expect(found("render_node")[0]?.inside).toBe(false);
+    expect(found("render_node").find((f) => f.tool.name === "render_node")?.inside).toBe(false);
   });
 });
