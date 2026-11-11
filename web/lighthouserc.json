@@ -5,6 +5,7 @@
       "startServerReadyPattern": "localhost",
       "url": [
         "http://localhost:4173/grafta/",
+        "http://localhost:4173/grafta/open/",
         "http://localhost:4173/grafta/tools/",
         "http://localhost:4173/grafta/changelog/"
       ],

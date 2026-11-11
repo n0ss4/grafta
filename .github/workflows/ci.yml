@@ -74,7 +74,8 @@ jobs:
 
           # The site, its changelog page, the pictures and brand it copies, the scripts it serves.
           web="$(touches web CHANGELOG.md docs/assets docs/brand install.sh install.ps1 \
-            'scripts/snapshot.*' .github/workflows/pages.yml)"
+            'scripts/snapshot.*' .github/workflows/pages.yml crates/web scripts/web-reader.sh \
+            scripts/install-binaryen.sh)"
 
           # The browser reader: the crates it compiles, and the script that builds it.
           reader="$(touches crates Cargo.toml Cargo.lock scripts/web-reader.sh scripts/install-binaryen.sh)"
@@ -152,6 +153,24 @@ jobs:
           node-version-file: web/.nvmrc
           cache: npm
           cache-dependency-path: web/package-lock.json
+      # The browser reader, which /open/ runs: its browser tests need the module.
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: stable
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          save-if: ${{ github.ref == 'refs/heads/develop' }}
+      - working-directory: .
+        run: |
+          scripts/install-binaryen.sh "$RUNNER_TEMP/binaryen"
+          echo "$RUNNER_TEMP/binaryen/bin" >> "$GITHUB_PATH"
+      - working-directory: .
+        run: |
+          pinned=$(sed -n 's/^wasm-bindgen = "=\(.*\)"/\1/p' Cargo.toml)
+          wasm-bindgen --version 2>/dev/null | grep -q " $pinned$" || cargo install wasm-bindgen-cli --version "$pinned" --locked
+      - working-directory: .
+        run: scripts/web-reader.sh
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint

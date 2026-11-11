@@ -81,11 +81,12 @@ impl Reader {
         match &result {
             Ok(opened) => {
                 let handle = opened["handle"].as_str().unwrap_or_default().to_owned();
-                self.open = Some((handle, path));
+                self.open = Some((handle, path.clone()));
             }
             Err(_) => drop(toolkit::port::DocumentStore::remove(self.store.as_ref(), &path)),
         }
-        result.map(|value| value.to_string())
+        // The file is the person's, by its name: where the reader keeps it is its own affair.
+        result.map(|value| value.to_string()).map_err(|error| named(error, &path, name))
     }
 
     /// Call a read tool with its arguments as JSON: its result, as JSON.
@@ -137,6 +138,18 @@ impl Reader {
 /// many faces it held.
 pub fn add_font(bytes: Vec<u8>) -> usize {
     render::text::add_font(bytes)
+}
+
+/// `error` with the reader's path for a file replaced by the file's name.
+fn named(error: ToolError, path: &Path, name: &str) -> ToolError {
+    let held = path.display().to_string();
+    let mend = |text: String| text.replace(&held, name);
+    match error {
+        ToolError::BadArgument(m) => ToolError::BadArgument(mend(m)),
+        ToolError::NotFound(m) => ToolError::NotFound(mend(m)),
+        ToolError::Refused(m) => ToolError::Refused(mend(m)),
+        ToolError::Failed(m) => ToolError::Failed(mend(m)),
+    }
 }
 
 fn arguments(args: &str) -> Result<Value, ToolError> {
