@@ -58,10 +58,10 @@ pub(crate) fn call(kit: &mut Toolkit, name: &str, args: Value) -> Result<Value, 
 #[test]
 fn every_tool_has_a_unique_name_a_description_and_an_object_schema() {
     let mut names: Vec<&str> = ALL.iter().map(|t| t.name()).collect();
-    assert_eq!(names.len(), 44);
+    assert_eq!(names.len(), 45);
     names.sort_unstable();
     names.dedup();
-    assert_eq!(names.len(), 44, "tool names must be unique");
+    assert_eq!(names.len(), 45, "tool names must be unique");
     for tool in ALL {
         assert!(tool.description().len() > 40, "{} needs a real description", tool.name());
         assert_eq!(tool.input_schema()["type"], "object", "{}", tool.name());

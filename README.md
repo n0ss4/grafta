@@ -100,7 +100,7 @@ same setup. ChatGPT on the web reads no local server, so it cannot use grafta ye
 ## Why
 
 A model is good at reading intent into a design and deciding what to build. It
-is bad at binary formats, and it guesses numbers. grafta is the opposite. It gives your model 44 tools
+is bad at binary formats, and it guesses numbers. grafta is the opposite. It gives your model 45 tools
 to open a `.fig`, read every node, colour, variable and component in it, change
 it, draw it to check, and save a new file that Figma opens.
 

@@ -35,7 +35,7 @@ test("home tells the complete story without JavaScript", async ({ page }) => {
 
 test("tools", async ({ page }) => {
   await page.goto("tools/");
-  await expect(page.locator("details.tool")).toHaveCount(44);
+  await expect(page.locator("details.tool")).toHaveCount(45);
   // a tool opens without scripts
   await page.locator("#render_node summary").click();
   await expect(page.locator("#render_node")).toHaveAttribute("open", "");
