@@ -56,16 +56,16 @@ grafta never writes over your file: it saves a new one, and reads it back before
 
 ## Install
 
-| Where | Run |
-|---|---|
-| **Claude Desktop** | download [`grafta.mcpb`](https://github.com/n0ss4/grafta/releases/latest/download/grafta.mcpb) and open it |
-| **Claude Code** | `/plugin install grafta --marketplace n0ss4/grafta` |
-| **ChatGPT desktop, Codex** | `codex plugin marketplace add n0ss4/grafta@main && codex plugin add grafta@grafta` |
-| **macOS, Linux** | `curl -fsSL https://raw.githubusercontent.com/n0ss4/grafta/main/install.sh \| sh` |
-| **Homebrew** | `brew install n0ss4/tap/grafta` |
-| **Windows** | `irm https://raw.githubusercontent.com/n0ss4/grafta/main/install.ps1 \| iex` |
-| **npm** | `npx -y grafta mcp` |
-| **Rust** | `cargo install grafta` |
+| Where | Run | Needs |
+|---|---|---|
+| **Claude Desktop** | download [`grafta.mcpb`](https://github.com/n0ss4/grafta/releases/latest/download/grafta.mcpb) and open it | nothing else |
+| **Claude Code** | `/plugin install grafta --marketplace n0ss4/grafta` | Node.js 18+ |
+| **ChatGPT desktop, Codex** | `codex plugin marketplace add n0ss4/grafta@main && codex plugin add grafta@grafta` | Node.js 18+ |
+| **macOS, Linux** | `curl -fsSL https://raw.githubusercontent.com/n0ss4/grafta/main/install.sh \| sh` | nothing else |
+| **Homebrew** | `brew install n0ss4/tap/grafta` | Homebrew |
+| **Windows** | `irm https://raw.githubusercontent.com/n0ss4/grafta/main/install.ps1 \| iex` | nothing else |
+| **npm** | `npx -y grafta mcp` | Node.js 18+ |
+| **Rust** | `cargo install grafta` | Rust |
 
 Claude Desktop installs the bundle from *Settings → Extensions* when you open
 it; no terminal and no Node.js. The binaries are not signed: if macOS says it cannot check grafta
