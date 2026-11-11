@@ -100,7 +100,7 @@ same setup. ChatGPT on the web reads no local server, so it cannot use grafta ye
 ## Why
 
 A model is good at reading intent into a design and deciding what to build. It
-is bad at binary formats, and it guesses numbers. grafta is the opposite. It gives your model 43 tools
+is bad at binary formats, and it guesses numbers. grafta is the opposite. It gives your model 44 tools
 to open a `.fig`, read every node, colour, variable and component in it, change
 it, draw it to check, and save a new file that Figma opens.
 
@@ -158,10 +158,13 @@ Prompts that work as written. The model chooses the tools.
 | **A json-render spec** | *Using grafta, open shadcn.fig and write the dialog as a json-render spec for @json-render/shadcn's catalog.* ([guide](docs/guides/json-render.md)) | `search_nodes`, `read_node`, `render_node` |
 | **Dark mode** | *Open app.fig with grafta. Turn the colours on the Settings screen into Light and Dark variables, bind every fill to them, render both modes, and save as app-dark.fig.* | `create_variable` `set_properties` `render_node` |
 | **Design-system audit** | *Open library.fig with grafta. List its components, variables and styles, and tell me which colours are used on screens without being a variable or a style.* | `list_components` `list_variables` `search_nodes` |
+| **Design tokens** | *Open library.fig with grafta and export its variables as design tokens into tokens/.* ([W3C Design Tokens](https://www.designtokens.org/), a file per mode, as Figma imports them) | `export_tokens` |
 | **Accessibility** | *Open checkout.fig with grafta and check every screen's text contrast against WCAG AA. Fix what fails with the file's own colours, and show me before and after.* | `check_contrast` `set_properties` `render_node` |
 | **Screens from data** | *Open shop.fig with grafta. Place the Product card component once per row of products.csv in a wrapping grid, with each row's name, price and photo.* | `fill_template` |
 | **HTML to layers** | *Import page.json, a snapshot of our landing page, into a new page of site.fig with grafta.* | `import_layout` |
 | **A deck** | *Open pitch.deck with grafta. Add three slides after the title with our Q3 numbers, a fade between them, and speaker notes; then export every slide as one PDF.* | `duplicate_node` `set_properties` `export_pdf` |
+
+In CI, without a model: `grafta tool --batch` with `open_file` then `export_tokens` writes the same files from a `.fig` in the repository.
 
 ## What it can do
 
@@ -174,7 +177,7 @@ Prompts that work as written. The model chooses the tools.
 | **Import** | `import_layout` | a web page's layout as frames, text, images and auto-layout, from a snapshot a browser takes ([below](#from-a-web-page)) |
 | **Change** | `set_properties` `override_instance` `move_node` `duplicate_node` `group_nodes` `ungroup` `delete_node` | fills, strokes, effects, auto-layout, sizing, constraints, images, order |
 | **Design system** | `create_component` `create_variant_set` `set_variant` `add_component_property` `fill_template` | components, variants and their properties; a component placed once per row of JSON or CSV |
-| **Tokens** | `list_variables` `create_variable_collection` `create_variable` `set_variable` `set_variable_collection` | collections with modes (Light, Dark), aliases, bindings |
+| **Tokens** | `list_variables` `export_tokens` `create_variable_collection` `create_variable` `set_variable` `set_variable_collection` | collections with modes (Light, Dark), aliases, bindings; exported as W3C Design Tokens, a file per mode, as Figma imports them |
 | **Styles** | `list_styles` `create_style` `set_style` | colour, text and effect styles |
 | **Save** | `new_file` `save_as` | a new file from nothing, or the open one with its edits |
 

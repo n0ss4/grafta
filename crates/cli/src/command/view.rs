@@ -38,7 +38,7 @@ pub const GROUPS: &[(&str, &[&str])] = &[
     ("Design system", &["create_component", "create_variant_set", "set_variant", "add_component_property", "fill_template"]),
     (
         "Tokens",
-        &["list_variables", "create_variable_collection", "create_variable", "set_variable", "set_variable_collection"],
+        &["list_variables", "export_tokens", "create_variable_collection", "create_variable", "set_variable", "set_variable_collection"],
     ),
     ("Styles", &["list_styles", "create_style", "set_style"]),
     ("Save", &["new_file", "save_as"]),

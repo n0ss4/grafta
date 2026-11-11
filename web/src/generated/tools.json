@@ -1,5 +1,5 @@
 {
- "count": 43,
+ "count": 44,
  "families": [
   {
    "title": "Find your way",
@@ -1292,7 +1292,7 @@
   },
   {
    "title": "Tokens",
-   "blurb": "Variable collections with modes, aliases and bindings.",
+   "blurb": "Variable collections with modes, aliases and bindings; exported as W3C Design Tokens.",
    "tools": [
     {
      "name": "list_variables",
@@ -1327,6 +1327,30 @@
        "type": "integer, 1–1000",
        "required": false,
        "description": "Results per page."
+      }
+     ]
+    },
+    {
+     "name": "export_tokens",
+     "description": "Write the file's variables as W3C Design Tokens (DTCG 2025.10) JSON, one NEW file per collection and mode, the way Figma imports them: <dir>/<collection>.<mode>.tokens.json. Names split on / into groups; colours exact from the file (sRGB components and alpha, hex beside); numbers without an invented unit; an alias within its collection as a {group.token} reference, to another collection as its value with Figma's com.figma.aliasData. Lists what was not written (unresolved), every name changed to fit the format (renamed), and notes. The folder must exist; no file is written over.",
+     "arguments": [
+      {
+       "name": "dir",
+       "type": "string",
+       "required": true,
+       "description": "An existing folder for the token files."
+      },
+      {
+       "name": "handle",
+       "type": "string",
+       "required": true,
+       "description": "The handle open_file returned."
+      },
+      {
+       "name": "collection",
+       "type": "string",
+       "required": false,
+       "description": "Only this collection (name or id); all when left out."
       }
      ]
     },

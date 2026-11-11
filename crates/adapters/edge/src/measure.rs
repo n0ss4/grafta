@@ -25,6 +25,9 @@ impl JsonText for Text {
     fn write(&self, data: &Data) -> String {
         serde_json::to_string(data).expect("data is JSON")
     }
+    fn write_pretty(&self, data: &Data) -> String {
+        serde_json::to_string_pretty(data).expect("data is JSON")
+    }
 }
 
 /// Bytes written, counted and dropped.
