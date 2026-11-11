@@ -86,6 +86,43 @@
     "name": "summarize"
   },
   {
+    "description": "The screens of a page, as a person sees them in Figma, in their order: a page's top-level frames, components, sections and other layers; a deck's slides, across its rows; a site page's breakpoints. Each with id, name, type, size and whether it is visible, ready for render_node. Paged.",
+    "inputSchema": {
+      "properties": {
+        "budget": {
+          "description": "Maximum result size in bytes. Default 32768.",
+          "maximum": 98304,
+          "minimum": 1024,
+          "type": "integer"
+        },
+        "cursor": {
+          "description": "next_cursor from the previous page.",
+          "type": "string"
+        },
+        "handle": {
+          "description": "The handle open_file returned.",
+          "type": "string"
+        },
+        "limit": {
+          "description": "Results per page.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "page": {
+          "description": "A page's id, from summarize.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "handle",
+        "page"
+      ],
+      "type": "object"
+    },
+    "name": "list_screens"
+  },
+  {
     "description": "Find nodes by name (case-insensitive substring), by type (FRAME, TEXT, INSTANCE, COMPONENT, COMPONENT_SET, PAGE, SECTION, GROUP, RECTANGLE, VECTOR, …), or both, optionally only inside one node. Returns id, name, type and the path from the page, in document order, paged. Hidden nodes are included.",
     "inputSchema": {
       "properties": {

@@ -58,10 +58,10 @@ pub(crate) fn call(kit: &mut Toolkit, name: &str, args: Value) -> Result<Value, 
 #[test]
 fn every_tool_has_a_unique_name_a_description_and_an_object_schema() {
     let mut names: Vec<&str> = ALL.iter().map(|t| t.name()).collect();
-    assert_eq!(names.len(), 44);
+    assert_eq!(names.len(), 45);
     names.sort_unstable();
     names.dedup();
-    assert_eq!(names.len(), 44, "tool names must be unique");
+    assert_eq!(names.len(), 45, "tool names must be unique");
     for tool in ALL {
         assert!(tool.description().len() > 40, "{} needs a real description", tool.name());
         assert_eq!(tool.input_schema()["type"], "object", "{}", tool.name());
@@ -141,6 +141,80 @@ fn opening_something_that_is_not_a_fig_says_which() {
     let text = put(&kit, "/memory/not-a-fig.fig", "hello");
     let error = call(&mut kit, "open_file", json!({ "path": text })).unwrap_err();
     assert!(error.to_string().contains("not a .fig"), "{error}");
+}
+
+// ── screens ─────────────────────────────────────────────────────────────
+
+/// The hand-built document with a second page holding, in this order, a frame,
+/// a deck's grid of two rows (two slides, then one), a site page of two
+/// breakpoints, and a hidden frame.
+fn screens_document() -> (Toolkit, String) {
+    use testkit::raw::{node, size};
+    let mut file = document();
+    let Raw::Object(message) = &mut file.node_changes else { unreachable!() };
+    let Some((_, Raw::Array(changes))) = message.iter_mut().find(|(k, _)| *k == "nodeChanges") else { unreachable!() };
+    let sized = |w, h| vec![("size", size(w, h))];
+    changes.extend([
+        node(60, Some((0, "~")), "CANVAS", "Mixed", vec![]),
+        node(61, Some((60, "!")), "FRAME", "Cover", sized(800.0, 600.0)),
+        node(62, Some((60, "\"")), "SLIDE_GRID", "Presentation", vec![]),
+        node(63, Some((62, "!")), "SLIDE_ROW", "Row one", vec![]),
+        node(64, Some((63, "!")), "SLIDE", "Title", sized(1920.0, 1080.0)),
+        node(65, Some((63, "\"")), "SLIDE", "Agenda", sized(1920.0, 1080.0)),
+        node(66, Some((62, "\"")), "SLIDE_ROW", "Row two", vec![]),
+        node(67, Some((66, "!")), "SLIDE", "Thanks", sized(1920.0, 1080.0)),
+        node(68, Some((60, "#")), "RESPONSIVE_SET", "/about", vec![]),
+        node(69, Some((68, "!")), "FRAME", "Desktop", sized(1440.0, 900.0)),
+        node(70, Some((68, "\"")), "FRAME", "Mobile", sized(390.0, 844.0)),
+        node(71, Some((60, "$")), "FRAME", "Draft", vec![("size", size(10.0, 10.0)), ("visible", Raw::Bool(false))]),
+    ]);
+    let mut kit = memory_toolkit();
+    let handle = kit.insert(PathBuf::from("/tmp/screens.fig"), file).unwrap().handle.to_string();
+    (kit, handle)
+}
+
+fn screen_names(found: &Value) -> Vec<&str> {
+    found["results"].as_array().unwrap().iter().map(|s| s["name"].as_str().unwrap()).collect()
+}
+
+#[test]
+fn a_pages_screens_are_its_top_level_layers_in_order() {
+    let (mut kit, handle) = kit();
+    let found = call(&mut kit, "list_screens", json!({ "handle": handle, "page": "1:1" })).unwrap();
+    assert_eq!(found["page"], json!({ "id": "1:1", "name": "Screens" }), "{found}");
+    assert_eq!(screen_names(&found)[..2], ["Card", "Button"], "{found}");
+    let card = &found["results"][0];
+    assert_eq!((card["type"].clone(), card["width"].clone(), card["height"].clone(), card["visible"].clone()), (json!("FRAME"), json!(320), json!(200), json!(true)), "{found}");
+}
+
+#[test]
+fn a_deck_shows_its_slides_and_a_site_page_its_breakpoints_in_place() {
+    let (mut kit, handle) = screens_document();
+    let found = call(&mut kit, "list_screens", json!({ "handle": handle, "page": "1:60" })).unwrap();
+    assert_eq!(screen_names(&found), ["Cover", "Title", "Agenda", "Thanks", "Desktop", "Mobile", "Draft"], "{found}");
+    let types: Vec<&str> = found["results"].as_array().unwrap().iter().map(|s| s["type"].as_str().unwrap()).collect();
+    assert_eq!(types, ["FRAME", "SLIDE", "SLIDE", "SLIDE", "FRAME", "FRAME", "FRAME"], "{found}");
+    assert_eq!(found["results"][6]["visible"], json!(false), "a hidden screen is listed, and says so: {found}");
+    assert_eq!(found["total"], json!(7), "{found}");
+}
+
+#[test]
+fn screens_are_paged_and_say_what_they_left_out() {
+    let (mut kit, handle) = screens_document();
+    let first = call(&mut kit, "list_screens", json!({ "handle": handle, "page": "1:60", "limit": 3 })).unwrap();
+    assert_eq!(screen_names(&first), ["Cover", "Title", "Agenda"], "{first}");
+    assert_eq!(first["omitted"]["remaining"], json!(4), "{first}");
+    let next = call(&mut kit, "list_screens", json!({ "handle": handle, "page": "1:60", "limit": 3, "cursor": first["next_cursor"] })).unwrap();
+    assert_eq!(screen_names(&next), ["Thanks", "Desktop", "Mobile"], "{next}");
+}
+
+#[test]
+fn screens_of_what_is_not_a_page_are_refused_by_name() {
+    let (mut kit, handle) = kit();
+    let error = call(&mut kit, "list_screens", json!({ "handle": handle, "page": "1:2" })).unwrap_err();
+    assert!(matches!(&error, ToolError::BadArgument(m) if m.contains("1:2 is a FRAME, not a page")), "{error}");
+    let error = call(&mut kit, "list_screens", json!({ "handle": handle, "page": "9:9" })).unwrap_err();
+    assert!(error.to_string().contains("9:9"), "{error}");
 }
 
 // ── US2: read exactly ────────────────────────────────────────────────────────
@@ -4574,6 +4648,30 @@ fn chain_follows_order(kit: &mut Toolkit, handle: &str) -> bool {
         next.push(links);
     }
     (0..order.len()).all(|i| next[i] == order.get(i + 1).cloned().into_iter().collect::<Vec<_>>())
+}
+
+#[test]
+fn each_products_fixture_lists_its_screens() {
+    let open = |name: &str| {
+        let path = testkit::fixture::dir().join(name);
+        path.is_file().then(|| {
+            let mut kit = crate::new();
+            let handle = call(&mut kit, "open_file", json!({ "path": path })).unwrap()["handle"].as_str().unwrap().to_string();
+            let found = call(&mut kit, "list_screens", json!({ "handle": handle, "page": "0:1", "limit": 200 })).unwrap();
+            found["results"].as_array().unwrap().iter().map(|s| (s["type"].as_str().unwrap().to_string(), s["name"].as_str().unwrap().to_string())).collect::<Vec<_>>()
+        })
+    };
+    if let Some(deck) = open("Figma Deck Test.deck") {
+        assert_eq!(deck.len(), 18);
+        assert!(deck.iter().all(|(t, _)| t == "SLIDE"), "{deck:?}");
+    }
+    if let Some(site) = open("Read.cv.site") {
+        assert_eq!(site[..2], [("FRAME".into(), "Desktop".into()), ("FRAME".into(), "Mobile".into())], "{site:?}");
+    }
+    if let Some(board) = open("Roadmap review template (Copy).jam") {
+        assert_eq!(board.len(), 52);
+        assert_eq!(board.iter().filter(|(t, _)| t == "SECTION").count(), 23, "{board:?}");
+    }
 }
 
 #[test]
