@@ -5,7 +5,7 @@ import { expect, test } from "@playwright/test";
 test("every tool is one closed line, by family, with what it does and its arguments", async ({ page }) => {
   await page.goto("tools/");
   const tools = page.locator("details.tool");
-  await expect(tools).toHaveCount(43);
+  await expect(tools).toHaveCount(44);
   await expect(page.locator("details.tool[open]")).toHaveCount(0);
   const openFile = page.locator("#open_file summary");
   await expect(openFile).toContainText("Open a Figma .fig file and keep it open for later calls.");
@@ -23,7 +23,7 @@ for (const [width, height, most] of [
     await page.goto("tools/");
     expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(most);
     await page.getByRole("button", { name: "Open all" }).click();
-    await expect(page.locator("details.tool[open]")).toHaveCount(43);
+    await expect(page.locator("details.tool[open]")).toHaveCount(44);
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth),
     ).toBeLessThanOrEqual(0);
@@ -49,12 +49,12 @@ test("search finds a tool by what it does, opens it, and counts (SC-002)", async
   }
   await search.fill("picture");
   await expect(page.locator("#render_node")).toHaveAttribute("open", "");
-  await expect(page.getByText(/of 43 tools/)).toBeVisible();
+  await expect(page.getByText(/of 44 tools/)).toBeVisible();
   await search.fill("fill");
   await expect(page.locator("#fill_template")).toBeVisible();
   await expect(page.locator("#summarize")).toHaveCount(0);
   await search.fill("zzzz");
-  await expect(page.getByText("Clear the search to see all 43.")).toBeVisible();
+  await expect(page.getByText("Clear the search to see all 44.")).toBeVisible();
 });
 
 test("a link to one tool opens it, its name below the nav and the search (SC-003)", async ({ page }) => {
@@ -80,7 +80,10 @@ test("on a desktop the side list marks the family in view", async ({ page }) => 
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("tools/#tokens");
   const side = page.getByRole("navigation", { name: "Families of tools" }).first();
-  await expect(side.getByRole("link", { name: "Tokens" })).toHaveAttribute("aria-current", "location");
+  await expect(side.getByRole("link", { name: "Tokens", exact: true })).toHaveAttribute(
+    "aria-current",
+    "location",
+  );
 });
 
 test("on a phone the families are links at the top", async ({ page }) => {

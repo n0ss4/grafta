@@ -89,6 +89,10 @@ pub trait JsonText: Send + Sync {
     /// The text as `Data`, or why it is not JSON.
     fn parse(&self, text: &str) -> Result<Data, String>;
     fn write(&self, data: &Data) -> String;
+    /// The same, indented, for a file a person opens.
+    fn write_pretty(&self, data: &Data) -> String {
+        self.write(data)
+    }
 }
 
 /// How big a value is as the model reads it: the bytes a result is cut to fit

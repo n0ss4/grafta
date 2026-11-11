@@ -71,6 +71,7 @@ pub static ALL: &[&dyn Tool] = &[
     &catalog::ListComponents,
     &catalog::ComponentInstances,
     &catalog::ListVariables,
+    &catalog::ExportTokens,
     &variable::CreateVariableCollection,
     &variable::CreateVariable,
     &variable::SetVariable,

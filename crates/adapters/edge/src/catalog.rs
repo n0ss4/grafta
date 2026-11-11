@@ -7,7 +7,7 @@ use super::args::{optional_integer, optional_number, optional_string, paging, st
 use super::schema::{handle_property, merge, paging_properties, schema};
 use super::{Request, Tool};
 use crate::error::CatalogError;
-use crate::tools::catalog;
+use crate::tools::{catalog, tokens};
 use crate::{DomainError, ToolError};
 
 pub struct ListComponents;
@@ -102,6 +102,40 @@ impl Tool for ListVariables {
             handle: string(args, "handle")?.into(),
             collection: optional_string(args, "collection")?.map(str::to_owned),
             paging: paging(args)?,
+        })))
+    }
+}
+
+pub struct ExportTokens;
+
+impl Tool for ExportTokens {
+    fn name(&self) -> &'static str {
+        "export_tokens"
+    }
+    fn description(&self) -> &'static str {
+        "Write the file's variables as W3C Design Tokens (DTCG 2025.10) JSON, one NEW file per \
+         collection and mode, the way Figma imports them: <dir>/<collection>.<mode>.tokens.json. \
+         Names split on / into groups; colours exact from the file (sRGB components and alpha, \
+         hex beside); numbers without an invented unit; an alias within its collection as a \
+         {group.token} reference, to another collection as its value with Figma's \
+         com.figma.aliasData. Lists what was not written (unresolved), every name changed to fit \
+         the format (renamed), and notes. The folder must exist; no file is written over."
+    }
+    fn input_schema(&self) -> Value {
+        schema(
+            json!({
+                "handle": handle_property(),
+                "dir": { "type": "string", "description": "An existing folder for the token files." },
+                "collection": { "type": "string", "description": "Only this collection (name or id); all when left out." },
+            }),
+            &["handle", "dir"],
+        )
+    }
+    fn parse(&self, args: &Value) -> Result<Request, ToolError> {
+        Ok(Request::Query(Box::new(tokens::ExportTokens {
+            handle: string(args, "handle")?.into(),
+            dir: std::path::PathBuf::from(string(args, "dir")?),
+            collection: optional_string(args, "collection")?.map(str::to_owned),
         })))
     }
 }
