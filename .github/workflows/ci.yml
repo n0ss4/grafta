@@ -34,6 +34,7 @@ jobs:
       test: ${{ steps.diff.outputs.test }}
       packaging: ${{ steps.diff.outputs.packaging }}
       web: ${{ steps.diff.outputs.web }}
+      reader: ${{ steps.diff.outputs.reader }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -45,7 +46,7 @@ jobs:
         run: |
           everything() {
             echo "$1, so every job runs"
-            printf 'test=true\npackaging=true\nweb=true\n' | tee -a "$GITHUB_OUTPUT"
+            printf 'test=true\npackaging=true\nweb=true\nreader=true\n' | tee -a "$GITHUB_OUTPUT"
             exit 0
           }
           [ "$GITHUB_EVENT_NAME" != workflow_dispatch ] || everything "a manual run"
@@ -75,7 +76,10 @@ jobs:
           web="$(touches web CHANGELOG.md docs/assets docs/brand install.sh install.ps1 \
             'scripts/snapshot.*' .github/workflows/pages.yml)"
 
-          printf 'test=%s\npackaging=%s\nweb=%s\n' "$test" "$packaging" "$web" | tee -a "$GITHUB_OUTPUT"
+          # The browser reader: the crates it compiles, and the script that builds it.
+          reader="$(touches crates Cargo.toml Cargo.lock scripts/web-reader.sh scripts/install-binaryen.sh)"
+
+          printf 'test=%s\npackaging=%s\nweb=%s\nreader=%s\n' "$test" "$packaging" "$web" "$reader" | tee -a "$GITHUB_OUTPUT"
 
   test:
     needs: changes
@@ -157,11 +161,40 @@ jobs:
       - run: npm run e2e
       - run: npm run lighthouse
 
+  # The browser reader: clippy for wasm, and the module built and held to its
+  # size (scripts/web-reader.sh fails above its budget).
+  reader:
+    needs: changes
+    if: needs.changes.outputs.reader == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: stable
+          targets: wasm32-unknown-unknown
+          components: clippy
+      # Saved on develop alone, whose caches every pull request can read; it
+      # keeps the wasm-bindgen CLI in ~/.cargo/bin between runs.
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          save-if: ${{ github.ref == 'refs/heads/develop' }}
+      - run: |
+          scripts/install-binaryen.sh "$RUNNER_TEMP/binaryen"
+          echo "$RUNNER_TEMP/binaryen/bin" >> "$GITHUB_PATH"
+      - run: |
+          pinned=$(sed -n 's/^wasm-bindgen = "=\(.*\)"/\1/p' Cargo.toml)
+          wasm-bindgen --version 2>/dev/null | grep -q " $pinned$" || cargo install wasm-bindgen-cli --version "$pinned" --locked
+      - run: cargo clippy -p grafta-web --target wasm32-unknown-unknown --locked -- -D warnings
+      - run: scripts/web-reader.sh
+
   # The one check a branch requires. A job skipped reports under its own name
   # only sometimes, as a matrix does not, so requiring those would wait forever.
   ci:
     if: always()
-    needs: [changes, test, packaging, web]
+    needs: [changes, test, packaging, web, reader]
     runs-on: ubuntu-24.04
     steps:
       - env:

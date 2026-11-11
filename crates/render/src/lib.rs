@@ -19,7 +19,23 @@
 //! What is drawn approximately, or not at all, is listed in [`Rendered::notes`].
 
 pub mod contrast;
+#[cfg(not(target_arch = "wasm32"))]
 pub mod pdf;
+/// A browser makes no PDF: krilla is most of a PDF's code, and the reader in
+/// a page draws pictures alone.
+#[cfg(target_arch = "wasm32")]
+pub mod pdf {
+    use schema::Guid;
+
+    use crate::{FigFile, RenderError, SceneGraph};
+
+    pub use domain::port::Pdf;
+
+    /// Refused, in words.
+    pub fn pdf(_fig: &FigFile, _graph: &SceneGraph, _ids: &[Guid]) -> Result<Pdf, RenderError> {
+        Err(RenderError("a PDF is not made in a browser: install grafta to export one".to_owned()))
+    }
+}
 pub mod text;
 
 use std::collections::HashMap;
@@ -44,9 +60,18 @@ const TOO_MANY: &str = "a drawing stops at its limit of layers: those after it a
 /// A drawing recurses per layer, and so does the rasteriser on what it draws, so
 /// the stack they need is theirs: callers' run from 1 MiB (Windows' main thread)
 /// to 8 MiB. Measured in a release build: 7 KiB per layer, ten times that in debug.
-const STACK: usize = 64 << 20;
+pub const STACK: usize = 64 << 20;
+
+/// `work` on a stack of [`STACK`], whoever is asking. A browser's WebAssembly
+/// starts no thread, so there it runs on the caller's stack, which the reader
+/// links at [`STACK`] too.
+#[cfg(target_arch = "wasm32")]
+fn on_own_stack<T: Send>(work: impl FnOnce() -> Result<T, RenderError> + Send) -> Result<T, RenderError> {
+    work()
+}
 
 /// `work` on a stack of [`STACK`], whoever is asking.
+#[cfg(not(target_arch = "wasm32"))]
 fn on_own_stack<T: Send>(work: impl FnOnce() -> Result<T, RenderError> + Send) -> Result<T, RenderError> {
     std::thread::scope(|scope| {
         let thread = std::thread::Builder::new()
@@ -97,7 +122,9 @@ fn render_here(fig: &FigFile, graph: &SceneGraph, id: Guid, scale: f32, max_size
 struct Drawing {
     svg: String,
     notes: Vec<String>,
-    /// Whether a gradient sits inside a group, for a PDF to say so.
+    /// Whether a gradient sits inside a group, for a PDF to say so. A browser
+    /// makes no PDF, so it is not read there.
+    #[cfg_attr(target_arch = "wasm32", allow(dead_code))]
     gradient_in_group: bool,
 }
 

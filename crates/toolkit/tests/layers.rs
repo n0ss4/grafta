@@ -6,7 +6,7 @@
 use std::path::{Path, PathBuf};
 
 /// Each crate's layer, by the name the workspace depends on it by.
-const LAYERS: [(&str, Layer); 18] = [
+const LAYERS: [(&str, Layer); 19] = [
     ("kiwi", Layer::ReadSide),
     ("schema", Layer::ReadSide),
     ("figfile", Layer::ReadSide),
@@ -24,6 +24,7 @@ const LAYERS: [(&str, Layer); 18] = [
     ("toolkit", Layer::Assembly),
     ("mcp", Layer::Driver),
     ("grafta", Layer::Driver),
+    ("web", Layer::Driver),
     ("testkit", Layer::Test),
 ];
 /// Crates that reach the world or speak JSON: no crate inside the adapters may
