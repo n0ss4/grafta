@@ -8,7 +8,7 @@ use serde_json::{json, Map, Value};
 use super::schema::{handle_property, schema};
 use super::args::{optional_string, string};
 use super::data;
-use super::{Request, Tool};
+use super::{Request, Live, Tool};
 use crate::error::SharedStyleError;
 use crate::tools::shared_style;
 use crate::tools::style::invalid;
@@ -33,6 +33,9 @@ pub struct ListStyles;
 impl Tool for ListStyles {
     fn name(&self) -> &'static str {
         "list_styles"
+    }
+    fn live(&self) -> Live {
+        Live::Same
     }
     fn description(&self) -> &'static str {
         "The file's own colour, text and effect styles, with their values: paints in hex, a \
@@ -76,6 +79,9 @@ impl Tool for CreateStyle {
     fn name(&self) -> &'static str {
         "create_style"
     }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
+    }
     fn description(&self) -> &'static str {
         "Make a style: type FILL with fills (paints, as set_properties takes them), TEXT with \
          fontFamily, fontStyle, fontSize, lineHeight and letterSpacing, or EFFECT with effects. \
@@ -106,6 +112,9 @@ pub struct SetStyle;
 impl Tool for SetStyle {
     fn name(&self) -> &'static str {
         "set_style"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
     }
     fn description(&self) -> &'static str {
         "Change a colour, text or effect style, grafta's or one the file already has (a kit's \

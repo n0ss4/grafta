@@ -36,6 +36,15 @@ pub const SET_PROPERTIES: &str = "Figma makes the change and saves it, so the re
      nothing changed: runs, paragraphs, componentPropertyReferences, componentProperties, reactions and the \
      other prototype keys, an image by path (give its imageHash), and Slides' and FigJam's keys";
 
+/// What a tool that writes does on a file open in Figma, unlike on a file.
+pub const WRITTEN: &str = "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one \
+     call is one undo step there; what Figma refuses, a plan's limit included, is said in its words";
+
+/// What `create_instance` does there.
+pub const CREATE_INSTANCE: &str = "Figma makes the instance and saves it, so the result has no `unsaved_edits`; \
+     a library's component is placed from its node in the file, as Figma allows, and placing one the file does not \
+     yet use is not measured (research O1)";
+
 /// The mime types a picture from Figma may be.
 const PICTURES: [&str; 2] = ["image/png", "image/jpeg"];
 

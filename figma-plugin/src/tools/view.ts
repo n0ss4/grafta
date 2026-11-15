@@ -179,7 +179,8 @@ export async function properties(node: BaseNode, geometry: boolean, names: Names
   return v;
 }
 
-function effect(e: Effect): View {
+/** An effect as read_node shows it. */
+export function effect(e: Effect): View {
   const out: View = { type: e.type };
   if ("radius" in e) out.radius = num(e.radius);
   if ("color" in e) {

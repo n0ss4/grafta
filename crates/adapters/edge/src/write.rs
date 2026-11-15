@@ -76,6 +76,9 @@ impl Tool for CreateInstance {
     fn name(&self) -> &'static str {
         "create_instance"
     }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::CREATE_INSTANCE)
+    }
     fn description(&self) -> &'static str {
         "Create an instance of a component this file defines, on a page or inside a frame, at \
          x,y relative to the parent. It takes the component's own size. For a component set, \

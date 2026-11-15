@@ -138,8 +138,12 @@ fn what_figma_answers_instead_of_a_result_is_said_in_its_words() {
 
 #[test]
 fn what_acts_there_is_what_was_built_and_what_never_will_says_why() {
-    let built = ["list_open", "read_node", "list_screens"];
-    let differs = ["search_nodes", "set_properties", "render_node"];
+    let built = ["list_open", "read_node", "list_screens", "component_instances", "list_variables", "list_styles"];
+    let differs = [
+        "search_nodes", "set_properties", "render_node", "list_components", "create_component", "create_variant_set", "set_variant",
+        "add_component_property", "create_instance", "override_instance", "create_variable_collection", "create_variable",
+        "set_variable", "set_variable_collection", "create_style", "set_style",
+    ];
     let never = ["open_file", "close_file", "new_file", "save_as", "read_raw", "check_contrast"];
     for tool in crate::tools::ALL {
         match (tool.name(), tool.live()) {

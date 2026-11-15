@@ -288,9 +288,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "list_components",
-      "why": "not built for the open file yet"
+      "why": "the open file is listed a page at a time, within a time budget: `total` counts the pages listed so far, and `next_cursor` goes on to the rest"
     },
     {
       "input_schema": {
@@ -326,9 +326,8 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
-      "name": "component_instances",
-      "why": "not built for the open file yet"
+      "live": "same",
+      "name": "component_instances"
     },
     {
       "input_schema": {
@@ -363,9 +362,8 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
-      "name": "list_variables",
-      "why": "not built for the open file yet"
+      "live": "same",
+      "name": "list_variables"
     },
     {
       "input_schema": {
@@ -420,9 +418,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "create_variable_collection",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
@@ -461,9 +459,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "create_variable",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
@@ -490,9 +488,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "set_variable",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
@@ -518,9 +516,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "set_variable_collection",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
@@ -542,9 +540,8 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
-      "name": "list_styles",
-      "why": "not built for the open file yet"
+      "live": "same",
+      "name": "list_styles"
     },
     {
       "input_schema": {
@@ -603,9 +600,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "create_style",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
@@ -659,9 +656,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "set_style",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
@@ -888,9 +885,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "create_instance",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the instance and saves it, so the result has no `unsaved_edits`; a library's component is placed from its node in the file, as Figma allows, and placing one the file does not yet use is not measured (research O1)"
     },
     {
       "input_schema": {
@@ -914,9 +911,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "create_component",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
@@ -958,9 +955,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "create_variant_set",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
@@ -985,9 +982,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "set_variant",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
@@ -1024,9 +1021,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "add_component_property",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
@@ -1420,9 +1417,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "override_instance",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
