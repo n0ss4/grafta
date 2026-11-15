@@ -18,7 +18,7 @@ impl Tool for ListComponents {
     }
     fn live(&self) -> Live {
         Live::Differs(
-            "the open file is listed a page at a time, within a time budget: `total` counts the pages listed so far, and `next_cursor` goes on to the rest",
+            "the open file is listed a page at a time, within a time budget: `total` counts the components on the pages listed so far, `pages_searched` of `pages` says how far it went, and `next_cursor` goes on to the rest",
         )
     }
     fn description(&self) -> &'static str {
@@ -156,6 +156,9 @@ pub struct GetImage;
 impl Tool for GetImage {
     fn name(&self) -> &'static str {
         "get_image"
+    }
+    fn live(&self) -> Live {
+        Live::Same
     }
     fn description(&self) -> &'static str {
         "An image the file embeds, by the imageHash a fill carries (read_node shows it). \

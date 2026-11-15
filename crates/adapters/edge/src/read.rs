@@ -15,6 +15,9 @@ impl Tool for Summarize {
     fn name(&self) -> &'static str {
         "summarize"
     }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::SUMMARIZE)
+    }
     fn description(&self) -> &'static str {
         "Overview of an open file: every page with its id, node count and number of top-level \
          frames, plus totals for nodes, components, component sets, instances, text nodes, \
@@ -72,7 +75,7 @@ impl Tool for SearchNodes {
     }
     fn live(&self) -> Live {
         Live::Differs(
-            "the open file is searched a page at a time, within a time budget: `total` counts the matches on the pages searched so far, and `next_cursor` goes on to the rest",
+            "the open file is searched a page at a time, within a time budget: `total` counts the matches on the pages searched so far, `pages_searched` of `pages` says how far it went, and `next_cursor` goes on to the rest",
         )
     }
     fn description(&self) -> &'static str {

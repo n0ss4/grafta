@@ -16,6 +16,9 @@ impl Tool for CreatePage {
     fn name(&self) -> &'static str {
         "create_page"
     }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
+    }
     fn description(&self) -> &'static str {
         "Create a page at the end of the file's page list. Returns its id. Nothing is written \
          to disk until save_as."
@@ -37,6 +40,9 @@ pub struct CreateFrame;
 impl Tool for CreateFrame {
     fn name(&self) -> &'static str {
         "create_frame"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
     }
     fn description(&self) -> &'static str {
         "Create an empty frame (no fill, no auto-layout) on a page or inside a frame, at x,y \
@@ -144,6 +150,9 @@ impl Tool for DeleteNode {
     fn name(&self) -> &'static str {
         "delete_node"
     }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::DELETE_NODE)
+    }
     fn description(&self) -> &'static str {
         "Delete a node (a page, frame, text or instance) and everything inside it. Returns \
          the ids removed. Refused when another node points at it or at something inside it \
@@ -178,6 +187,9 @@ pub struct MoveNode;
 impl Tool for MoveNode {
     fn name(&self) -> &'static str {
         "move_node"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
     }
     fn description(&self) -> &'static str {
         "Move a frame, component or component set, instance, text layer, shape or vector: into \

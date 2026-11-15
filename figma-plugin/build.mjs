@@ -8,7 +8,17 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 const main = "es2017";
 const panel = "es2020";
 await mkdir("dist", { recursive: true });
-await build({ entryPoints: ["src/main.ts"], bundle: true, outfile: "dist/code.js", target: main, logLevel: "warning" });
+// GRAFTA_SELFTEST=1 (npm run build:dev) builds the self-test in; a release
+// build leaves it out.
+const selftest = process.env.GRAFTA_SELFTEST === "1";
+await build({
+  entryPoints: ["src/main.ts"],
+  bundle: true,
+  outfile: "dist/code.js",
+  target: main,
+  define: { SELFTEST: String(selftest) },
+  logLevel: "warning",
+});
 const ui = await build({ entryPoints: ["src/ui.ts"], bundle: true, write: false, target: panel, format: "iife", logLevel: "warning" });
 const html = await readFile("src/ui.html", "utf8");
 const script = ui.outputFiles[0].text.replaceAll("</script", "<\\/script");

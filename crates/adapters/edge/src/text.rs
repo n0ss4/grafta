@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 use super::args::{optional_number, optional_string, string};
 use super::data;
 use super::schema::{handle_property, schema};
-use super::{Request, Tool};
+use super::{Live, Request, Tool};
 use crate::error::TextError;
 use crate::tools::{rich_text, text};
 use crate::{DomainError, ToolError};
@@ -16,6 +16,9 @@ pub struct CreateText;
 impl Tool for CreateText {
     fn name(&self) -> &'static str {
         "create_text"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::CREATE_TEXT)
     }
     fn description(&self) -> &'static str {
         "Create a text layer on a page or in a frame. characters is the text (a line break \

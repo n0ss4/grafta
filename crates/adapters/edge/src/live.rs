@@ -45,8 +45,28 @@ pub const CREATE_INSTANCE: &str = "Figma makes the instance and saves it, so the
      a library's component is placed from its node in the file, as Figma allows, and placing one the file does not \
      yet use is not measured (research O1)";
 
-/// The mime types a picture from Figma may be.
-const PICTURES: [&str; 2] = ["image/png", "image/jpeg"];
+/// What `create_text` does there.
+pub const CREATE_TEXT: &str = "Figma makes the text and lays it out, so `size` is Figma's own and not provisional, \
+     and the result has no `unsaved_edits`; with no fontFamily, the font and size most used by the current page's \
+     texts (Figma's default when it has none), and Figma's own line height when none is given";
+
+/// What `create_vector` does there.
+pub const CREATE_VECTOR: &str = "Figma reads the path data as SVG and joins the paths into one vector, whose box \
+     is its drawing's bounds, placed where the drawing falls in the asked box; the result has no `unsaved_edits`";
+
+/// What `delete_node` does there.
+pub const DELETE_NODE: &str = "Figma deletes and saves it, so the result has no `unsaved_edits`, and one call is \
+     one undo step there; it is refused while an instance outside it uses a component in it, and a prototype link or \
+     an override pointing into it is left to Figma";
+
+/// What `summarize` does there.
+pub const SUMMARIZE: &str = "counts a page at a time for 2 s: past that, the totals are for the pages listed and \
+     the rest are named under `omitted`; `images` and `prototype` are not counted there, and there is no \
+     `unsaved_edits`";
+
+/// The mime types a picture from Figma may be: as on a file, what an image
+/// fill holds.
+const PICTURES: [&str; 4] = ["image/png", "image/jpeg", "image/gif", "image/webp"];
 
 /// An answer that is a picture, `{ image: { mime, base64 }, caption }`, as one;
 /// any other as the data it is.
@@ -57,7 +77,7 @@ fn picture(answer: Data) -> Result<Output, LiveError> {
     let bytes = image.get("base64").and_then(Data::as_str).and_then(base64);
     match (mime, bytes) {
         (Some(mime), Some(bytes)) => Ok(Output::Image { mime, bytes, caption: answer.get("caption").cloned() }),
-        _ => Err(LiveError::Refused(format!("the panel sent a picture grafta cannot read: a {given:?} not in base64 PNG or JPEG"))),
+        _ => Err(LiveError::Refused(format!("the panel sent a picture grafta cannot read: a {given:?} not in base64 PNG, JPEG, GIF or WebP"))),
     }
 }
 

@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 use super::args::{optional_string, string};
 use super::data;
 use super::schema::{handle_property, schema};
-use super::{Request, Tool};
+use super::{Live, Request, Tool};
 use crate::app::data::Data;
 use crate::error::ShapeError;
 use crate::tools::shapes;
@@ -50,6 +50,9 @@ pub struct CreateShape;
 impl Tool for CreateShape {
     fn name(&self) -> &'static str {
         "create_shape"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
     }
     fn description(&self) -> &'static str {
         "Draw a shape as Figma's own layer type: RECTANGLE (cornerRadius), ELLIPSE (arcData { \

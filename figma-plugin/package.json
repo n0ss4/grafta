@@ -7,7 +7,8 @@
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.ui.json",
-    "build": "node build.mjs"
+    "build": "node build.mjs",
+    "build:dev": "GRAFTA_SELFTEST=1 node build.mjs"
   },
   "devDependencies": {
     "@figma/plugin-typings": "1.142.0",

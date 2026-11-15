@@ -18,6 +18,20 @@ export function pathOf(node: BaseNode): string {
   return names.reverse().join(" / ");
 }
 
+/**
+ * A variable's or collection's id as grafta gives it on a file: Figma's
+ * without its `VariableID:` or `VariableCollectionId:` prefix, so the same id
+ * names it in both places.
+ */
+export function bare(id: string): string {
+  return id.replace(/^(VariableID|VariableCollectionId):/, "");
+}
+
+/** Whether `given` names the variable or collection whose Figma id is `id`, in either spelling. */
+export function isId(id: string, given: string): boolean {
+  return id === given || bare(id) === given;
+}
+
 /** A node's own properties, read by name: what a type lacks reads as undefined. */
 export function read(node: BaseNode, key: string): unknown {
   return key in node ? (node as unknown as Record<string, unknown>)[key] : undefined;

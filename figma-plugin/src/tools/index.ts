@@ -10,10 +10,13 @@ import {
   overrideInstance,
   setVariant,
 } from "./components";
+import { createFrame, createPage, createSection, createShape, createText, createVector } from "./create";
+import { getImage, summarize } from "./file";
 import { listScreens, searchNodes } from "./find";
 import { Args, Names, nodeFor, pathOf } from "./nodes";
 import { listOpen, renderNode } from "./session";
 import { setProperties } from "./set";
+import { deleteNode, duplicateNode, groupNodes, moveNode, ungroup } from "./structure";
 import { createStyle, listStyles, setStyle } from "./styles";
 import { createVariable, createVariableCollection, listVariables, setVariable, setVariableCollection } from "./variables";
 import { view } from "./view";
@@ -60,4 +63,17 @@ export const REGISTRY: Record<string, ToolFunction | undefined> = {
   list_styles: listStyles,
   create_style: createStyle,
   set_style: setStyle,
+  summarize,
+  get_image: getImage,
+  create_page: createPage,
+  create_section: createSection,
+  create_frame: createFrame,
+  create_text: createText,
+  create_shape: createShape,
+  create_vector: createVector,
+  move_node: moveNode,
+  duplicate_node: duplicateNode,
+  group_nodes: groupNodes,
+  ungroup,
+  delete_node: deleteNode,
 };

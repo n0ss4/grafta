@@ -99,8 +99,8 @@ fn a_tool_that_cannot_act_there_is_refused_by_name_and_reason() {
                 .into()
         )
     );
-    let fill = call(&mut kit, "summarize", json!({ "handle": open().as_str() })).unwrap_err();
-    assert_eq!(fill, ToolError::Refused("summarize does not act on a file open in Figma: not built for the open file yet".into()));
+    let fill = call(&mut kit, "export_pdf", json!({ "handle": open().as_str(), "ids": ["1:2"], "path": "/tmp/out.pdf" })).unwrap_err();
+    assert_eq!(fill, ToolError::Refused("export_pdf does not act on a file open in Figma: not built for the open file yet".into()));
     assert!(live.calls().is_empty());
 }
 
@@ -138,11 +138,13 @@ fn what_figma_answers_instead_of_a_result_is_said_in_its_words() {
 
 #[test]
 fn what_acts_there_is_what_was_built_and_what_never_will_says_why() {
-    let built = ["list_open", "read_node", "list_screens", "component_instances", "list_variables", "list_styles"];
+    let built = ["list_open", "read_node", "list_screens", "component_instances", "list_variables", "list_styles", "get_image"];
     let differs = [
         "search_nodes", "set_properties", "render_node", "list_components", "create_component", "create_variant_set", "set_variant",
         "add_component_property", "create_instance", "override_instance", "create_variable_collection", "create_variable",
-        "set_variable", "set_variable_collection", "create_style", "set_style",
+        "set_variable", "set_variable_collection", "create_style", "set_style", "summarize", "create_page", "create_section",
+        "create_frame", "create_text", "create_shape", "create_vector", "move_node", "duplicate_node", "group_nodes", "ungroup",
+        "delete_node",
     ];
     let never = ["open_file", "close_file", "new_file", "save_as", "read_raw", "check_contrast"];
     for tool in crate::tools::ALL {

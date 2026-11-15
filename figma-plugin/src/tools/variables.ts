@@ -1,6 +1,6 @@
 // The file's variables and their collections, on the open file. A plan's
 // limit (a second mode) is Figma's refusal, passed on in its words (R5).
-import { Args, num } from "./nodes";
+import { Args, bare, isId, num } from "./nodes";
 import { hex, parseHex } from "./paint";
 import { asked, bytes, pageAsync } from "./paging";
 
@@ -9,14 +9,14 @@ async function collections(): Promise<VariableCollection[]> {
 }
 
 async function collectionNamed(wanted: string): Promise<VariableCollection> {
-  const found = (await collections()).find((c) => c.name === wanted || c.id === wanted);
+  const found = (await collections()).find((c) => c.name === wanted || isId(c.id, wanted));
   if (!found) throw new Error(`no variable collection named \`${wanted}\``);
   return found;
 }
 
 function collectionJson(collection: VariableCollection): Record<string, unknown> {
   return {
-    id: collection.id,
+    id: bare(collection.id),
     name: collection.name,
     modes: collection.modes.map((m) => ({ id: m.modeId, name: m.name })),
     variables: collection.variableIds.length,
@@ -38,16 +38,16 @@ async function variableJson(variable: Variable): Promise<Record<string, unknown>
       values[mode] = typeof value === "number" ? num(value) : value;
     }
   }
-  return { id: variable.id, name: variable.name, collection: collection?.name ?? variable.variableCollectionId, type: variable.resolvedType, values };
+  return { id: bare(variable.id), name: variable.name, collection: collection?.name ?? variable.variableCollectionId, type: variable.resolvedType, values };
 }
 
 export async function listVariables(args: Args): Promise<unknown> {
   const wanted = typeof args.collection === "string" ? args.collection : undefined;
-  const shown = (await collections()).filter((c) => wanted === undefined || c.name === wanted || c.id === wanted);
+  const shown = (await collections()).filter((c) => wanted === undefined || c.name === wanted || isId(c.id, wanted));
   if (wanted !== undefined && !shown.length) throw new Error(`no variable collection named \`${wanted}\``);
   const ids = new Set(shown.map((c) => c.id));
   const variables = (await figma.variables.getLocalVariablesAsync()).filter((v) => ids.has(v.variableCollectionId));
-  const collectionsJson = shown.map((c) => ({ id: c.id, name: c.name, modes: c.modes.map((m) => m.name), variables: c.variableIds.length }));
+  const collectionsJson = shown.map((c) => ({ id: bare(c.id), name: c.name, modes: c.modes.map((m) => m.name), variables: c.variableIds.length }));
   const out = await pageAsync(variables, asked(args, 200, "v"), "v", bytes(collectionsJson) + 32, variableJson);
   out.collections = collectionsJson;
   return out;
@@ -68,10 +68,10 @@ export async function createVariableCollection(args: Args): Promise<unknown> {
 
 /** The file's own variable by id, or by name when only one has it. */
 async function variableNamed(wanted: string): Promise<Variable> {
-  const byId = await figma.variables.getVariableByIdAsync(wanted);
+  const byId = await figma.variables.getVariableByIdAsync(wanted.includes(":") && !wanted.startsWith("VariableID:") ? `VariableID:${wanted}` : wanted);
   if (byId && !byId.remote) return byId;
   const found = (await figma.variables.getLocalVariablesAsync()).filter((v) => v.name === wanted);
-  if (found.length > 1) throw new Error(`${found.length} variables are named \`${wanted}\`; pass one id: ${found.map((v) => v.id).join(", ")}`);
+  if (found.length > 1) throw new Error(`${found.length} variables are named \`${wanted}\`; pass one id: ${found.map((v) => bare(v.id)).join(", ")}`);
   if (!found.length) throw new Error(`no local variable \`${wanted}\`: list_variables lists them`);
   return found[0];
 }
