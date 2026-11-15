@@ -5,7 +5,9 @@
     python3 scripts/tool-reference.py target/release/grafta --check   # exits 1 if it differs
 
 It asks `grafta mcp` for `tools/list`, as a client does, and writes
-docs/TOOLS.md and the website's web/src/generated/tools.json from the answer. Nothing in them is written
+docs/TOOLS.md and the website's web/src/generated/tools.json from the answer,
+with what each tool does on a file open in Figma from figma-plugin/src/contract.json,
+which grafta writes from `Tool::live` (`GRAFTA_RECORD=1 cargo test -p grafta-mcp`). Nothing in them is written
 by hand but the families the tools are grouped in, so CI can tell when a
 tool's description or arguments changed and the reference did not.
 """
@@ -17,6 +19,7 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 MARKDOWN = ROOT / "docs" / "TOOLS.md"
 DATA = ROOT / "web" / "src" / "generated" / "tools.json"
+CONTRACT = ROOT / "figma-plugin" / "src" / "contract.json"
 
 # The README's families, in its order. A tool the server lists and no family
 # names, or a family naming a tool the server does not list, is an error.
@@ -61,6 +64,30 @@ def tools_from(binary):
         if message.get("id") == 2:
             return message["result"]["tools"]
     sys.exit(f"{binary} mcp answered no tools/list")
+
+
+def live_of(tools):
+    """Each tool's `live` and `why` from the plugin's contract, which names every tool the server lists."""
+    contract = {tool["name"]: tool for tool in json.loads(CONTRACT.read_text(encoding="utf-8"))["tools"]}
+    missing = sorted(tool["name"] for tool in tools if tool["name"] not in contract)
+    if missing:
+        sys.exit(f"figma-plugin/src/contract.json names no {', '.join(missing)}: "
+                 "GRAFTA_RECORD=1 cargo test -p grafta-mcp records it")
+    for tool in tools:
+        tool["live"] = contract[tool["name"]]["live"]
+        tool["why"] = contract[tool["name"]].get("why", "")
+    return tools
+
+
+# How the reference names each marking.
+THERE = {"same": "On the open file in Figma", "differs": "On the open file in Figma, unlike on a file",
+         "cannot": "Not on the open file in Figma"}
+
+
+def there(tool):
+    """What a tool does on a file open in Figma, as a label and a sentence."""
+    text = tool["why"] or "the same"
+    return THERE[tool["live"]], text + "."
 
 
 def families_of(tools):
@@ -124,6 +151,7 @@ def cell(text):
 
 
 def markdown(families, count):
+    counts = {kind: sum(t["live"] == kind for _, _, tools in families for t in tools) for kind in THERE}
     lines = [
         "# Tool reference",
         "",
@@ -134,13 +162,19 @@ def markdown(families, count):
         "from a terminal. Every call but `open_file`, `new_file` and `list_open` takes the `handle` "
         "`open_file` returns.",
         "",
+        "On a file open in Figma's desktop app with grafta's panel on it, a tool takes the handle "
+        "`list_open` gives it. Each tool below says what it does there: "
+        f"{counts['same']} do the same, {counts['differs']} work with a difference they name, and "
+        f"{counts['cannot']} are not there, each with why.",
+        "",
     ]
     for title, blurb, tools in families:
         lines.append(f"- **{title}**: " + " ".join(f"[`{t['name']}`](#{t['name']})" for t in tools))
     for title, blurb, tools in families:
         lines += ["", f"## {title}", "", blurb]
         for tool in tools:
-            lines += ["", f"### `{tool['name']}`", "", tool["description"], ""]
+            lines += ["", f"### `{tool['name']}`", "", tool["description"], "",
+                      "**{}:** {}".format(*there(tool)), ""]
             args = arguments_of(tool)
             if not args:
                 lines.append("No arguments.")
@@ -155,7 +189,8 @@ def data(families, count):
     """The website's copy."""
     return json.dumps({"count": count, "families": [
         {"title": title, "blurb": blurb, "tools": [
-            {"name": tool["name"], "description": tool["description"], "arguments": [
+            {"name": tool["name"], "description": tool["description"],
+             "live": tool["live"], "there": "{}: {}".format(*there(tool)), "arguments": [
                 {"name": name, "type": kind, "required": required, "description": description}
                 for name, kind, required, description in arguments_of(tool)]}
             for tool in tools]}
@@ -166,7 +201,7 @@ def main():
     args = [arg for arg in sys.argv[1:] if arg != "--check"]
     if len(args) != 1:
         sys.exit(__doc__)
-    tools = tools_from(args[0])
+    tools = live_of(tools_from(args[0]))
     families = families_of(tools)
     wanted = {MARKDOWN: markdown(families, len(tools)), DATA: data(families, len(tools))}
     if "--check" in sys.argv:

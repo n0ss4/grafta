@@ -5,6 +5,10 @@ By what you see. Each section says why it happens and what to do.
 - [macOS says it cannot check grafta](#macos-says-it-cannot-check-grafta)
 - [Your AI app does not show grafta's tools](#your-ai-app-does-not-show-graftas-tools)
 - [Text looks wrong, or a result says a font is not installed](#text-looks-wrong-or-a-result-says-a-font-is-not-installed)
+- [grafta's panel in Figma stays on "Looking for grafta"](#graftas-panel-in-figma-stays-on-looking-for-grafta)
+- [Your AI app does not see the file you have open](#your-ai-app-does-not-see-the-file-you-have-open)
+- [A result says grafta is stopped in Figma's panel](#a-result-says-grafta-is-stopped-in-figmas-panel)
+- [Figma refuses a change, saying it is limited](#figma-refuses-a-change-saying-it-is-limited)
 - [Still stuck](#still-stuck)
 
 ## macOS says it cannot check grafta
@@ -133,6 +137,73 @@ Figma to see it exactly.
 **A machine with no fonts at all,** such as a minimal Linux container, gives
 results that say *this machine has no fonts*. Sizes are then estimated, not
 measured. Install any font, for example `fonts-dejavu` on Debian or Ubuntu.
+
+## grafta's panel in Figma stays on "Looking for grafta"
+
+You opened grafta's panel on a file in Figma's desktop app, and it keeps
+saying *Looking for grafta on this computer…*.
+
+**Why.** The panel looks for grafta on your computer every second, on five
+ports, 47823 to 47827. grafta listens on them only while your AI app is
+running it: grafta starts when the app starts its tools, and stops with it.
+
+**What to do.**
+
+1. Open your AI app, or start a new conversation in it, so that it starts
+   grafta. In Claude Code, `/mcp` shows whether grafta is connected. The panel
+   finds it within a second.
+2. Check grafta is the same release as the panel: `grafta --version`, against
+   the release you downloaded `grafta-figma-plugin.zip` from. A grafta from
+   before the panel does not listen for it. Update it the way you installed it.
+3. Read your AI app's log ([where](#your-ai-app-does-not-show-graftas-tools)).
+   If it says *the bridge to Figma did not start*, the five ports are taken,
+   for example by five other `grafta mcp` running: close the AI apps or
+   conversations you are not using. grafta still works on files meanwhile.
+
+Figma in a browser has not been tried with the panel; use Figma's desktop app.
+
+## Your AI app does not see the file you have open
+
+The panel shows grafta connected, or showed it once, but your AI says it sees
+no file open in Figma, or `list_open` lists none with `in: "Figma"`.
+
+**Why.** When the panel finds grafta, it asks whether to allow it, and gives
+it the file only once you click **Allow**. Click **Refuse**, and the panel
+turns that grafta away, without asking again, until the panel is closed.
+Closing the panel, or the file, takes the file away from every app.
+
+**What to do.**
+
+- If the panel is asking, click **Allow**. Figma remembers it on this
+  computer, and the panel does not ask again for grafta installed there.
+- If you refused it, close the panel and open it again on the file: it asks
+  again.
+- If the panel was closed, open it again on the file, then ask your AI to look
+  again. A file reopened gets a new handle, so a call your AI makes with the
+  old one is refused with *no file open in Figma has handle …*: it should call
+  `list_open` again.
+
+## A result says grafta is stopped in Figma's panel
+
+Your AI says *grafta is stopped in Figma's panel … nothing was done*, and the
+panel shows *Stopped: grafta can do nothing here*.
+
+**Why.** Someone pressed **Stop** in the panel. While it is stopped, every
+call from every app is refused, and nothing in the file is changed.
+
+**What to do.** Press **Resume** in the panel, then ask again. Stop is there
+for you to use whenever you want grafta to keep its hands off the file.
+
+## Figma refuses a change, saying it is limited
+
+A change on the file you have open comes back refused in Figma's own words,
+such as *Limited to 1 modes only* for a second mode in a variable collection.
+
+**Why.** The file's Figma plan does not allow it. Figma refuses it, not grafta:
+grafta passes on what Figma said, changes nothing, and does not work around it.
+
+**What to do.** Use a file in a team whose plan allows it, or ask your AI to
+do without it. What each plan allows is Figma's to say, on its pricing page.
 
 ## Still stuck
 

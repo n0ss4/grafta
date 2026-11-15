@@ -5,8 +5,9 @@ import type { Tool } from "./types";
 
 /**
  * A tool as a disclosure: closed, its name, the first of its own words and how
- * many arguments it takes; open, all its words and its arguments, required first,
- * as a list that wraps on any screen. Opens without scripts.
+ * many arguments it takes; open, all its words, what it does on a file open in
+ * Figma, and its arguments, required first, as a list that wraps on any screen.
+ * Opens without scripts.
  */
 export function ToolRow({
   tool,
@@ -45,6 +46,9 @@ export function ToolRow({
       <div className="px-4 pb-6 sm:px-5">
         <p className="max-w-[72ch] text-[15px] leading-relaxed">
           <Rich text={tool.description} />
+        </p>
+        <p className="mt-3 max-w-[72ch] text-[14.5px] leading-relaxed text-muted">
+          <Rich text={tool.there} />
         </p>
         {count > 0 ? (
           <dl className="mt-5 max-w-[72ch] divide-y divide-line border-y border-line">

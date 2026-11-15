@@ -20,7 +20,8 @@ impl Tool for ListOpen {
     fn description(&self) -> &'static str {
         "List the files currently open, with their handles, node counts, unsaved edits, how \
          long each took to open, and the process's memory; and the files open in Figma with \
-         grafta's panel on them, `in: \"Figma\"`, by handle and name."
+         grafta's panel on them, `in: \"Figma\"`, by handle and name, each with the page the \
+         person is on and what they have selected."
     }
     fn input_schema(&self) -> Value {
         schema(json!({}), &[])
