@@ -19,8 +19,14 @@ If a tool's description or schema changes, regenerate what is kept from it:
 
 ```bash
 GRAFTA_RECORD=1 cargo test -p grafta-toolkit --test golden the_tool_list_is_as_recorded
+GRAFTA_RECORD=1 cargo test -p grafta-mcp the_plugin_s_contract_is_as_recorded   # figma-plugin/src/contract.json
 python3 scripts/tool-reference.py target/release/grafta
 ```
+
+The same for a tool's `live` (what it does on a file open in Figma). grafta's
+panel in Figma is `figma-plugin/` (TypeScript, Node 22): `npm run typecheck`
+and `npm run build` there; the build fails when a tool the contract says acts
+on the open file has no function in the panel.
 
 ## Branches, commits and versions
 

@@ -60,7 +60,7 @@ fn the_file_open_in_figma_is_listed_beside_the_open_files() {
     let listed = call(&mut kit, "list_open", json!({})).unwrap();
     let files = listed["files"].as_array().unwrap();
     assert_eq!(files.len(), 2, "{listed}");
-    assert_eq!(files[1], json!({ "handle": open().as_str(), "in": "Figma", "name": "Checkout" }));
+    assert_eq!(files[1], json!({ "handle": open().as_str(), "in": "Figma", "name": "Checkout" }), "the stand-in answers {{}}: no page, no selection");
 }
 
 #[test]
@@ -79,6 +79,8 @@ fn a_tool_the_same_there_is_carried_with_its_arguments_and_without_the_handle() 
 fn arguments_a_file_would_refuse_are_refused_before_anything_is_carried() {
     let (mut kit, live) = kit();
     let unknown = call(&mut kit, "read_node", json!({ "handle": open().as_str(), "id": "1:2", "deep": 3 })).unwrap_err();
+    let wrong = call(&mut kit, "read_node", json!({ "handle": open().as_str(), "id": "1:2", "depth": 99 })).unwrap_err();
+    assert!(matches!(&wrong, ToolError::BadArgument(m) if m.contains("depth")), "{wrong}");
     assert!(matches!(&unknown, ToolError::BadArgument(m) if m.contains("no argument \"deep\"")), "{unknown}");
     let missing = edge::live::call(&kit, &Echo, open().as_str(), &json!({ "handle": open().as_str() })).unwrap_err();
     assert!(matches!(&missing, ToolError::BadArgument(m) if m.contains("\"id\"")), "{missing}");
@@ -97,8 +99,8 @@ fn a_tool_that_cannot_act_there_is_refused_by_name_and_reason() {
                 .into()
         )
     );
-    let read = call(&mut kit, "read_node", json!({ "handle": open().as_str(), "id": "1:2" })).unwrap_err();
-    assert_eq!(read, ToolError::Refused("read_node does not act on a file open in Figma: not built for the open file yet".into()));
+    let fill = call(&mut kit, "summarize", json!({ "handle": open().as_str() })).unwrap_err();
+    assert_eq!(fill, ToolError::Refused("summarize does not act on a file open in Figma: not built for the open file yet".into()));
     assert!(live.calls().is_empty());
 }
 
@@ -135,14 +137,55 @@ fn what_figma_answers_instead_of_a_result_is_said_in_its_words() {
 }
 
 #[test]
-fn only_list_open_acts_there_yet_and_what_never_will_says_why() {
+fn what_acts_there_is_what_was_built_and_what_never_will_says_why() {
+    let built = ["list_open", "read_node", "list_screens"];
+    let differs = ["search_nodes", "set_properties", "render_node"];
     let never = ["open_file", "close_file", "new_file", "save_as", "read_raw", "check_contrast"];
     for tool in crate::tools::ALL {
         match (tool.name(), tool.live()) {
-            ("list_open", Live::Same) => {}
+            (name, Live::Same) if built.contains(&name) => {}
+            (name, Live::Differs(why)) if differs.contains(&name) => assert!(why.len() > 40, "{name}"),
             (name, Live::Cannot(why)) if never.contains(&name) => assert_ne!(why, edge::NOT_BUILT, "{name}"),
             (_, Live::Cannot(edge::NOT_BUILT)) => {}
             (name, live) => panic!("{name}: {live:?}"),
         }
     }
+}
+
+#[test]
+fn list_open_says_the_page_and_the_selection_figma_has_now() {
+    let (mut kit, live) = kit_with(|_, tool, _| {
+        assert_eq!(tool, "list_open");
+        Ok(crate::edge::data::from_json(&json!({ "page": { "id": "0:1", "name": "Cover" }, "selection": [{ "id": "1:2", "name": "Card", "type": "FRAME" }], "other": 1 })))
+    });
+    let listed = call(&mut kit, "list_open", json!({})).unwrap();
+    assert_eq!(
+        listed["files"][0],
+        json!({ "handle": open().as_str(), "in": "Figma", "name": "Checkout", "page": { "id": "0:1", "name": "Cover" }, "selection": [{ "id": "1:2", "name": "Card", "type": "FRAME" }] })
+    );
+    assert_eq!(live.calls().len(), 1);
+}
+
+#[test]
+fn list_open_names_a_file_figma_did_not_answer_for_and_lists_it_still() {
+    let (mut kit, _) = kit_with(|_, _, _| Err(LiveError::Stopped));
+    let listed = call(&mut kit, "list_open", json!({})).unwrap();
+    assert!(listed["files"][0]["unread"].as_str().unwrap().contains("stopped"), "{listed}");
+}
+
+#[test]
+fn read_node_on_the_open_file_is_figma_s_answer() {
+    let (mut kit, live) = kit_with(|_, _, args| Ok(args.clone()));
+    let read = call(&mut kit, "read_node", json!({ "handle": open().as_str(), "id": "1:2", "depth": 0 })).unwrap();
+    assert_eq!(read, json!({ "id": "1:2", "depth": 0 }));
+    assert_eq!(live.calls()[0].1, "read_node");
+}
+
+#[test]
+fn render_node_on_the_open_file_is_figma_s_picture() {
+    let (mut kit, _) = kit_with(|_, _, _| {
+        Ok(crate::edge::data::from_json(&json!({ "image": { "mime": "image/png", "base64": "iVBORw==" }, "caption": { "id": "1:2", "drawn_by": "Figma" } })))
+    });
+    let drawn = call(&mut kit, "render_node", json!({ "handle": open().as_str(), "id": "1:2" })).unwrap();
+    assert_eq!(drawn, json!({ "mime": "image/png", "len": 4, "caption": { "id": "1:2", "drawn_by": "Figma" } }));
 }

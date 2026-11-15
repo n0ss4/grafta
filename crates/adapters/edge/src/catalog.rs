@@ -170,6 +170,9 @@ impl Tool for RenderNode {
     fn name(&self) -> &'static str {
         "render_node"
     }
+    fn live(&self) -> Live {
+        Live::Differs("drawn by Figma itself: exact, with no notes, and it may differ from grafta's picture of a saved copy; the caption says `drawn_by: \"Figma\"`")
+    }
     fn description(&self) -> &'static str {
         "Draw a node (a board, frame, component, instance, shape or text) as a PNG you can look \
          at, from the open file including unsaved edits. Use it to see a screen you read, or to \

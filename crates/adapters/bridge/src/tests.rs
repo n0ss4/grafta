@@ -238,6 +238,10 @@ async fn the_panel_is_told_the_ai_app_s_name_when_it_is_known() {
     assert_eq!(next(&mut panel).await["hello"]["name"], NOBODY);
     bridge.set_caller("Claude Desktop");
     assert_eq!(next(&mut panel).await["hello"]["name"], "Claude Desktop");
+    // Named again with each request: told only when it changes.
+    bridge.set_caller("Claude Desktop");
+    bridge.set_caller("Claude Code");
+    assert_eq!(next(&mut panel).await["hello"]["name"], "Claude Code");
 }
 
 #[tokio::test(flavor = "multi_thread")]

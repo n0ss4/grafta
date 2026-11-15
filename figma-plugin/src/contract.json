@@ -131,9 +131,8 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
-      "name": "list_screens",
-      "why": "not built for the open file yet"
+      "live": "same",
+      "name": "list_screens"
     },
     {
       "input_schema": {
@@ -176,9 +175,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "search_nodes",
-      "why": "not built for the open file yet"
+      "why": "the open file is searched a page at a time, within a time budget: `total` counts the matches on the pages searched so far, and `next_cursor` goes on to the rest"
     },
     {
       "input_schema": {
@@ -219,9 +218,8 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
-      "name": "read_node",
-      "why": "not built for the open file yet"
+      "live": "same",
+      "name": "read_node"
     },
     {
       "input_schema": {
@@ -717,9 +715,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "render_node",
-      "why": "not built for the open file yet"
+      "why": "drawn by Figma itself: exact, with no notes, and it may differ from grafta's picture of a saved copy; the caption says `drawn_by: \"Figma\"`"
     },
     {
       "input_schema": {
@@ -2116,9 +2114,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "set_properties",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result is `{ id, set }` with no `unsaved_edits`, and one call is one undo step there. Not built there yet, each refused by name with nothing changed: runs, paragraphs, componentPropertyReferences, componentProperties, reactions and the other prototype keys, an image by path (give its imageHash), and Slides' and FigJam's keys"
     },
     {
       "input_schema": {

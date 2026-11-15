@@ -1,0 +1,33 @@
+// The messages between the panel (ui.ts), which holds the connections to
+// grafta, and the plugin's main thread (main.ts), which holds the file.
+
+/** Who a connection says it is, in its `hello`. */
+export interface Caller {
+  name: string;
+  version: string;
+  secret: string;
+}
+
+/** The file, as the panel names it to grafta. */
+export interface FileInfo {
+  name: string;
+  editor: string;
+}
+
+/** A call from grafta, carried to the main thread. */
+export interface Call {
+  connection: number;
+  id: number;
+  tool: string;
+  args: Record<string, unknown>;
+}
+
+export type ToMain =
+  | { kind: "known"; connection: number; caller: Caller }
+  | { kind: "allow"; caller: Caller }
+  | { kind: "call"; call: Call };
+
+export type ToPanel =
+  | { kind: "file"; file: FileInfo }
+  | { kind: "known"; connection: number; known: boolean; file: FileInfo }
+  | { kind: "answer"; connection: number; id: number; tool: string; result?: unknown; error?: string; ms: number };
