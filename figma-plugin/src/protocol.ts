@@ -25,9 +25,11 @@ export interface Call {
 export type ToMain =
   | { kind: "known"; connection: number; caller: Caller }
   | { kind: "allow"; caller: Caller }
-  | { kind: "call"; call: Call };
+  | { kind: "call"; call: Call }
+  | { kind: "selftest" };
 
 export type ToPanel =
-  | { kind: "file"; file: FileInfo }
+  | { kind: "file"; file: FileInfo; selftest?: boolean }
+  | { kind: "selftest"; table: string }
   | { kind: "known"; connection: number; known: boolean; file: FileInfo }
   | { kind: "answer"; connection: number; id: number; tool: string; result?: unknown; error?: string; ms: number };

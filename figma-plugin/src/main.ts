@@ -7,6 +7,9 @@ import { TOOLS } from "./contract";
 import type { Call, Caller, FileInfo, ToMain, ToPanel } from "./protocol";
 import { REGISTRY } from "./tools";
 
+/** Set by the build: true in a development build, which has the self-test. */
+declare const SELFTEST: boolean;
+
 /** Where the secrets of the callers the person allowed are kept, on this computer. */
 const ALLOWED = "allowed-callers";
 
@@ -75,7 +78,22 @@ figma.ui.onmessage = (message: ToMain) => {
     case "call":
       queue = queue.then(() => answer(message.call));
       break;
+    case "selftest":
+      if (SELFTEST) queue = queue.then(runSelftest);
+      break;
   }
 };
 
-post({ kind: "file", file: file() });
+/** The self-test, in the queue like a call, so no call interleaves with it. */
+async function runSelftest(): Promise<void> {
+  const { selftest, table } = await import("./selftest");
+  try {
+    const { rows, left } = await selftest();
+    post({ kind: "selftest", table: table(rows, left) });
+  } catch (error) {
+    post({ kind: "selftest", table: `The self-test stopped: ${words(error)}` });
+  }
+  figma.commitUndo();
+}
+
+post({ kind: "file", file: file(), selftest: SELFTEST });

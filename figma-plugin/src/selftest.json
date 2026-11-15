@@ -1,0 +1,993 @@
+{
+  "about": "Recorded by crates/toolkit/tests/selftest.rs from the calls in crates/toolkit/tests/selftest/calls.json, on web/public/sample/order.fig. GRAFTA_RECORD=1 cargo test -p grafta-toolkit --test selftest records it again.",
+  "cases": [
+    {
+      "args": {
+        "name": "Showcase",
+        "type": "PAGE"
+      },
+      "keys": [
+        "results",
+        "total"
+      ],
+      "live": "differs",
+      "tool": "search_nodes",
+      "values": {
+        "results": [
+          {
+            "id": "1735549286:0",
+            "name": "Showcase",
+            "path": "Showcase",
+            "type": "PAGE"
+          }
+        ],
+        "total": 1
+      }
+    },
+    {
+      "args": {
+        "page": "$0.results.0.id"
+      },
+      "keys": [
+        "page",
+        "results",
+        "total"
+      ],
+      "live": "same",
+      "tool": "list_screens",
+      "values": {
+        "page": {
+          "id": "1735549286:0",
+          "name": "Showcase"
+        },
+        "results": [
+          {
+            "height": 365,
+            "id": "1735549286:1",
+            "name": "Order",
+            "type": "FRAME",
+            "visible": true,
+            "width": 360
+          }
+        ],
+        "total": 1
+      }
+    },
+    {
+      "args": {
+        "name": "Order",
+        "type": "FRAME"
+      },
+      "keys": [
+        "results",
+        "total"
+      ],
+      "live": "differs",
+      "tool": "search_nodes",
+      "values": {
+        "results": [
+          {
+            "id": "1735549286:1",
+            "name": "Order",
+            "path": "Showcase / Order",
+            "type": "FRAME"
+          }
+        ],
+        "total": 1
+      }
+    },
+    {
+      "args": {
+        "id": "$2.results.0.id"
+      },
+      "keys": [
+        "childCount",
+        "children",
+        "counterAxisAlignItems",
+        "counterAxisSizingMode",
+        "explicitVariableModes",
+        "fills",
+        "height",
+        "id",
+        "itemSpacing",
+        "layoutMode",
+        "layoutSizingHorizontal",
+        "layoutSizingVertical",
+        "name",
+        "paddingBottom",
+        "paddingLeft",
+        "paddingRight",
+        "paddingTop",
+        "path",
+        "primaryAxisAlignItems",
+        "primaryAxisSizingMode",
+        "type",
+        "width",
+        "x",
+        "y"
+      ],
+      "live": "same",
+      "tool": "read_node",
+      "values": {
+        "childCount": 5,
+        "children": [
+          {
+            "characters": "Your order",
+            "fills": [
+              {
+                "color": "#F6F4EE",
+                "type": "SOLID",
+                "variable": "Ink"
+              }
+            ],
+            "height": 28,
+            "id": "1735549286:2",
+            "layoutSizingHorizontal": "FIXED",
+            "layoutSizingVertical": "FIXED",
+            "name": "My order",
+            "style": {
+              "fontFamily": "Inter",
+              "fontSize": 28,
+              "fontStyle": "Bold",
+              "fontWeight": 700,
+              "letterSpacing": {
+                "unit": "PERCENT",
+                "value": 0.0
+              },
+              "lineHeight": {
+                "unit": "PERCENT",
+                "value": 100.0
+              },
+              "textAlignHorizontal": "LEFT",
+              "textAlignVertical": "TOP",
+              "textAutoResize": "WIDTH_AND_HEIGHT"
+            },
+            "type": "TEXT",
+            "width": 147.41,
+            "x": 24,
+            "y": 24
+          },
+          {
+            "characters": "Placed 2 Oct · 3 items",
+            "fills": [
+              {
+                "color": "#9DA3AB",
+                "type": "SOLID",
+                "variable": "Muted"
+              }
+            ],
+            "height": 14,
+            "id": "1735549286:22",
+            "layoutSizingHorizontal": "FIXED",
+            "layoutSizingVertical": "FIXED",
+            "name": "Placed 2 Oct · 3 items",
+            "style": {
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontStyle": "Regular",
+              "fontWeight": 400,
+              "letterSpacing": {
+                "unit": "PERCENT",
+                "value": 0.0
+              },
+              "lineHeight": {
+                "unit": "PERCENT",
+                "value": 100.0
+              },
+              "textAlignHorizontal": "LEFT",
+              "textAlignVertical": "TOP",
+              "textAutoResize": "WIDTH_AND_HEIGHT"
+            },
+            "type": "TEXT",
+            "width": 144.9,
+            "x": 24,
+            "y": 72
+          },
+          {
+            "childCount": 3,
+            "childrenOmitted": true,
+            "cornerRadius": 20,
+            "counterAxisAlignItems": "MIN",
+            "counterAxisSizingMode": "FIXED",
+            "effects": [
+              {
+                "color": "#15171C",
+                "offset": {
+                  "x": 0.0,
+                  "y": 8.0
+                },
+                "opacity": 0.06,
+                "radius": 24.0,
+                "type": "DROP_SHADOW"
+              }
+            ],
+            "fills": [
+              {
+                "color": "#161B22",
+                "type": "SOLID",
+                "variable": "Surface"
+              }
+            ],
+            "height": 132,
+            "id": "1735549286:3",
+            "itemSpacing": 14,
+            "layoutAlign": "STRETCH",
+            "layoutMode": "VERTICAL",
+            "layoutSizingHorizontal": "FILL",
+            "layoutSizingVertical": "HUG",
+            "name": "Card",
+            "paddingBottom": 20,
+            "paddingLeft": 20,
+            "paddingRight": 20,
+            "paddingTop": 20,
+            "primaryAxisAlignItems": "MIN",
+            "primaryAxisSizingMode": "AUTO",
+            "strokeAlign": "INSIDE",
+            "strokeWeight": 1,
+            "strokes": [
+              {
+                "color": "#30363D",
+                "type": "SOLID",
+                "variable": "Border"
+              }
+            ],
+            "type": "FRAME",
+            "width": 312,
+            "x": 24,
+            "y": 106
+          },
+          {
+            "childCount": 2,
+            "childrenOmitted": true,
+            "cornerRadius": 14,
+            "counterAxisAlignItems": "CENTER",
+            "counterAxisSizingMode": "AUTO",
+            "fills": [
+              {
+                "color": "#C6F26B",
+                "type": "SOLID",
+                "variable": "Accent"
+              }
+            ],
+            "height": 50,
+            "id": "1735549286:7",
+            "itemSpacing": 8,
+            "layoutAlign": "STRETCH",
+            "layoutMode": "HORIZONTAL",
+            "layoutSizingHorizontal": "FILL",
+            "layoutSizingVertical": "HUG",
+            "name": "Button",
+            "paddingBottom": 16,
+            "paddingLeft": 16,
+            "paddingRight": 16,
+            "paddingTop": 16,
+            "primaryAxisAlignItems": "CENTER",
+            "primaryAxisSizingMode": "FIXED",
+            "type": "FRAME",
+            "width": 312,
+            "x": 24,
+            "y": 258
+          },
+          {
+            "characters": "Delivered to the door · no signature",
+            "fills": [
+              {
+                "color": "#9DA3AB",
+                "type": "SOLID",
+                "variable": "Muted"
+              }
+            ],
+            "height": 13,
+            "id": "1735549286:33",
+            "layoutSizingHorizontal": "FIXED",
+            "layoutSizingVertical": "FIXED",
+            "name": "Delivered to the door · no signature",
+            "style": {
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontStyle": "Regular",
+              "fontWeight": 400,
+              "letterSpacing": {
+                "unit": "PERCENT",
+                "value": 0.0
+              },
+              "lineHeight": {
+                "unit": "PERCENT",
+                "value": 100.0
+              },
+              "textAlignHorizontal": "LEFT",
+              "textAlignVertical": "TOP",
+              "textAutoResize": "WIDTH_AND_HEIGHT"
+            },
+            "type": "TEXT",
+            "width": 217.12,
+            "x": 24,
+            "y": 328
+          }
+        ],
+        "counterAxisAlignItems": "MIN",
+        "counterAxisSizingMode": "FIXED",
+        "explicitVariableModes": {
+          "Theme": "Dark"
+        },
+        "fills": [
+          {
+            "color": "#0D1117",
+            "type": "SOLID",
+            "variable": "Background"
+          }
+        ],
+        "height": 365,
+        "id": "1735549286:1",
+        "itemSpacing": 20,
+        "layoutMode": "VERTICAL",
+        "layoutSizingHorizontal": "FIXED",
+        "layoutSizingVertical": "HUG",
+        "name": "Order",
+        "paddingBottom": 24,
+        "paddingLeft": 24,
+        "paddingRight": 24,
+        "paddingTop": 24,
+        "path": "Showcase / Order",
+        "primaryAxisAlignItems": "MIN",
+        "primaryAxisSizingMode": "AUTO",
+        "type": "FRAME",
+        "width": 360,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "args": {
+        "type": "TEXT",
+        "within": "$2.results.0.id"
+      },
+      "keys": [
+        "results",
+        "total"
+      ],
+      "live": "differs",
+      "tool": "search_nodes",
+      "values": {
+        "results": [
+          {
+            "id": "1735549286:2",
+            "name": "My order",
+            "path": "Showcase / Order / My order",
+            "type": "TEXT"
+          },
+          {
+            "id": "1735549286:22",
+            "name": "Placed 2 Oct · 3 items",
+            "path": "Showcase / Order / Placed 2 Oct · 3 items",
+            "type": "TEXT"
+          },
+          {
+            "id": "1735549286:4",
+            "name": "Order #4821",
+            "path": "Showcase / Order / Card / Header / Labels / Order #4821",
+            "type": "TEXT"
+          },
+          {
+            "id": "1735549286:5",
+            "name": "Arriving tomorrow",
+            "path": "Showcase / Order / Card / Header / Labels / Arriving tomorrow",
+            "type": "TEXT"
+          },
+          {
+            "id": "1735549286:29",
+            "name": "Packed",
+            "path": "Showcase / Order / Card / Steps / Packed",
+            "type": "TEXT"
+          },
+          {
+            "id": "1735549286:30",
+            "name": "Shipped",
+            "path": "Showcase / Order / Card / Steps / Shipped",
+            "type": "TEXT"
+          },
+          {
+            "id": "1735549286:31",
+            "name": "Out for delivery",
+            "path": "Showcase / Order / Card / Steps / Out for delivery",
+            "type": "TEXT"
+          },
+          {
+            "id": "1735549286:8",
+            "name": "Track order",
+            "path": "Showcase / Order / Button / Track order",
+            "type": "TEXT"
+          },
+          {
+            "id": "1735549286:33",
+            "name": "Delivered to the door · no signature",
+            "path": "Showcase / Order / Delivered to the door · no signature",
+            "type": "TEXT"
+          }
+        ],
+        "total": 9
+      }
+    },
+    {
+      "args": {},
+      "keys": [
+        "collections",
+        "results",
+        "total"
+      ],
+      "live": "same",
+      "tool": "list_variables",
+      "values": {
+        "collections": [
+          {
+            "id": "1735549286:10",
+            "modes": [
+              "Light",
+              "Dark"
+            ],
+            "name": "Theme",
+            "variables": 9
+          }
+        ],
+        "results": [
+          {
+            "collection": "Theme",
+            "id": "1735549286:13",
+            "name": "Background",
+            "type": "COLOR",
+            "values": {
+              "Dark": "#0D1117",
+              "Light": "#F6F4EE"
+            }
+          },
+          {
+            "collection": "Theme",
+            "id": "1735549286:14",
+            "name": "Surface",
+            "type": "COLOR",
+            "values": {
+              "Dark": "#161B22",
+              "Light": "#FFFFFF"
+            }
+          },
+          {
+            "collection": "Theme",
+            "id": "1735549286:15",
+            "name": "Ink",
+            "type": "COLOR",
+            "values": {
+              "Dark": "#F6F4EE",
+              "Light": "#15171C"
+            }
+          },
+          {
+            "collection": "Theme",
+            "id": "1735549286:16",
+            "name": "Muted",
+            "type": "COLOR",
+            "values": {
+              "Dark": "#9DA3AB",
+              "Light": "#6B6F76"
+            }
+          },
+          {
+            "collection": "Theme",
+            "id": "1735549286:17",
+            "name": "Border",
+            "type": "COLOR",
+            "values": {
+              "Dark": "#30363D",
+              "Light": "#E6E2D8"
+            }
+          },
+          {
+            "collection": "Theme",
+            "id": "1735549286:18",
+            "name": "Accent",
+            "type": "COLOR",
+            "values": {
+              "Dark": "#C6F26B",
+              "Light": "#13704B"
+            }
+          },
+          {
+            "collection": "Theme",
+            "id": "1735549286:19",
+            "name": "Accent soft",
+            "type": "COLOR",
+            "values": {
+              "Dark": "#1C2B23",
+              "Light": "#E3F4EA"
+            }
+          },
+          {
+            "collection": "Theme",
+            "id": "1735549286:20",
+            "name": "On accent",
+            "type": "COLOR",
+            "values": {
+              "Dark": "#15171C",
+              "Light": "#FFFFFF"
+            }
+          },
+          {
+            "collection": "Theme",
+            "id": "1735549286:21",
+            "name": "Track",
+            "type": "COLOR",
+            "values": {
+              "Dark": "#21262D",
+              "Light": "#ECE8DE"
+            }
+          }
+        ],
+        "total": 9
+      }
+    },
+    {
+      "args": {},
+      "keys": [
+        "styles",
+        "total"
+      ],
+      "live": "same",
+      "tool": "list_styles",
+      "values": {
+        "styles": [],
+        "total": 0
+      }
+    },
+    {
+      "args": {},
+      "keys": [
+        "results",
+        "total"
+      ],
+      "live": "differs",
+      "tool": "list_components",
+      "values": {
+        "results": [],
+        "total": 0
+      }
+    },
+    {
+      "args": {},
+      "keys": [
+        "component_sets",
+        "components",
+        "file",
+        "images",
+        "instances",
+        "nodes",
+        "pages",
+        "product",
+        "prototype",
+        "styles",
+        "text_nodes",
+        "variable_collections",
+        "variables"
+      ],
+      "live": "differs",
+      "tool": "summarize"
+    },
+    {
+      "args": {
+        "id": "$2.results.0.id",
+        "scale": 0.5
+      },
+      "image": true,
+      "live": "differs",
+      "tool": "render_node"
+    },
+    {
+      "args": {
+        "name": "grafta self-test"
+      },
+      "keys": [
+        "id",
+        "name",
+        "type"
+      ],
+      "live": "differs",
+      "tool": "create_page"
+    },
+    {
+      "args": {
+        "height": 160,
+        "name": "Frame",
+        "parent": "$10.id",
+        "width": 240
+      },
+      "keys": [
+        "id",
+        "name",
+        "type"
+      ],
+      "live": "differs",
+      "tool": "create_frame"
+    },
+    {
+      "args": {
+        "characters": "Hello",
+        "fontFamily": "Inter",
+        "fontSize": 16,
+        "fontStyle": "Bold",
+        "parent": "$11.id",
+        "x": 16,
+        "y": 16
+      },
+      "keys": [
+        "font",
+        "id",
+        "name",
+        "size",
+        "type"
+      ],
+      "live": "differs",
+      "tool": "create_text"
+    },
+    {
+      "args": {
+        "cornerRadius": 8,
+        "fills": [
+          {
+            "color": "#13704B",
+            "type": "SOLID"
+          }
+        ],
+        "height": 40,
+        "parent": "$11.id",
+        "type": "RECTANGLE",
+        "width": 40,
+        "x": 16,
+        "y": 60
+      },
+      "keys": [
+        "id",
+        "name",
+        "type"
+      ],
+      "live": "differs",
+      "tool": "create_shape"
+    },
+    {
+      "args": {
+        "arcData": {
+          "endingAngle": 4.5,
+          "innerRadius": 0.6,
+          "startingAngle": 0
+        },
+        "fills": [
+          {
+            "color": "#E3F4EA",
+            "type": "SOLID"
+          }
+        ],
+        "height": 40,
+        "parent": "$11.id",
+        "type": "ELLIPSE",
+        "width": 40,
+        "x": 72,
+        "y": 60
+      },
+      "keys": [
+        "id",
+        "name",
+        "type"
+      ],
+      "live": "differs",
+      "tool": "create_shape"
+    },
+    {
+      "args": {
+        "parent": "$11.id",
+        "path": [
+          "M5 12h14",
+          "m12 5 7 7-7 7"
+        ],
+        "strokeCap": "ROUND",
+        "strokeJoin": "ROUND",
+        "strokeWeight": 2,
+        "strokes": [
+          {
+            "color": "#15171C",
+            "type": "SOLID"
+          }
+        ],
+        "viewBox": [
+          0,
+          0,
+          24,
+          24
+        ],
+        "width": 24,
+        "x": 128,
+        "y": 68
+      },
+      "keys": [
+        "id",
+        "name",
+        "size",
+        "subpaths",
+        "type"
+      ],
+      "live": "differs",
+      "tool": "create_vector"
+    },
+    {
+      "args": {
+        "id": "$11.id",
+        "properties": {
+          "cornerRadius": 12,
+          "fills": [
+            {
+              "color": "#FFFFFF",
+              "type": "SOLID"
+            }
+          ]
+        }
+      },
+      "keys": [
+        "id",
+        "set"
+      ],
+      "live": "differs",
+      "tool": "set_properties"
+    },
+    {
+      "args": {
+        "id": "$13.id",
+        "x": 160
+      },
+      "keys": [
+        "copies",
+        "from",
+        "id",
+        "name",
+        "nodes",
+        "type"
+      ],
+      "live": "differs",
+      "tool": "duplicate_node"
+    },
+    {
+      "args": {
+        "ids": [
+          "$13.id",
+          "$17.id"
+        ],
+        "name": "Pair"
+      },
+      "keys": [
+        "children",
+        "id",
+        "name",
+        "type"
+      ],
+      "live": "differs",
+      "tool": "group_nodes"
+    },
+    {
+      "args": {
+        "id": "$18.id"
+      },
+      "keys": [
+        "children",
+        "parent",
+        "removed"
+      ],
+      "live": "differs",
+      "tool": "ungroup"
+    },
+    {
+      "args": {
+        "id": "$14.id",
+        "parent": "$10.id",
+        "x": 320,
+        "y": 0
+      },
+      "keys": [
+        "id",
+        "index",
+        "of",
+        "parent",
+        "x",
+        "y"
+      ],
+      "live": "differs",
+      "tool": "move_node"
+    },
+    {
+      "args": {
+        "height": 300,
+        "name": "Section",
+        "parent": "$10.id",
+        "width": 400,
+        "y": 400
+      },
+      "keys": [
+        "id",
+        "name",
+        "type"
+      ],
+      "live": "differs",
+      "tool": "create_section"
+    },
+    {
+      "args": {
+        "id": "$11.id",
+        "parent": "$21.id",
+        "x": 40,
+        "y": 40
+      },
+      "keys": [
+        "id",
+        "index",
+        "of",
+        "parent",
+        "x",
+        "y"
+      ],
+      "live": "differs",
+      "tool": "move_node"
+    },
+    {
+      "args": {
+        "height": 60,
+        "name": "Card",
+        "parent": "$10.id",
+        "width": 120,
+        "x": 600
+      },
+      "keys": [
+        "id",
+        "name",
+        "type"
+      ],
+      "live": "differs",
+      "tool": "create_frame"
+    },
+    {
+      "args": {
+        "id": "$23.id",
+        "name": "Card"
+      },
+      "keys": [
+        "children",
+        "id",
+        "name",
+        "next",
+        "type"
+      ],
+      "live": "differs",
+      "tool": "create_component"
+    },
+    {
+      "args": {
+        "component": "$24.id",
+        "default": "Hi",
+        "name": "Label",
+        "type": "TEXT"
+      },
+      "keys": [
+        "component",
+        "id",
+        "name",
+        "next",
+        "type"
+      ],
+      "live": "differs",
+      "tool": "add_component_property"
+    },
+    {
+      "args": {
+        "component": "$24.id",
+        "parent": "$10.id",
+        "x": 800
+      },
+      "keys": [
+        "height",
+        "id",
+        "name",
+        "type",
+        "width"
+      ],
+      "live": "differs",
+      "tool": "create_instance"
+    },
+    {
+      "args": {
+        "id": "$24.id"
+      },
+      "keys": [
+        "results",
+        "total"
+      ],
+      "live": "same",
+      "tool": "component_instances"
+    },
+    {
+      "args": {
+        "modes": [
+          "Default"
+        ],
+        "name": "grafta self-test"
+      },
+      "keys": [
+        "id",
+        "modes",
+        "name",
+        "next",
+        "variables"
+      ],
+      "live": "differs",
+      "tool": "create_variable_collection"
+    },
+    {
+      "args": {
+        "collection": "$28.id",
+        "name": "Self-test/Ink",
+        "type": "COLOR",
+        "values": {
+          "Default": "#15171C"
+        }
+      },
+      "keys": [
+        "collection",
+        "id",
+        "name",
+        "type",
+        "values"
+      ],
+      "live": "differs",
+      "tool": "create_variable"
+    },
+    {
+      "args": {
+        "fills": [
+          {
+            "color": "#13704B",
+            "type": "SOLID"
+          }
+        ],
+        "name": "grafta self-test",
+        "type": "FILL"
+      },
+      "keys": [
+        "fills",
+        "id",
+        "name",
+        "type"
+      ],
+      "live": "differs",
+      "tool": "create_style"
+    },
+    {
+      "args": {
+        "id": "$26.id"
+      },
+      "keys": [
+        "removed"
+      ],
+      "live": "differs",
+      "tool": "delete_node"
+    },
+    {
+      "args": {
+        "id": "$14.id"
+      },
+      "keys": [
+        "removed"
+      ],
+      "live": "differs",
+      "tool": "delete_node"
+    }
+  ],
+  "not_compared": {
+    "font_faces": "whether this machine has a font",
+    "internal_only_canvas": "whether grafta wrote the page a file keeps its variables on; Figma keeps its own",
+    "measured_in_stand_in": "grafta's measure of a text on a machine without its font",
+    "undecoded": "fields grafta read from the file's bytes and does not model",
+    "unsaved_edits": "a file's edits wait for save_as; Figma saves its own"
+  }
+}

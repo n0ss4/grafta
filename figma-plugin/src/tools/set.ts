@@ -2,7 +2,7 @@
 // the value before kept; if Figma refuses one, those already set are put back
 // and the refusal is answered in Figma's words, so that, as on a file,
 // nothing changes if any value is refused.
-import { Args, nodeFor, read } from "./nodes";
+import { Args, bare, isId, nodeFor, read } from "./nodes";
 import { paintsIn, parseHex } from "./paint";
 
 type Undo = () => Promise<void> | void;
@@ -188,7 +188,7 @@ async function modes(node: Node, value: unknown, undo: Undo[]): Promise<void> {
   if (!("setExplicitVariableModeForCollection" in target)) throw new Error(`a ${node.type} takes no explicitVariableModes`);
   const collections = await figma.variables.getLocalVariableCollectionsAsync();
   for (const [name, mode] of Object.entries((value ?? {}) as Record<string, unknown>)) {
-    const collection = collections.find((c) => c.name === name || c.id === name);
+    const collection = collections.find((c) => c.name === name || isId(c.id, name));
     if (!collection) throw new Error(`no variable collection named \`${name}\``);
     const before = target.explicitVariableModes[collection.id];
     const restore = () =>
@@ -272,8 +272,8 @@ export class Variables {
 
   async named(wanted: string): Promise<Variable> {
     this.local ??= await figma.variables.getLocalVariablesAsync();
-    const found = this.local.filter((v) => v.name === wanted || v.id === wanted);
-    if (found.length > 1) throw new Error(`${found.length} variables are named \`${wanted}\`; pass one id: ${found.map((v) => v.id).join(", ")}`);
+    const found = this.local.filter((v) => v.name === wanted || isId(v.id, wanted));
+    if (found.length > 1) throw new Error(`${found.length} variables are named \`${wanted}\`; pass one id: ${found.map((v) => bare(v.id)).join(", ")}`);
     if (!found.length) throw new Error(`no local variable named \`${wanted}\`: list_variables lists them`);
     return found[0];
   }

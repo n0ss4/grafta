@@ -93,9 +93,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "summarize",
-      "why": "not built for the open file yet"
+      "why": "counts a page at a time for 2 s: past that, the totals are for the pages listed and the rest are named under `omitted`; `images` and `prototype` are not counted there, and there is no `unsaved_edits`"
     },
     {
       "input_schema": {
@@ -177,7 +177,7 @@
       },
       "live": "differs",
       "name": "search_nodes",
-      "why": "the open file is searched a page at a time, within a time budget: `total` counts the matches on the pages searched so far, and `next_cursor` goes on to the rest"
+      "why": "the open file is searched a page at a time, within a time budget: `total` counts the matches on the pages searched so far, `pages_searched` of `pages` says how far it went, and `next_cursor` goes on to the rest"
     },
     {
       "input_schema": {
@@ -290,7 +290,7 @@
       },
       "live": "differs",
       "name": "list_components",
-      "why": "the open file is listed a page at a time, within a time budget: `total` counts the pages listed so far, and `next_cursor` goes on to the rest"
+      "why": "the open file is listed a page at a time, within a time budget: `total` counts the components on the pages listed so far, `pages_searched` of `pages` says how far it went, and `next_cursor` goes on to the rest"
     },
     {
       "input_schema": {
@@ -678,9 +678,8 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
-      "name": "get_image",
-      "why": "not built for the open file yet"
+      "live": "same",
+      "name": "get_image"
     },
     {
       "input_schema": {
@@ -806,9 +805,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "create_page",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
@@ -848,9 +847,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "create_frame",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
@@ -1190,9 +1189,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "create_text",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the text and lays it out, so `size` is Figma's own and not provisional, and the result has no `unsaved_edits`; with no fontFamily, the font and size most used by the current page's texts (Figma's default when it has none), and Figma's own line height when none is given"
     },
     {
       "input_schema": {
@@ -1278,9 +1277,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "create_vector",
-      "why": "not built for the open file yet"
+      "why": "Figma reads the path data as SVG and joins the paths into one vector, whose box is its drawing's bounds, placed where the drawing falls in the asked box; the result has no `unsaved_edits`"
     },
     {
       "input_schema": {
@@ -1361,9 +1360,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "create_shape",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
@@ -2158,9 +2157,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "move_node",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
@@ -2186,9 +2185,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "delete_node",
-      "why": "not built for the open file yet"
+      "why": "Figma deletes and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; it is refused while an instance outside it uses a component in it, and a prototype link or an override pointing into it is left to Figma"
     },
     {
       "input_schema": {
@@ -2215,9 +2214,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "group_nodes",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
@@ -2237,9 +2236,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "ungroup",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
@@ -2278,9 +2277,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "create_section",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {
@@ -2312,9 +2311,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "duplicate_node",
-      "why": "not built for the open file yet"
+      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
     },
     {
       "input_schema": {

@@ -27,6 +27,7 @@
   }
   button.primary { background: var(--figma-color-bg-brand, #0d99ff); color: var(--figma-color-text-onbrand, #fff); border-color: transparent; }
   footer { margin-top: 12px; }
+  textarea { width: 100%; margin-top: 8px; font: 10px/14px ui-monospace, monospace; color: inherit; background: transparent; border: 1px solid var(--figma-color-border, #e6e6e6); border-radius: 5px; }
   [hidden] { display: none !important; }
 </style>
 <h1><span class="dot" id="dot"></span><span id="state">Looking for grafta on this computer…</span></h1>
@@ -43,5 +44,10 @@
   <ul id="last"></ul>
 </section>
 <div class="row"><button id="stop">Stop</button></div>
+<section id="selftest-section" hidden>
+  <div class="muted">Development build</div>
+  <div class="row"><button id="selftest">Run self-test</button></div>
+  <textarea id="selftest-table" readonly hidden rows="8"></textarea>
+</section>
 <footer class="muted">Nothing leaves this computer: the panel talks to grafta on it alone.</footer>
 <!-- script -->

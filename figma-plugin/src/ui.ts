@@ -131,6 +131,12 @@ window.onmessage = (event: MessageEvent) => {
   switch (message.kind) {
     case "file":
       file = message.file;
+      element("selftest-section").hidden = !message.selftest;
+      break;
+    case "selftest":
+      element<HTMLButtonElement>("selftest").disabled = false;
+      element<HTMLTextAreaElement>("selftest-table").value = message.table;
+      element("selftest-table").hidden = false;
       break;
     case "known": {
       file = message.file;
@@ -175,6 +181,13 @@ element("stop").onclick = () => {
   stopped = !stopped;
   for (const connection of connections.values()) if (connection.allowed) send(connection, { stopped });
   render();
+};
+
+element("selftest").onclick = () => {
+  element<HTMLButtonElement>("selftest").disabled = true;
+  element<HTMLTextAreaElement>("selftest-table").value = "Running…";
+  element("selftest-table").hidden = false;
+  toMain({ kind: "selftest" });
 };
 
 function tryAll(): void {
