@@ -59,12 +59,9 @@ export function Hero({ scenes }: { scenes: Scene[] }) {
         </h1>
         <div className="lg:justify-self-end">
           <p className="hero-support max-w-[540px] text-[16px] leading-relaxed text-muted sm:text-[17px]">
-            grafta reads and writes your Figma files, with no internet. Ask your AI what's in one, change it,
-            or turn it into code.
-          </p>
-          <p className="mt-2 max-w-[540px] text-[15px] leading-relaxed text-muted">
-            <b className="font-semibold text-text">New:</b> Now from Figma's desktop app too, on the file you
-            have open, on your own computer.
+            grafta reads and writes your Figma files, with no internet.{" "}
+            <b className="font-semibold text-text">New:</b> now from Figma's desktop app too, on the file you
+            have open.
           </p>
           <GetGrafta />
         </div>
