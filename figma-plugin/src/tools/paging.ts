@@ -59,3 +59,25 @@ export function page<T>(items: T[], how: Asked, prefix: string, reserve: number,
   }
   return out;
 }
+
+/** [`page`], when an item is shown by reading Figma: only the page's items are read. */
+export async function pageAsync<T>(
+  items: T[],
+  how: Asked,
+  prefix: string,
+  reserve: number,
+  item: (value: T) => Promise<unknown>,
+): Promise<Record<string, unknown>> {
+  const shown: unknown[] = [];
+  for (const value of items.slice(how.offset, how.offset + how.limit)) shown.push(await item(value));
+  const out = page(shown, { ...how, offset: 0 }, prefix, reserve, (value) => value);
+  const next = how.offset + (out.results as unknown[]).length;
+  out.total = items.length;
+  delete out.next_cursor;
+  delete out.omitted;
+  if (next < items.length) {
+    out.next_cursor = `${prefix}${next}`;
+    out.omitted = { reason: "page", remaining: items.length - next, how: "call again with this next_cursor" };
+  }
+  return out;
+}

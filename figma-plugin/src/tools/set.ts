@@ -140,7 +140,8 @@ async function one(node: Node, key: string, value: unknown, undo: Undo[], variab
   throw new Error(`not a property set_properties takes`);
 }
 
-function effects(given: unknown): Effect[] {
+/** Effects as set_properties takes them, made into the plugin API's. */
+export function effects(given: unknown): Effect[] {
   if (!Array.isArray(given)) throw new Error("expected an array of effects");
   return given.map((item: Record<string, unknown>, index): Effect => {
     const visible = item.visible !== false;
@@ -224,7 +225,7 @@ async function size(node: Node, properties: Record<string, unknown>, undo: Undo[
   }
 }
 
-async function loadFonts(text: TextNode): Promise<void> {
+export async function loadFonts(text: TextNode): Promise<void> {
   const fonts = text.characters.length ? text.getRangeAllFontNames(0, text.characters.length) : [text.fontName as FontName];
   await Promise.all(fonts.map((font) => figma.loadFontAsync(font)));
 }
@@ -266,7 +267,7 @@ async function textChanges(node: Node, properties: Record<string, unknown>, undo
 }
 
 /** The file's own variables, found by name or id. */
-class Variables {
+export class Variables {
   private local?: Variable[];
 
   async named(wanted: string): Promise<Variable> {

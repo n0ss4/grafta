@@ -16,6 +16,11 @@ impl Tool for ListComponents {
     fn name(&self) -> &'static str {
         "list_components"
     }
+    fn live(&self) -> Live {
+        Live::Differs(
+            "the open file is listed a page at a time, within a time budget: `total` counts the pages listed so far, and `next_cursor` goes on to the rest",
+        )
+    }
     fn description(&self) -> &'static str {
         "The components this file defines: every component set (with its variant properties \
          and their values) and every standalone component, with id, name, page, component \
@@ -49,6 +54,9 @@ impl Tool for ComponentInstances {
     fn name(&self) -> &'static str {
         "component_instances"
     }
+    fn live(&self) -> Live {
+        Live::Same
+    }
     fn description(&self) -> &'static str {
         "Where a component is used: every instance of it (of any variant, for a component \
          set), with id, name and path. Paged."
@@ -79,6 +87,9 @@ pub struct ListVariables;
 impl Tool for ListVariables {
     fn name(&self) -> &'static str {
         "list_variables"
+    }
+    fn live(&self) -> Live {
+        Live::Same
     }
     fn description(&self) -> &'static str {
         "The file's design variables (tokens): each collection with its modes, and each \

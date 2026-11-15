@@ -8,7 +8,7 @@ use serde_json::{json, Value};
 use super::args::{optional_string, string};
 use super::data;
 use super::schema::{handle_property, schema};
-use super::{Request, Tool};
+use super::{Request, Live, Tool};
 use crate::error::VariableError;
 use crate::tools::{style, variable};
 use crate::{DomainError, ToolError};
@@ -48,6 +48,9 @@ pub struct CreateVariableCollection;
 impl Tool for CreateVariableCollection {
     fn name(&self) -> &'static str {
         "create_variable_collection"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
     }
     fn description(&self) -> &'static str {
         "Make a variable collection (a set of design tokens) with named modes, e.g. modes: \
@@ -95,6 +98,9 @@ impl Tool for CreateVariable {
     fn name(&self) -> &'static str {
         "create_variable"
     }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
+    }
     fn description(&self) -> &'static str {
         "Add a variable to a collection, with a value for every mode: { \"Light\": \"#7C3AED\", \
          \"Dark\": \"#A78BFA\" }. type is COLOR, FLOAT, STRING or BOOLEAN. A value may be { alias: \
@@ -129,6 +135,9 @@ pub struct SetVariable;
 impl Tool for SetVariable {
     fn name(&self) -> &'static str {
         "set_variable"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
     }
     fn description(&self) -> &'static str {
         "Change a variable grafta made: rename it, or change its value in the modes named (the \
@@ -165,6 +174,9 @@ pub struct SetVariableCollection;
 impl Tool for SetVariableCollection {
     fn name(&self) -> &'static str {
         "set_variable_collection"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
     }
     fn description(&self) -> &'static str {
         "Change a collection grafta made: rename it, or add a mode (add_mode: \"High contrast\"). \
