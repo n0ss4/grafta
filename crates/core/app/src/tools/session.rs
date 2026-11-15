@@ -67,6 +67,7 @@ impl Query for ListOpen {
                     "opened_delta_mb": s.opened_delta_mb,
                 })
             })
+            .chain(kit.ports().live.list().into_iter().map(|f| data!({ "handle": f.handle, "in": "Figma", "name": f.name })))
             .collect();
         Ok(Output::Data(data!({ "files": files, "process_resident_mb": crate::resident_mb() })))
     }

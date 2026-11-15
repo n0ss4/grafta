@@ -66,6 +66,8 @@ impl Reader {
             // As the server measures, so a result is cut where it is cut there.
             measure: Arc::new(toolkit::edge::measure::Json),
             json: Arc::new(toolkit::edge::measure::Text),
+            // A browser has no bridge: no file open in Figma is listed.
+            live: Arc::new(memory::MemoryLive::default()),
         };
         Self { kit: toolkit::with_ports(ports, None), store, open: None }
     }

@@ -64,7 +64,7 @@ Find nodes by name (case-insensitive substring), by type (FRAME, TEXT, INSTANCE,
 
 ### `list_open`
 
-List the files currently open, with their handles, node counts, unsaved edits, how long each took to open, and the process's memory.
+List the files currently open, with their handles, node counts, unsaved edits, how long each took to open, and the process's memory; and the files open in Figma with grafta's panel on them, `in: "Figma"`, by handle and name.
 
 No arguments.
 

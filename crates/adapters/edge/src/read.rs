@@ -4,7 +4,7 @@ use serde_json::{json, Value};
 
 use super::args::{budget, optional_bool, optional_integer, optional_string, paging, string};
 use super::schema::{handle_property, merge, paging_properties, schema};
-use super::{Request, Tool};
+use super::{Request, Live, Tool};
 use crate::tools::{read, screens};
 use crate::view::Limits;
 use crate::ToolError;
@@ -147,6 +147,9 @@ pub struct ReadRaw;
 impl Tool for ReadRaw {
     fn name(&self) -> &'static str {
         "read_raw"
+    }
+    fn live(&self) -> Live {
+        Live::Cannot("the open file gives no bytes; save a local copy to read them")
     }
     fn description(&self) -> &'static str {
         "The node exactly as the file stores it: every field of its node change, including \

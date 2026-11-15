@@ -15,6 +15,7 @@ members = [
     "crates/products/figjam",
     "crates/products/sites",
     "crates/adapters/disk",
+    "crates/adapters/bridge",
     "crates/adapters/edge",
     "crates/adapters/memory",
     "crates/toolkit",
@@ -55,6 +56,7 @@ slides = { package = "grafta-slides", version = "0.5.0", path = "crates/products
 figjam = { package = "grafta-figjam", version = "0.5.0", path = "crates/products/figjam" }
 sites = { package = "grafta-sites", version = "0.5.0", path = "crates/products/sites" }
 disk = { package = "grafta-disk", version = "0.5.0", path = "crates/adapters/disk" }
+bridge = { package = "grafta-bridge", version = "0.5.0", path = "crates/adapters/bridge" }
 edge = { package = "grafta-edge", version = "0.5.0", path = "crates/adapters/edge" }
 memory = { package = "grafta-memory", version = "0.5.0", path = "crates/adapters/memory" }
 testkit = { package = "grafta-testkit", path = "crates/testkit" }
@@ -77,6 +79,13 @@ resvg = "0.47"
 skrifa = "0.42"
 # Variant property ids are SHA-1 of the property's name.
 sha1 = "0.10"
+# The bridge to the files open in Figma (crates/adapters/bridge alone): a
+# WebSocket server, no client, no TLS. Measured by row 114 (research M5):
+# +322 KB in the release binary, nothing in the browser's.
+tokio-tungstenite = { version = "0.30", default-features = false, features = ["handshake"] }
+futures-util = { version = "0.3", default-features = false, features = ["sink"] }
+# The bridge's secret, from the system's randomness. Already tungstenite's.
+getrandom = "0.4"
 # PDF from the same drawing as render_node. krilla-svg reads a
 # usvg tree, so resvg and skrifa stay on the versions krilla uses: one copy of
 # each, one font database.

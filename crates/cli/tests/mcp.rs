@@ -13,8 +13,12 @@ struct Client {
 
 impl Client {
     fn start() -> Self {
+        // Its data folder, where the bridge keeps its secret, is the tests' own.
+        let home = std::path::Path::new(env!("CARGO_TARGET_TMPDIR")).join("mcp-home");
         let mut child = Command::new(env!("CARGO_BIN_EXE_grafta"))
             .arg("mcp")
+            .env("HOME", &home)
+            .env("USERPROFILE", &home)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::null())

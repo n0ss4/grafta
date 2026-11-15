@@ -12,6 +12,8 @@ use crate::fnv;
 const STEM_CHARS: usize = 24;
 /// The bits of the path's hash a handle shows: four hex digits.
 const HASH_MASK: u64 = 0xffff;
+/// What a handle of a file open in Figma begins with.
+const LIVE_PREFIX: &str = "figma-";
 
 /// A short handle a model can read: the file stem and a hash of the full path,
 /// so two files with the same name in different folders do not collide, and
@@ -26,6 +28,19 @@ impl Handle {
         let stem = path.file_stem().map_or_else(|| "file".into(), |s| s.to_string_lossy().into_owned());
         let stem: String = stem.chars().map(|c| if c.is_ascii_alphanumeric() { c } else { '-' }).take(STEM_CHARS).collect();
         Self(format!("{stem}-{:04x}", fnv(path.to_string_lossy().as_bytes()) & HASH_MASK))
+    }
+
+    /// The handle of a file open in Figma: `figma-` and four hex digits of
+    /// `seed`, which whoever makes it keeps unique among its own.
+    #[must_use]
+    pub fn in_figma(seed: u64) -> Self {
+        Self(format!("{LIVE_PREFIX}{:04x}", fnv(&seed.to_le_bytes()) & HASH_MASK))
+    }
+
+    /// Whether `text` is shaped as a handle [`Handle::in_figma`] makes.
+    #[must_use]
+    pub fn looks_in_figma(text: &str) -> bool {
+        text.strip_prefix(LIVE_PREFIX).is_some_and(|hex| hex.len() == 4 && hex.bytes().all(|b| b.is_ascii_hexdigit()))
     }
 
     #[must_use]

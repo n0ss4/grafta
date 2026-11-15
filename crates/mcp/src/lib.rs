@@ -7,13 +7,17 @@
 //! is served with no change here. The toolkit is synchronous
 //! and a call can take seconds (opening a 25 MB file), so each call runs on
 //! tokio's blocking pool rather than on the runtime's own thread.
+//!
+//! It also starts the bridge to the files open in Figma, on this computer
+//! alone, and tells it the AI app's name. `grafta tool` does not.
 
 use std::sync::{Arc, Mutex};
 
+use bridge::Bridge;
 use rmcp::model::{
     CacheScope, CallToolRequestParams, CallToolResponse, CallToolResult, ContentBlock, Implementation,
-    InitializeResult, ListToolsResult, PaginatedRequestParams, ServerCapabilities, ServerConfig,
-    Tool,
+    InitializeRequestParams, InitializeResult, ListToolsResult, PaginatedRequestParams, ServerCapabilities,
+    ServerConfig, Tool,
 };
 use rmcp::service::RequestContext;
 use rmcp::{ErrorData, RoleServer, ServerHandler, ServiceExt};
@@ -47,16 +51,18 @@ const INSTRUCTIONS: &str = "grafta reads and writes Figma .fig files exactly, of
 /// when grafta is rebuilt, which restarts the server anyway.
 pub const TOOL_LIST_TTL_MS: u64 = 60 * 60 * 1000;
 
-/// The server: one toolkit, shared by every call.
+/// The server: one toolkit, shared by every call, and the bridge to the
+/// files open in Figma when it is running.
 #[derive(Clone)]
 pub struct Grafta {
     kit: Arc<Mutex<Toolkit>>,
+    bridge: Option<Arc<Bridge>>,
 }
 
 /// A server that forgets its edits when it stops.
 impl Default for Grafta {
     fn default() -> Self {
-        Self { kit: Arc::new(Mutex::new(toolkit::new())) }
+        Self { kit: Arc::new(Mutex::new(toolkit::new())), bridge: None }
     }
 }
 
@@ -66,8 +72,36 @@ impl Grafta {
     #[must_use]
     pub fn new() -> Self {
         let kit = journal_dir().map_or_else(toolkit::new, toolkit::with_journal);
-        Self { kit: Arc::new(Mutex::new(kit)) }
+        Self { kit: Arc::new(Mutex::new(kit)), bridge: None }
     }
+
+    /// [`Grafta::new`], reaching the files open in Figma through `bridge`.
+    #[must_use]
+    pub fn with_bridge(bridge: Arc<Bridge>) -> Self {
+        let ports = toolkit::port::Ports { live: bridge.clone(), ..toolkit::port::on_disk() };
+        let kit = toolkit::with_ports(ports, journal_dir());
+        Self { kit: Arc::new(Mutex::new(kit)), bridge: Some(bridge) }
+    }
+}
+
+/// grafta's data folder: `~/.grafta`, where the journals and the bridge's
+/// secret are kept unless `GRAFTA_JOURNAL_DIR` moves the journals.
+fn data_dir_in(var: impl Fn(&str) -> Option<std::ffi::OsString>) -> Option<std::path::PathBuf> {
+    var("HOME").or_else(|| var("USERPROFILE")).map(|home| std::path::PathBuf::from(home).join(".grafta"))
+}
+
+/// The bridge on this computer, or why it did not start: files are served
+/// either way.
+fn start_bridge() -> Result<Bridge, String> {
+    let dir = data_dir_in(|name| std::env::var_os(name)).ok_or("no home folder to keep its secret in")?;
+    let secret = bridge::secret_in(&dir).map_err(|error| format!("its secret could not be kept in {}: {error}", dir.display()))?;
+    Bridge::start(&tokio::runtime::Handle::current(), bridge::Options::new(secret)).map_err(|error| error.to_string())
+}
+
+/// The AI app's name as its `clientInfo` gives it: the title meant for people
+/// when there is one.
+fn caller(client: &Implementation) -> &str {
+    client.title.as_deref().filter(|title| !title.trim().is_empty()).unwrap_or(&client.name)
 }
 
 /// Where the server journals edits: `$GRAFTA_JOURNAL_DIR`, or
@@ -80,11 +114,7 @@ pub fn journal_dir() -> Option<std::path::PathBuf> {
 /// [`journal_dir`] over any environment. Windows usually sets no `HOME`, so
 /// its home is `USERPROFILE`; without either there is no journal.
 fn journal_dir_in(var: impl Fn(&str) -> Option<std::ffi::OsString>) -> Option<std::path::PathBuf> {
-    var("GRAFTA_JOURNAL_DIR").map(std::path::PathBuf::from).or_else(|| {
-        var("HOME")
-            .or_else(|| var("USERPROFILE"))
-            .map(|home| std::path::PathBuf::from(home).join(".grafta").join("journals"))
-    })
+    var("GRAFTA_JOURNAL_DIR").map(std::path::PathBuf::from).or_else(|| data_dir_in(var).map(|dir| dir.join("journals")))
 }
 
 /// Every tool in the toolkit's list, as MCP tool definitions.
@@ -127,6 +157,18 @@ impl ServerHandler for Grafta {
             .with_instructions(INSTRUCTIONS)
     }
 
+    async fn initialize(
+        &self,
+        request: InitializeRequestParams,
+        context: RequestContext<RoleServer>,
+    ) -> Result<InitializeResult, ErrorData> {
+        if let Some(bridge) = &self.bridge {
+            bridge.set_caller(caller(&request.client_info));
+        }
+        context.peer.set_peer_info(request.clone());
+        self.negotiate_initialize(&request)
+    }
+
     async fn list_tools(
         &self,
         _request: Option<PaginatedRequestParams>,
@@ -160,10 +202,41 @@ impl ServerHandler for Grafta {
 pub fn serve() -> Result<(), Box<dyn std::error::Error>> {
     let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build()?;
     runtime.block_on(async {
-        let service = Grafta::new().serve(rmcp::transport::stdio()).await?;
+        let server = match start_bridge() {
+            Ok(bridge) => Grafta::with_bridge(Arc::new(bridge)),
+            Err(why) => {
+                eprintln!("grafta: the bridge to Figma did not start ({why}); files are served as always");
+                Grafta::new()
+            }
+        };
+        let service = server.serve(rmcp::transport::stdio()).await?;
         service.waiting().await?;
         Ok(())
     })
+}
+
+/// What grafta's panel in Figma must agree on with this grafta, written to
+/// `figma-plugin/src/contract.json` so the plugin reads it and writes none of
+/// it by hand: the ports the bridge may listen on, and each tool's name,
+/// schema and what it does on a file open in Figma.
+#[must_use]
+pub fn contract() -> Value {
+    let tools: Vec<Value> = toolkit::tools::ALL
+        .iter()
+        .map(|tool| {
+            let (live, why) = match tool.live() {
+                toolkit::edge::Live::Same => ("same", None),
+                toolkit::edge::Live::Differs(why) => ("differs", Some(why)),
+                toolkit::edge::Live::Cannot(why) => ("cannot", Some(why)),
+            };
+            let mut entry = serde_json::json!({ "name": tool.name(), "input_schema": tool.input_schema(), "live": live });
+            if let Some(why) = why {
+                entry["why"] = why.into();
+            }
+            entry
+        })
+        .collect();
+    serde_json::json!({ "ports": bridge::PORTS, "tools": tools })
 }
 
 /// Standard base64, for image content. Twenty lines rather than a dependency.

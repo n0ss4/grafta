@@ -40,3 +40,40 @@ fn journals_go_under_the_home_or_the_windows_profile() {
     assert_eq!(journal_dir_in(env(&[("USERPROFILE", "/p")])), Some(journals("/p")));
     assert_eq!(journal_dir_in(env(&[])), None);
 }
+
+/// Where the plugin reads the contract from.
+const CONTRACT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../figma-plugin/src/contract.json");
+
+#[test]
+fn the_plugin_s_contract_is_as_recorded() {
+    let actual = serde_json::to_string_pretty(&contract()).expect("the contract serialises") + "\n";
+    if std::env::var_os("GRAFTA_RECORD").is_some() {
+        std::fs::write(CONTRACT, actual).expect("the contract written");
+        return;
+    }
+    let expected = std::fs::read_to_string(CONTRACT).expect("the recorded contract");
+    for (line, (want, got)) in expected.lines().zip(actual.lines()).enumerate() {
+        assert_eq!(got, want, "line {} of figma-plugin/src/contract.json changed: GRAFTA_RECORD=1 records it", line + 1);
+    }
+    assert_eq!(actual.lines().count(), expected.lines().count(), "the contract changed length: GRAFTA_RECORD=1 records it");
+}
+
+#[test]
+fn the_ai_app_is_named_by_its_title_for_people_when_it_has_one() {
+    let mut client = Implementation::new("claude-ai", "1.0");
+    assert_eq!(caller(&client), "claude-ai");
+    client.title = Some("Claude".into());
+    assert_eq!(caller(&client), "Claude");
+}
+
+#[test]
+fn the_data_folder_is_under_the_home_or_the_windows_profile() {
+    use std::ffi::OsString;
+    use std::path::PathBuf;
+    let env = |pairs: &'static [(&'static str, &'static str)]| {
+        move |name: &str| pairs.iter().find(|(key, _)| *key == name).map(|(_, value)| OsString::from(value))
+    };
+    assert_eq!(data_dir_in(env(&[("HOME", "/h"), ("GRAFTA_JOURNAL_DIR", "/j")])), Some(PathBuf::from("/h/.grafta")));
+    assert_eq!(data_dir_in(env(&[("USERPROFILE", "/p")])), Some(PathBuf::from("/p/.grafta")));
+    assert_eq!(data_dir_in(env(&[])), None);
+}
