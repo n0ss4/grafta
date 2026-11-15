@@ -84,6 +84,16 @@ impl Grafta {
     }
 }
 
+impl Grafta {
+    /// Tell the bridge the AI app's name, which a client of the protocol
+    /// without `initialize` gives in each request's `_meta`.
+    fn name_caller(&self, context: &RequestContext<RoleServer>) {
+        if let (Some(bridge), Some(client)) = (&self.bridge, context.meta.client_info()) {
+            bridge.set_caller(caller(&client));
+        }
+    }
+}
+
 /// grafta's data folder: `~/.grafta`, where the journals and the bridge's
 /// secret are kept unless `GRAFTA_JOURNAL_DIR` moves the journals.
 fn data_dir_in(var: impl Fn(&str) -> Option<std::ffi::OsString>) -> Option<std::path::PathBuf> {
@@ -172,8 +182,9 @@ impl ServerHandler for Grafta {
     async fn list_tools(
         &self,
         _request: Option<PaginatedRequestParams>,
-        _context: RequestContext<RoleServer>,
+        context: RequestContext<RoleServer>,
     ) -> Result<ListToolsResult, ErrorData> {
+        self.name_caller(&context);
         // Protocol 2026-07-28 makes `ttlMs` and `cacheScope` required on a
         // list result, and Claude Code rejects the list without them. The
         // tools are fixed for the life of the binary and the same for every
@@ -186,8 +197,9 @@ impl ServerHandler for Grafta {
     async fn call_tool(
         &self,
         request: CallToolRequestParams,
-        _context: RequestContext<RoleServer>,
+        context: RequestContext<RoleServer>,
     ) -> Result<CallToolResponse, ErrorData> {
+        self.name_caller(&context);
         let kit = Arc::clone(&self.kit);
         let name = request.name.to_string();
         let arguments = Value::Object(request.arguments.unwrap_or_default());

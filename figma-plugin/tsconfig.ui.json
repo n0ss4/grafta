@@ -1,0 +1,15 @@
+// The panel's window: the DOM, no Figma API.
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": [
+      "es2020",
+      "dom"
+    ],
+    "types": []
+  },
+  "include": [
+    "src/ui.ts"
+  ],
+  "exclude": []
+}

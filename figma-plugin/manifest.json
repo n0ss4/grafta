@@ -1,0 +1,13 @@
+{
+  "name": "grafta",
+  "id": "grafta-development",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["ws://localhost:47823", "ws://localhost:47824", "ws://localhost:47825", "ws://localhost:47826", "ws://localhost:47827"],
+    "reasoning": "grafta runs on your own computer and listens on these local ports alone. The panel connects to it there, so your AI app can read and change this file through grafta. Nothing is sent anywhere else."
+  }
+}

@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 use super::args::string;
 use super::data;
 use super::schema::{handle_property, schema};
-use super::{Request, Tool};
+use super::{Request, Live, Tool};
 use crate::tools::{images, rich_text, style};
 use crate::ToolError;
 
@@ -15,6 +15,9 @@ pub struct SetProperties;
 impl Tool for SetProperties {
     fn name(&self) -> &'static str {
         "set_properties"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::SET_PROPERTIES)
     }
     fn description(&self) -> &'static str {
         "Change a frame, instance or text layer you created, using read_node's names: x, y, width, height, name, \

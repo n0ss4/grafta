@@ -77,3 +77,13 @@ fn the_data_folder_is_under_the_home_or_the_windows_profile() {
     assert_eq!(data_dir_in(env(&[("USERPROFILE", "/p")])), Some(PathBuf::from("/p/.grafta")));
     assert_eq!(data_dir_in(env(&[])), None);
 }
+
+#[test]
+fn the_plugin_may_reach_the_bridge_s_ports_and_nothing_else() {
+    let manifest: Value = serde_json::from_str(include_str!("../../../figma-plugin/manifest.json")).expect("the plugin's manifest is JSON");
+    let allowed: Vec<&str> = manifest["networkAccess"]["allowedDomains"].as_array().expect("allowedDomains").iter().filter_map(Value::as_str).collect();
+    let ports: Vec<String> = bridge::PORTS.iter().map(|port| format!("ws://localhost:{port}")).collect();
+    assert_eq!(allowed, ports);
+    assert!(manifest["networkAccess"].get("devAllowedDomains").is_none(), "nothing else, even in development");
+    assert!(manifest["networkAccess"]["reasoning"].as_str().is_some_and(|r| r.len() > 40), "Figma requires a reasoning");
+}

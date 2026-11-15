@@ -127,10 +127,16 @@ impl Bridge {
     }
 
     /// Name the AI app that calls, as MCP's `clientInfo` gives it: panels
-    /// already connected are told again.
+    /// already connected are told again when it changes.
     pub fn set_caller(&self, name: &str) {
         let name = if name.trim().is_empty() { NOBODY } else { name.trim() };
-        self.shared.caller.send_replace(name.to_string());
+        self.shared.caller.send_if_modified(|now| {
+            let changed = now != name;
+            if changed {
+                *now = name.to_string();
+            }
+            changed
+        });
     }
 }
 

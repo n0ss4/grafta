@@ -34,6 +34,9 @@ impl Tool for ListScreens {
     fn name(&self) -> &'static str {
         "list_screens"
     }
+    fn live(&self) -> Live {
+        Live::Same
+    }
     fn description(&self) -> &'static str {
         "The screens of a page, as a person sees them in Figma, in their order: a page's \
          top-level frames, components, sections and other layers; a deck's slides, across its \
@@ -66,6 +69,11 @@ pub struct SearchNodes;
 impl Tool for SearchNodes {
     fn name(&self) -> &'static str {
         "search_nodes"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(
+            "the open file is searched a page at a time, within a time budget: `total` counts the matches on the pages searched so far, and `next_cursor` goes on to the rest",
+        )
     }
     fn description(&self) -> &'static str {
         "Find nodes by name (case-insensitive substring), by type (FRAME, TEXT, INSTANCE, \
@@ -103,6 +111,9 @@ pub struct ReadNode;
 impl Tool for ReadNode {
     fn name(&self) -> &'static str {
         "read_node"
+    }
+    fn live(&self) -> Live {
+        Live::Same
     }
     fn description(&self) -> &'static str {
         "Read one node exactly, in Figma's terms: geometry, fills/strokes (hex colours, bound \

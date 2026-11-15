@@ -1,0 +1,47 @@
+<!doctype html>
+<meta charset="utf-8">
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 12px; font: 11px/16px Inter, system-ui, sans-serif;
+    color: var(--figma-color-text, #1e1e1e); background: var(--figma-color-bg, #fff);
+  }
+  h1 { font-size: 12px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--figma-color-icon-tertiary, #b3b3b3); flex: none; }
+  .dot.on { background: var(--figma-color-icon-success, #14ae5c); }
+  .dot.stopped { background: var(--figma-color-icon-warning, #f5a623); }
+  .muted { color: var(--figma-color-text-secondary, #757575); }
+  section { margin-top: 10px; }
+  ul { list-style: none; margin: 4px 0 0; padding: 0; }
+  li { padding: 2px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ask {
+    border: 1px solid var(--figma-color-border-brand-strong, #0d99ff); border-radius: 6px; padding: 8px;
+    background: var(--figma-color-bg-brand-tertiary, #e5f4ff);
+  }
+  .row { display: flex; gap: 8px; margin-top: 8px; }
+  button {
+    font: inherit; border-radius: 5px; padding: 4px 10px; cursor: pointer;
+    border: 1px solid var(--figma-color-border, #e6e6e6); background: var(--figma-color-bg, #fff);
+    color: var(--figma-color-text, #1e1e1e);
+  }
+  button.primary { background: var(--figma-color-bg-brand, #0d99ff); color: var(--figma-color-text-onbrand, #fff); border-color: transparent; }
+  footer { margin-top: 12px; }
+  [hidden] { display: none !important; }
+</style>
+<h1><span class="dot" id="dot"></span><span id="state">Looking for grafta on this computer…</span></h1>
+<div class="ask" id="ask" hidden>
+  <div><b id="ask-name"></b> wants to read and change this file through grafta.</div>
+  <div class="row"><button class="primary" id="allow">Allow</button><button id="refuse">Refuse</button></div>
+</div>
+<section id="callers-section" hidden>
+  <div class="muted">Allowed</div>
+  <ul id="callers"></ul>
+</section>
+<section>
+  <div class="muted" id="doing">No call yet.</div>
+  <ul id="last"></ul>
+</section>
+<div class="row"><button id="stop">Stop</button></div>
+<footer class="muted">Nothing leaves this computer: the panel talks to grafta on it alone.</footer>
+<!-- script -->

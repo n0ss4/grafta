@@ -35,6 +35,7 @@ jobs:
       packaging: ${{ steps.diff.outputs.packaging }}
       web: ${{ steps.diff.outputs.web }}
       reader: ${{ steps.diff.outputs.reader }}
+      plugin: ${{ steps.diff.outputs.plugin }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -46,7 +47,7 @@ jobs:
         run: |
           everything() {
             echo "$1, so every job runs"
-            printf 'test=true\npackaging=true\nweb=true\nreader=true\n' | tee -a "$GITHUB_OUTPUT"
+            printf 'test=true\npackaging=true\nweb=true\nreader=true\nplugin=true\n' | tee -a "$GITHUB_OUTPUT"
             exit 0
           }
           [ "$GITHUB_EVENT_NAME" != workflow_dispatch ] || everything "a manual run"
@@ -80,7 +81,10 @@ jobs:
           # The browser reader: the crates it compiles, and the script that builds it.
           reader="$(touches crates Cargo.toml Cargo.lock scripts/web-reader.sh scripts/install-binaryen.sh)"
 
-          printf 'test=%s\npackaging=%s\nweb=%s\nreader=%s\n' "$test" "$packaging" "$web" "$reader" | tee -a "$GITHUB_OUTPUT"
+          # grafta's panel in Figma, and the crates whose tools its contract.json lists.
+          plugin="$(touches figma-plugin crates)"
+
+          printf 'test=%s\npackaging=%s\nweb=%s\nreader=%s\nplugin=%s\n' "$test" "$packaging" "$web" "$reader" "$plugin" | tee -a "$GITHUB_OUTPUT"
 
   test:
     needs: changes
@@ -134,6 +138,28 @@ jobs:
       # docs/TOOLS.md and the website's web/src/generated/tools.json are the server's own tool list.
       - run: python3 scripts/tool-reference.py target/release/grafta --check
       - run: python3 scripts/check-public-figures.py
+
+  # grafta's panel in Figma: its types, and its build, which fails when a tool
+  # contract.json says acts on the open file has no function in the panel.
+  figma-plugin:
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: figma-plugin
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: figma-plugin/.nvmrc
+          cache: npm
+          cache-dependency-path: figma-plugin/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
 
   # The website: types, lint, tests, the pre-rendered build, and the
   # browser's view of it (routes, keyboard, scripts off, axe, Lighthouse).
