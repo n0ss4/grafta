@@ -4,6 +4,8 @@
 
 The 45 tools grafta's MCP server lists, in its words, with their arguments. A model reads the same descriptions and schemas; `grafta tool <name> '<json>'` calls one from a terminal. Every call but `open_file`, `new_file` and `list_open` takes the `handle` `open_file` returns.
 
+On a file open in Figma's desktop app with grafta's panel on it, a tool takes the handle `list_open` gives it. Each tool below says what it does there: 7 do the same, 28 work with a difference they name, and 10 are not there, each with why.
+
 - **Find your way**: [`open_file`](#open_file) [`summarize`](#summarize) [`list_screens`](#list_screens) [`search_nodes`](#search_nodes) [`list_open`](#list_open) [`close_file`](#close_file)
 - **Read**: [`read_node`](#read_node) [`read_raw`](#read_raw) [`list_components`](#list_components) [`component_instances`](#component_instances) [`get_image`](#get_image)
 - **See**: [`render_node`](#render_node) [`export_pdf`](#export_pdf) [`check_contrast`](#check_contrast)
@@ -23,6 +25,8 @@ Pages, their screens, counts, and nodes by name or type, with their path.
 
 Open a Figma .fig file and keep it open for later calls. Returns a handle and a summary: pages, node counts, components, variable collections, images. Opening a path that is already open returns the same handle without reading it again. Large files take seconds to open; every later call on the handle is fast. Edits the file had not saved when grafta last stopped are replayed, and `recovered` says how many; edits all saved to another file are not, and it says which file.
 
+**Not on the open file in Figma:** a file open in Figma is opened and closed in Figma: open grafta's panel on it.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `path` | string | required | Path to a .fig file. |
@@ -32,6 +36,8 @@ Open a Figma .fig file and keep it open for later calls. Returns a handle and a 
 
 Overview of an open file: every page with its id, node count and number of top-level frames, plus totals for nodes, components, component sets, instances, text nodes, variables, styles and images, and the prototype's flows and live interactions.
 
+**On the open file in Figma, unlike on a file:** counts a page at a time for 2 s: past that, the totals are for the pages listed and the rest are named under `omitted`; `images` and `prototype` are not counted there, and there is no `unsaved_edits`.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -39,6 +45,8 @@ Overview of an open file: every page with its id, node count and number of top-l
 ### `list_screens`
 
 The screens of a page, as a person sees them in Figma, in their order: a page's top-level frames, components, sections and other layers; a deck's slides, across its rows; a site page's breakpoints. Each with id, name, type, size and whether it is visible, ready for render_node. Paged.
+
+**On the open file in Figma:** the same.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -52,6 +60,8 @@ The screens of a page, as a person sees them in Figma, in their order: a page's 
 
 Find nodes by name (case-insensitive substring), by type (FRAME, TEXT, INSTANCE, COMPONENT, COMPONENT_SET, PAGE, SECTION, GROUP, RECTANGLE, VECTOR, …), or both, optionally only inside one node. Returns id, name, type and the path from the page, in document order, paged. Hidden nodes are included.
 
+**On the open file in Figma, unlike on a file:** the open file is searched a page at a time, within a time budget: `total` counts the matches on the pages searched so far, `pages_searched` of `pages` says how far it went, and `next_cursor` goes on to the rest.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -64,13 +74,17 @@ Find nodes by name (case-insensitive substring), by type (FRAME, TEXT, INSTANCE,
 
 ### `list_open`
 
-List the files currently open, with their handles, node counts, unsaved edits, how long each took to open, and the process's memory; and the files open in Figma with grafta's panel on them, `in: "Figma"`, by handle and name.
+List the files currently open, with their handles, node counts, unsaved edits, how long each took to open, and the process's memory; and the files open in Figma with grafta's panel on them, `in: "Figma"`, by handle and name, each with the page the person is on and what they have selected.
+
+**On the open file in Figma:** the same.
 
 No arguments.
 
 ### `close_file`
 
 Close an open file and free the memory it holds. Edits not saved with save_as are discarded, for good: they are not recovered on the next open. The result says how many there were.
+
+**Not on the open file in Figma:** a file open in Figma is opened and closed in Figma: open grafta's panel on it.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -83,6 +97,8 @@ A node exactly, in the Figma plugin API's names.
 ### `read_node`
 
 Read one node exactly, in Figma's terms: geometry, fills/strokes (hex colours, bound variable names), effects, corner radii, auto-layout, constraints, text and its style, and for an instance its component and variant. A layer's prototype is `reactions` (trigger, actions, destination, transition), as the plugin API names them; a page gives its `flowStartingPoints`, a frame `overflowDirection` and overlay settings. Children to `depth` (default 1). Properties at Figma's default are left out: visible true, opacity 1, rotation 0, no fills/strokes/effects, radius 0, no auto-layout, constraints MIN/MIN. `undecoded` names stored fields this view does not model; read_raw returns them.
+
+**On the open file in Figma:** the same.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -97,6 +113,8 @@ Read one node exactly, in Figma's terms: geometry, fills/strokes (hex colours, b
 
 The node exactly as the file stores it: every field of its node change, including the ones read_node does not model (listed there as `undecoded`). Byte fields are shown as their length and a fingerprint.
 
+**Not on the open file in Figma:** the open file gives no bytes; save a local copy to read them.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -107,6 +125,8 @@ The node exactly as the file stores it: every field of its node change, includin
 ### `list_components`
 
 The components this file defines: every component set (with its variant properties and their values) and every standalone component, with id, name, page, component property definitions and how many instances use it. Variants inside a set are not listed separately; read_node on the set lists them as children. Paged.
+
+**On the open file in Figma, unlike on a file:** the open file is listed a page at a time, within a time budget: `total` counts the components on the pages listed so far, `pages_searched` of `pages` says how far it went, and `next_cursor` goes on to the rest.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -120,6 +140,8 @@ The components this file defines: every component set (with its variant properti
 
 Where a component is used: every instance of it (of any variant, for a component set), with id, name and path. Paged.
 
+**On the open file in Figma:** the same.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -131,6 +153,8 @@ Where a component is used: every instance of it (of any variant, for a component
 ### `get_image`
 
 An image the file embeds, by the imageHash a fill carries (read_node shows it). Returned as an image, up to 4 MB; a larger one is described instead.
+
+**On the open file in Figma:** the same.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -145,6 +169,8 @@ A frame as a picture, a PDF of frames, and every text's contrast.
 
 Draw a node (a board, frame, component, instance, shape or text) as a PNG you can look at, from the open file including unsaved edits. Use it to see a screen you read, or to check a change before save_as. Drawn offline: the caption's `notes` name everything drawn approximately or left out, and an empty list means nothing was.
 
+**On the open file in Figma, unlike on a file:** drawn by Figma itself: exact, with no notes, and it may differ from grafta's picture of a saved copy; the caption says `drawn_by: "Figma"`.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -156,6 +182,8 @@ Draw a node (a board, frame, component, instance, shape or text) as a PNG you ca
 
 Write nodes (frames, boards, components) to a NEW .pdf file, a page each in the order given, each page the node's size in points: screens for review or handoff. Each page is the drawing render_node makes, unsaved edits and modes included, as vectors, with text grafta wrote kept as selectable text. The result's `pages` give each page's notes, as render_node's do; a shadow or blur makes what it covers an image. Never overwrites.
 
+**Not on the open file in Figma:** not built for the open file yet.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -165,6 +193,8 @@ Write nodes (frames, boards, components) to a NEW .pdf file, a page each in the 
 ### `check_contrast`
 
 Check every visible text under a node (a screen, a frame, a component) against WCAG 2.2 AA: its colour against what is actually drawn behind it, as render_node draws it, in the frame's mode and with instances' overrides. 4.5:1 is required, 3:1 for large text (24 px, or 18.66 px bold). Lists the texts that fail, with colour, background, ratio and what is required, and those that cannot be measured, with why; `all: true` lists the passing ones too. Over a background of several colours, the lowest ratio is given. Paged.
+
+**Not on the open file in Figma:** measured on grafta's own drawing of a file; not built for the open file yet.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -183,6 +213,8 @@ Frames, rich text, shapes, SVG icons, instances and sections.
 
 Create a page at the end of the file's page list. Returns its id. Nothing is written to disk until save_as.
 
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -191,6 +223,8 @@ Create a page at the end of the file's page list. Returns its id. Nothing is wri
 ### `create_frame`
 
 Create an empty frame (no fill, no auto-layout) on a page or inside a frame, at x,y relative to the parent, with a width and height. Returns its id. Fills, strokes, auto-layout and text are not available yet: they have not been measured in Figma.
+
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -205,6 +239,8 @@ Create an empty frame (no fill, no auto-layout) on a page or inside a frame, at 
 ### `create_text`
 
 Create a text layer on a page or in a frame. characters is the text (a line break starts a new paragraph). fontFamily and fontStyle name a font as Figma does (e.g. "Inter", "Semi Bold"); by default, the file's most used font. fontSize, fills (like set_properties: SOLID colour or a local colour variable; default black), x, y, textAlignHorizontal (LEFT, CENTER, RIGHT, JUSTIFIED), lineHeight (pixels, or { value, unit: PIXELS | PERCENT }), letterSpacing (likewise). Give width to wrap text inside a fixed width; give height too to fix the box (textAutoResize NONE); without either the box fits the text. Rich text: runs instead of characters, [{ characters, fontFamily?, fontStyle?, fontSize?, fills?, textDecoration?, textCase?, letterSpacing?, lineHeight?, hyperlink?: { type: URL, value } }], each run styled apart from the layer (a link is underlined unless it says otherwise); paragraphs, one per line of the text, [{ listType: NONE | UNORDERED | ORDERED, indentation?: 1 | 2 }]; paragraphSpacing, paragraphIndent, textDecoration (NONE, UNDERLINE, STRIKETHROUGH), textCase (ORIGINAL, UPPER, LOWER, TITLE, SMALL_CAPS, SMALL_CAPS_FORCED), textAlignVertical (TOP, CENTER, BOTTOM) and textAutoResize (NONE, WIDTH_AND_HEIGHT, HEIGHT). Figma lays the text out when the file is opened, so the size grafta reports is provisional.
+
+**On the open file in Figma, unlike on a file:** Figma makes the text and lays it out, so `size` is Figma's own and not provisional, and the result has no `unsaved_edits`; with no fontFamily, the font and size most used by the current page's texts (Figma's default when it has none), and Figma's own line height when none is given.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -236,6 +272,8 @@ Create a text layer on a page or in a frame. characters is the text (a line brea
 
 Draw a shape as Figma's own layer type: RECTANGLE (cornerRadius), ELLIPSE (arcData { startingAngle, endingAngle, innerRadius } in radians: a ring, a pie, a half arc), LINE (width is its length; needs strokes), POLYGON (pointCount sides) or STAR (pointCount points, innerRadius 0-1). Fills and strokes as set_properties takes them; nothing is painted unless named. Style it further with set_properties.
 
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -257,6 +295,8 @@ Draw a shape as Figma's own layer type: RECTANGLE (cornerRadius), ELLIPSE (arcDa
 ### `create_vector`
 
 Draw a vector from SVG path data (M L H V C S Q T A Z), as icon sets publish it: Lucide, Heroicons, Material Symbols. `path` is one path's d, or a list of them. `viewBox` is the box the data is drawn in ([0, 0, 24, 24] for Lucide), scaled to width and height; without it, the path's own bounds. For a line icon give strokes, strokeWeight (in the vector's pixels: Lucide's 2 at 24 px is 4 at 48 px), strokeCap and strokeJoin ROUND, and no fills. Figma draws the geometry itself.
+
+**On the open file in Figma, unlike on a file:** Figma reads the path data as SVG and joins the paths into one vector, whose box is its drawing's bounds, placed where the drawing falls in the asked box; the result has no `unsaved_edits`.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -280,6 +320,8 @@ Draw a vector from SVG path data (M L H V C S Q T A Z), as icon sets publish it:
 
 Create an instance of a component this file defines, on a page or inside a frame, at x,y relative to the parent. It takes the component's own size. For a component set, pass one variant's id (the set's children, via read_node). Components from another file cannot be instantiated yet.
 
+**On the open file in Figma, unlike on a file:** Figma makes the instance and saves it, so the result has no `unsaved_edits`; a library's component is placed from its node in the file, as Figma allows, and placing one the file does not yet use is not measured (research O1).
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `component` | string | required | A component (or variant) id. |
@@ -292,6 +334,8 @@ Create an instance of a component this file defines, on a page or inside a frame
 ### `create_section`
 
 Make a section on a page, to organise screens ("Onboarding", "Checkout"). Then move frames into it with move_node (parent: the section), or create them in it.
+
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -311,6 +355,8 @@ A web page's layout as design layers.
 
 Write a web page's layout as design layers: a layout snapshot (JSON from grafta's snapshot.js, https://n0ss4.github.io/grafta/snapshot.js, run in a browser on the page: graftaSnapshot('<css selector>')) becomes frames, text, images and auto-layout in a page or frame. Flexbox becomes auto-layout with fill, hug or fixed sizing as the browser measured it (layout: "auto", the default), or every box is placed where the browser put it ("absolute"). Backgrounds, uniform borders, radii, box shadows, opacity, fonts and local or data: images are written; what is not (a gradient, a transform, an inline SVG, a remote image) is listed under not_imported, with its element. One call.
 
+**Not on the open file in Figma:** not built for the open file yet.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -328,6 +374,8 @@ Fills, strokes, effects, auto-layout, sizing, constraints, images, order.
 
 Change a frame, instance or text layer you created, using read_node's names: x, y, width, height, name, visible, clipsContent (clip children to the frame), auto-layout (layoutMode NONE | HORIZONTAL | VERTICAL, itemSpacing, counterAxisSpacing, padding or paddingTop/Right/Bottom/Left, primaryAxisSizingMode and counterAxisSizingMode FIXED | AUTO, primaryAxisAlignItems MIN | CENTER | MAX | SPACE_BETWEEN, counterAxisAlignItems MIN | CENTER | MAX, layoutWrap), a child's layoutGrow (0 | 1), layoutAlign (INHERIT | STRETCH) and layoutPositioning (AUTO | ABSOLUTE), fills and strokes (SOLID paints: { type: SOLID, color: "#RRGGBB", opacity?, variable? }, where variable binds the paint to one of the file's local colour variables by name; or { type: GRADIENT_LINEAR | GRADIENT_RADIAL, gradientStops: [{ position: 0-1, color, opacity? }], angle? (linear, degrees: 180 top to bottom, 90 left to right) or gradientTransform? }; or { type: IMAGE, image: "<PNG or JPEG path>" or imageHash, scaleMode?: FILL | FIT | STRETCH }), strokeWeight, strokeAlign (INSIDE, CENTER, OUTSIDE), cornerRadius or topLeftRadius/topRightRadius/bottomRightRadius/bottomLeftRadius, effects ({ type: DROP_SHADOW | INNER_SHADOW | LAYER_BLUR | BACKGROUND_BLUR, color?, opacity?, offset?: {x,y}, radius, spread? }) and opacity, and dashPattern (dash then gap lengths, [] for solid). On an instance: x, y, name, visible, size, and its own fills, strokes, strokeWeight, strokeAlign and dashPattern, which it keeps while the rest follows its component. On a text layer: x, y, width (fixes the width and wraps), height (fixes the box), name, visible, characters, fontFamily, fontStyle, fontSize, fills, textAlignHorizontal, lineHeight, letterSpacing, opacity, and as create_text takes them: runs (replacing the characters and their styles), paragraphs, paragraphSpacing, paragraphIndent, textDecoration, textCase, textAlignVertical, textAutoResize. A font, size, colour, spacing, decoration or case set on the layer applies to every character; new characters without runs take the layer's style. A text whose font, size, characters or runs change is estimated again (the result gives its size, provisional) and its auto-layout parent follows. A number that can come from a design token takes { variable: <name> } instead: itemSpacing, counterAxisSpacing, padding and each side, cornerRadius and each corner, width, height, opacity, and a text's fontSize; the value it resolves to is stored beside the binding. explicitVariableModes: { "Theme": "Dark" } shows a frame and everything in it in that mode. fillStyle, strokeStyle, effectStyle and textStyle apply a style by name (list_styles), null detaches one, and setting fills, strokes, effects or a text's font directly detaches the style it came from. componentPropertyReferences binds a layer inside a component to one of its properties; componentProperties sets an instance's values for them. A prototype, in read_node's names: reactions on any layer, replacing its own ([] removes them), each { trigger: { type: ON_CLICK | ON_HOVER | ON_PRESS | ON_DRAG | MOUSE_UP | MOUSE_DOWN, or AFTER_TIMEOUT with timeout (s), or ON_KEY_DOWN with keyCodes and device }, actions: [{ type: NODE, destinationId, navigation: NAVIGATE | OVERLAY | SWAP (a frame at the top of the same page) | SCROLL_TO (a layer in the same top frame) | CHANGE_TO (another variant of the layer's set), transition: null (instant) or { type: DISSOLVE | SMART_ANIMATE | SCROLL_ANIMATE (with SCROLL_TO), duration 0-10 s, easing: { type: EASE_IN | EASE_OUT | EASE_IN_AND_OUT | LINEAR | EASE_IN_BACK | EASE_OUT_BACK | GENTLE | BOUNCY, or CUSTOM_CUBIC_BEZIER with easingFunctionCubicBezier { x1, y1, x2, y2 } } }, preserveScrollPosition, resetScrollPosition, resetVideoPosition, resetInteractiveComponents, overlayRelativePosition { x, y } } or { type: URL, url, openInNewTab } or { type: BACK } or { type: CLOSE }] }; directional transitions, mouse enter and leave and the other springs are read, not written yet. scrollBehavior (SCROLLS, FIXED, STICKY_SCROLLS) on any layer; on a frame, overflowDirection (NONE, HORIZONTAL, VERTICAL, BOTH), an overlay's overlayPositionType, overlayBackground ({ type: NONE } or { type: SOLID_COLOR, color: "#RRGGBBAA" }) and overlayBackgroundInteraction (NONE, CLOSE_ON_CLICK_OUTSIDE), and flowStartingPoint { name, description? } (null ends it) on a frame at the top of a page. On a slide (Figma Slides), a frame's properties and: transition { style (NONE, DISSOLVE, SMART_ANIMATE, SLIDE_FROM_, PUSH_FROM_, MOVE_FROM_ LEFT | RIGHT | TOP | BOTTOM, SLIDE_OUT_TO_, MOVE_OUT_TO_ the same), duration 0.01-10 s, curve (EASE_IN, EASE_OUT, EASE_IN_AND_OUT, LINEAR, EASE_IN_BACK, EASE_OUT_BACK, EASE_IN_AND_OUT_BACK, GENTLE), timing { type: ON_CLICK } or { type: AFTER_DELAY, delay } }, as the plugin API's setSlideTransition takes it; objectAnimations [{ node (a layer on the slide), type (FADE, SLIDE_FROM_LEFT | RIGHT | TOP | BOTTOM), phase (IN | OUT), duration }], each played on a click, in order, replacing the slide's; isSkippedSlide; and speakerNotes (text, a paragraph a line). Smart Animate moves the layers two slides share by name. In FigJam: a sticky or shape takes text { characters, fills }, fills, x and y, and a shape also width, height, fontSize and textAlignHorizontal; a table takes cells (rows of texts, the first its header; rows past the last are added) and x, y; a connector takes connectorStart and connectorEnd ({ endpointNodeId, magnet: AUTO | TOP | BOTTOM | LEFT | RIGHT | CENTER } or { position: { x, y } }), connectorStartStrokeCap and connectorEndStrokeCap (NONE, ARROW_LINES, ARROW_EQUILATERAL, TRIANGLE_FILLED, DIAMOND_FILLED, CIRCLE_FILLED…) and connectorLineType (STRAIGHT, ELBOWED, CURVED). To add one, duplicate_node a sticky, shape, table or connector the board has, then set it. Only the properties named change. Nothing changes if any value is refused.
 
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result is `{ id, set }` with no `unsaved_edits`, and one call is one undo step there. Not built there yet, each refused by name with nothing changed: runs, paragraphs, componentPropertyReferences, componentProperties, reactions and the other prototype keys, an image by path (give its imageHash), and Slides' and FigJam's keys.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -337,6 +385,8 @@ Change a frame, instance or text layer you created, using read_node's names: x, 
 ### `override_instance`
 
 Change what an instance shows, without changing its component: the colour of an icon, a button's label, a hidden part. properties: fills and strokes (paints, as in set_properties), characters (text layers), visible. layer names the component's layer by its id, as read_node on the component shows it; for a layer inside a nested instance, give a path of ids [nested instance, layer]. Without layer, fills and strokes recolour every vector layer of the component that already has fills (or strokes), and never add paint to a layer that had none. Many icons are drawn with strokes, not fills: read_node on the component shows which, and a stroked icon is recoloured with strokes.
+
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -348,6 +398,8 @@ Change what an instance shows, without changing its component: the colour of an 
 ### `move_node`
 
 Move a frame, component or component set, instance, text layer, shape or vector: into another page or frame, or among its siblings. Siblings are drawn in order, the last on top; in an auto-layout frame the order is also the flow. Give `parent` (with `to`: "front", the default, or "back"), or `behind` / `in_front_of` a sibling to go right behind or in front of it, in that sibling's parent. x,y are relative to the new parent; by default the node keeps them.
+
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -364,6 +416,8 @@ Move a frame, component or component set, instance, text layer, shape or vector:
 
 Duplicate a node with everything in it: every layer copied with a new id, instances still instances of their components, bindings and styles kept. The copy goes in the same parent unless one is named, at x, y (by default the original's), in front of its new siblings; then change it. A component, or anything holding one, is not duplicated.
 
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -377,6 +431,8 @@ Duplicate a node with everything in it: every layer copied with a new id, instan
 
 Group layers that share a parent, as Figma's Group: the group sits at their bounds and each layer keeps its place on the canvas. Moving or resizing a grouped layer with set_properties fits the group again. ungroup undoes it.
 
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -387,6 +443,8 @@ Group layers that share a parent, as Figma's Group: the group sits at their boun
 
 Ungroup a group: its layers go to the group's parent, in its place and order, each where it was on the canvas, and the group is removed.
 
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -395,6 +453,8 @@ Ungroup a group: its layers go to the group's parent, in its place and order, ea
 ### `delete_node`
 
 Delete a node (a page, frame, text or instance) and everything inside it. Returns the ids removed. Refused when another node points at it or at something inside it (an instance of a component in it, a prototype link to it, an override of one of its layers), naming who; and refused inside a component. `also` deletes more nodes in the same call: what they point at among themselves does not count, so components that use each other can go together.
+
+**On the open file in Figma, unlike on a file:** Figma deletes and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; it is refused while an instance outside it uses a component in it, and a prototype link or an override pointing into it is left to Figma.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -410,6 +470,8 @@ Components, variants and their properties, placed from rows of data.
 
 Turn a frame into a component, in place, keeping its children, so it can be reused: then place copies with create_instance (component: its id) and change what each copy shows with override_instance. Build the frame first (create_frame, create_text, create_vector, set_properties), then make it a component. A frame inside a component or an instance cannot be one.
 
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -419,6 +481,8 @@ Turn a frame into a component, in place, keeping its children, so it can be reus
 ### `create_variant_set`
 
 Group components into a variant set, as Figma's own sets: one component with properties, each component a variant of it. variants: [{ id, values: { "State": "Default" } }], every variant naming the same properties with a different combination. The components must share a parent; the set is placed around them. Then create_instance with any variant's id, and set_variant to switch an instance.
+
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -430,6 +494,8 @@ Group components into a variant set, as Figma's own sets: one component with pro
 
 Switch an instance of a variant to another variant of its set, by the values that change: { "State": "Substitute" }. The other properties keep their values. Its overrides stay; Figma matches them to the new variant's layers.
 
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -439,6 +505,8 @@ Switch an instance of a variant to another variant of its set, by the values tha
 ### `add_component_property`
 
 Give a component a property its instances set: TEXT (a label), BOOLEAN (show a part or not) or INSTANCE_SWAP (which icon), with its default. Then bind a layer inside the component with set_properties componentPropertyReferences ({ characters | visible | mainComponent: <property> }), and set each instance's value with set_properties componentProperties ({ "Label": "Guardar" }).
+
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -451,6 +519,8 @@ Give a component a property its instances set: TEXT (a label), BOOLEAN (show a p
 ### `fill_template`
 
 Place a component once per row of data, in a page or frame (an auto-layout frame flows them): product cards, list rows, localised screens. Rows are a JSON array of objects, or a CSV file whose first line names the keys. Each key of a row is, in this order: `name` (the instance's layer name); a variant property, when `component` is a variant set; a component property (TEXT, BOOLEAN, INSTANCE_SWAP); or the name of a layer in the component, whose text it sets, or whose image when the value is a .png or .jpg path. Any other key refuses the call before anything is written. One call, up to 1000 rows.
+
+**Not on the open file in Figma:** not built for the open file yet.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -468,6 +538,8 @@ Variable collections with modes, aliases and bindings; exported as W3C Design To
 
 The file's design variables (tokens): each collection with its modes, and each variable's type and value per mode. Colours are hex; an alias is shown as { alias: <variable name> }, not flattened. Paged over variables.
 
+**On the open file in Figma:** the same.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -480,6 +552,8 @@ The file's design variables (tokens): each collection with its modes, and each v
 
 Write the file's variables as W3C Design Tokens (DTCG 2025.10) JSON, one NEW file per collection and mode, the way Figma imports them: <dir>/<collection>.<mode>.tokens.json. Names split on / into groups; colours exact from the file (sRGB components and alpha, hex beside); numbers without an invented unit; an alias within its collection as a {group.token} reference, to another collection as its value with Figma's com.figma.aliasData. Lists what was not written (unresolved), every name changed to fit the format (renamed), and notes. The folder must exist; no file is written over.
 
+**Not on the open file in Figma:** not built for the open file yet.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `dir` | string | required | An existing folder for the token files. |
@@ -490,6 +564,8 @@ Write the file's variables as W3C Design Tokens (DTCG 2025.10) JSON, one NEW fil
 
 Make a variable collection (a set of design tokens) with named modes, e.g. modes: ["Light", "Dark"]. Then create_variable adds variables to it, and set_properties binds a fill to one by name. In a file with no Internal Only Canvas (one from new_file), grafta writes one first, where Figma keeps variables.
 
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -499,6 +575,8 @@ Make a variable collection (a set of design tokens) with named modes, e.g. modes
 ### `create_variable`
 
 Add a variable to a collection, with a value for every mode: { "Light": "#7C3AED", "Dark": "#A78BFA" }. type is COLOR, FLOAT, STRING or BOOLEAN. A value may be { alias: <variable name or id> }, another local variable of the same type, as semantic tokens alias primitive ones. A COLOR variable can be bound at once with set_properties, fills: [{ type: SOLID, variable: <name> }].
+
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -512,6 +590,8 @@ Add a variable to a collection, with a value for every mode: { "Light": "#7C3AED
 
 Change a variable grafta made: rename it, or change its value in the modes named (the others keep theirs). Values are as create_variable takes them, aliases included. Every fill bound to it follows, and a text whose size it binds is estimated again (texts_resized). The file's own variables are refused.
 
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -522,6 +602,8 @@ Change a variable grafta made: rename it, or change its value in the modes named
 ### `set_variable_collection`
 
 Change a collection grafta made: rename it, or add a mode (add_mode: "High contrast"). In a new mode every variable takes its value in the first mode, to change with set_variable. The file's own collections are refused.
+
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -538,6 +620,8 @@ Colour, text and effect styles.
 
 The file's own colour, text and effect styles, with their values: paints in hex, a text style's font, size, line height and letter spacing, effects. Styles removed from the file and a library's are left out. Apply one with set_properties: fillStyle, strokeStyle, effectStyle or textStyle.
 
+**On the open file in Figma:** the same.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
@@ -546,6 +630,8 @@ The file's own colour, text and effect styles, with their values: paints in hex,
 ### `create_style`
 
 Make a style: type FILL with fills (paints, as set_properties takes them), TEXT with fontFamily, fontStyle, fontSize, lineHeight and letterSpacing, or EFFECT with effects. Figma lists it under Local styles. Apply it with set_properties: fillStyle or strokeStyle for a FILL style, effectStyle, textStyle.
+
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -563,6 +649,8 @@ Make a style: type FILL with fills (paints, as set_properties takes them), TEXT 
 ### `set_style`
 
 Change a colour, text or effect style, grafta's or one the file already has (a kit's brand colour, changed once): rename it, or change its values (as create_style takes them for its type). Every node using it follows, in Figma and in read_node, instances are derived again, and a text style's texts are estimated again (texts_resized). Library styles are refused.
+
+**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
 
 | Argument | Type | | Description |
 |---|---|---|---|
@@ -585,6 +673,8 @@ A new file from nothing, or the open one with its edits.
 
 Create a new, empty .fig at a path that does not exist, and open it: one page and nothing else. `from` is any .fig you have; only its format is used (Figma's schema, which grafta does not invent), none of its content: no pages, components, styles, variables or images. Returns the handle, as open_file does.
 
+**Not on the open file in Figma:** Figma makes and saves its own files; to get a .fig of it, File → Save local copy… in Figma.
+
 | Argument | Type | | Description |
 |---|---|---|---|
 | `from` | string | required | Any .fig, whose format the new file uses. |
@@ -594,6 +684,8 @@ Create a new, empty .fig at a path that does not exist, and open it: one page an
 ### `save_as`
 
 Write the open file, with its edits, to a NEW path ending in its product's extension: .fig, or .deck for a Figma Slides file, .jam for FigJam, .site for Figma Sites. Never overwrites: a path that exists, or the source file, is refused. The written file is read back and compared before success is reported. Open the result in Figma to see it.
+
+**Not on the open file in Figma:** Figma makes and saves its own files; to get a .fig of it, File → Save local copy… in Figma.
 
 | Argument | Type | | Description |
 |---|---|---|---|

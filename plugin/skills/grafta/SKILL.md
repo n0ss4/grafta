@@ -1,6 +1,6 @@
 ---
 name: grafta
-description: Read, change or create Figma .fig files with grafta's MCP tools. Use when the person names a .fig file, asks to inspect, edit, redesign or build a Figma design, or to write a design system's tokens, styles or components into a file.
+description: Read, change or create Figma .fig files with grafta's MCP tools, and the file open in Figma's desktop app with grafta's panel. Use when the person names a .fig file, speaks of their selection or of what they have open in Figma, asks to inspect, edit, redesign or build a Figma design, or to write a design system's tokens, styles or components into a file.
 ---
 
 # Working on a .fig with grafta
@@ -52,6 +52,34 @@ Starting from nothing: `new_file { path, from }` takes only the format of any
 From HTML: take a snapshot of the page with `scripts/snapshot.js` (in your
 browser tool, `graftaSnapshot('<selector>')`, saved as JSON), then
 `import_layout`. Read its `not_imported` list to the person.
+
+## The file open in Figma
+
+When the person speaks of **their selection** or of **what they have open**,
+call `list_open` first. A file open in Figma's desktop app with grafta's panel
+on it is listed there with `in: "Figma"`, a `handle`, the page they are on and
+what they have selected. Work on that handle as on a file, with these
+differences:
+
+- Each change shows in Figma at once, and Figma saves it: there is no
+  `save_as`, and no `unsaved_edits`. One call is one step of Figma's undo.
+- `open_file`, `close_file`, `new_file`, `save_as` and `read_raw` are not
+  there, and a few others are not built there yet (`export_pdf`,
+  `check_contrast`, `export_tokens`, `fill_template`, `import_layout`): each is
+  refused, saying why, with nothing changed. To use them, the person saves a
+  local copy (**File → Save local copy…**) and you open that.
+- `render_node` is drawn by Figma itself. `summarize`, `search_nodes` and
+  `list_components` go a page at a time within a time budget and say how far
+  they went.
+- The person sees each call in the panel and can press **Stop**: then every
+  call is refused until they press Resume. Say so rather than retrying.
+- What Figma refuses, a plan's limit included (a second variable mode on a
+  plan without modes), comes back in Figma's words. Tell the person; do not
+  work around it.
+
+No file listed with `in: "Figma"` means no panel is connected: ask the person
+to open grafta's panel on the file in Figma and allow their AI app when it
+asks.
 
 ## Habits that matter
 

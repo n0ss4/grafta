@@ -12,7 +12,7 @@ export const meta: Route.MetaFunction = () => [
   ...pageMeta({
     title: "grafta · Talk to your Figma files.",
     description:
-      "Talk to any Figma file with your AI: ask what's in it, change it, or turn it into code. No Figma account, no app running, no API limits. Free and open source.",
+      "grafta reads and writes your Figma files, with no internet: ask your AI what's in one, change it, or turn it into code. Now from Figma's desktop app too, on the file you have open. Free and open source.",
     path: "/",
   }),
   {

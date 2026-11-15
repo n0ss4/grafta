@@ -45,7 +45,11 @@ const INSTRUCTIONS: &str = "grafta reads and writes Figma .fig files exactly, of
     To create, use \
     create_page, create_frame and \
     create_instance, check the result with render_node, then save_as to a new path, and have \
-    a person open that file in Figma.";
+    a person open that file in Figma. A file open in Figma's desktop app with grafta's panel on \
+    it is listed by list_open, `in: \"Figma\"`, with a handle, its current page and its \
+    selection: when the person speaks of their selection or of what they have open, call \
+    list_open first and work on that handle. There each change shows at once and Figma saves it, \
+    with no save_as; a tool not built there is refused, saying why, and nothing changes.";
 
 /// How long a client may treat the tool list as fresh. The list only changes
 /// when grafta is rebuilt, which restarts the server anyway.

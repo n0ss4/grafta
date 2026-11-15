@@ -4,8 +4,8 @@
 
 <p align="center">
   <b>Talk to your Figma files.</b><br>
-  Get a Figma file, and talk to it. Ask your AI what's in it, change it, or turn it into code, in whatever language you work in.<br>
-  No Figma account, no Figma app running, no API limits.
+  grafta reads and writes your Figma files, with no internet. Ask your AI what's in one, change it, or turn it into code, in whatever language you work in.<br>
+  <b>New:</b> Now from Figma's desktop app too, on the file you have open, on your own computer.
 </p>
 
 <p align="center">
@@ -19,6 +19,7 @@
 <p align="center">
   <a href="#try-it">Try it</a> ·
   <a href="#install">Install</a> ·
+  <a href="#in-figma">In Figma</a> ·
   <a href="#what-to-ask">What to ask</a> ·
   <a href="docs/TOOLS.md">Tools</a> ·
   <a href="#limits">Limits</a> ·
@@ -32,7 +33,7 @@
   <img src="https://img.shields.io/badge/macOS%20%C2%B7%20Linux%20%C2%B7%20Windows-prebuilt-13704B" alt="Prebuilt for macOS, Linux and Windows">
 </p>
 
-**What is it?** A free, open-source tool your AI app uses: Claude, Cursor, Codex and others. It connects through [MCP](https://modelcontextprotocol.io), the way AI apps connect to tools. It reads a Figma file on your computer exactly, so your AI works from the real values and never guesses.
+**What is it?** A free, open-source tool your AI app uses: Claude, Cursor, Codex and others. It connects through [MCP](https://modelcontextprotocol.io), the way AI apps connect to tools. It reads a Figma file on your computer exactly, so your AI works from the real values and never guesses. With [grafta's panel](#in-figma) open in Figma's desktop app, it works on the file you have open too, and you see each change as it is made.
 
 **What is a `.fig`?** A Figma file. In Figma: *File → Save local copy…* Somebody may also just send you one. Slides, FigJam and Sites files work too.
 
@@ -98,6 +99,30 @@ Apple silicon; the tests also pass on Linux and Windows in CI. Claude Code, Curs
 VS Code, Windsurf, Codex and the ChatGPT desktop app start it with `npx`, which needs
 Node.js 18 or newer. We have tried Claude Code and Claude Desktop; the others use the
 same setup. ChatGPT on the web reads no local server, so it cannot use grafta yet.
+
+### In Figma
+
+To work on the file you have open in Figma's desktop app, add grafta's panel
+to Figma once. grafta must be installed in your AI app as above, the same
+release as the panel.
+
+1. Download [`grafta-figma-plugin.zip`](https://github.com/n0ss4/grafta/releases/latest/download/grafta-figma-plugin.zip) and unzip it.
+2. In Figma's desktop app: *Plugins → Development → Import plugin from manifest…*, and choose the `manifest.json` in that folder.
+3. Open a file, then *Plugins → Development → grafta*. The panel looks for grafta on your computer.
+4. With your AI app running grafta, the panel finds it and asks whether to allow it. Click **Allow**: it does not ask again on this computer.
+
+Then ask about what you have open:
+
+> Using grafta, what have I selected in Figma?
+
+> Make the selected card's corners 12 and its title bold.
+
+Each change shows in the file as it is made, and Figma saves it: each call
+grafta makes is one step of *Edit → Undo*. The panel shows each call, and **Stop** refuses every
+call until you press Resume. It talks to grafta on your computer and to nothing
+else. A few tools are not there yet, such as `export_pdf` and `check_contrast`:
+the [tool reference](docs/TOOLS.md) says, for each, what it does on the open file.
+Figma in a browser has not been tried.
 
 ## Why
 
@@ -202,10 +227,10 @@ lists them in a terminal.
 
 - **It does not interpret designs.** Your model does. grafta answers what is in
   the file, and writes what it is told.
-- **It is not live, and not collaborative.** You work on a saved copy, and open the new file it gives back. For the live file, use [Figma's own server](https://developers.figma.com/docs/figma-mcp-server/).
+- **On a file, it is not live.** You work on a saved copy, and open the new file it gives back. For the file you have open, add [grafta's panel](#in-figma) to Figma's desktop app, or use [Figma's own server](https://developers.figma.com/docs/figma-mcp-server/).
 - **How good the code is depends on your model.** grafta gives it exact values, and writes no code itself. Figma's server and [Framelink](https://github.com/GLips/Figma-Context-MCP) also serve design to code, from a Figma link, with an account.
 - **It is not affiliated with Figma**, and reads and writes its format with no help from it.
-- **It works on files**, not Figma's cloud: `.fig` from Figma Design, `.deck`
+- **It works on files**, and with its panel on the file open in Figma's desktop app, not Figma's cloud: `.fig` from Figma Design, `.deck`
   from Figma Slides, `.jam` from FigJam and `.site` from Figma Sites. Save a local copy, and open the result in Figma. `new_file` takes Figma's format from a `.fig` you have;
   grafta does not ship it.
 - **Pictures are close, not Figma's.** They use the fonts installed on your
@@ -256,9 +281,11 @@ argument is call 0's result field, and `"out"` writes a picture to a file. The
 ## FAQ
 
 **Do I need a Figma account or an API key?** No. grafta works on the file on
-your disk. You need Figma only to save a local copy and to open the result.
+your disk. You need Figma only to save a local copy and to open the result,
+or, for the file you have open, Figma's desktop app with grafta's panel.
 
-**Does my file leave my machine?** grafta makes no network call. What your
+**Does my file leave my machine?** grafta makes no network call, and its panel
+in Figma talks to grafta on your computer and to nothing else. What your
 model reads through it is a tool result like any other, sent wherever your MCP
 client sends the conversation.
 
