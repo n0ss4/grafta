@@ -5,7 +5,7 @@ use serde_json::{json, Value};
 
 use super::args::{optional_integer, optional_number, optional_string, paging, string};
 use super::schema::{handle_property, merge, paging_properties, schema};
-use super::{Request, Tool};
+use super::{Request, Live, Tool};
 use crate::error::CatalogError;
 use crate::tools::{catalog, tokens};
 use crate::{DomainError, ToolError};
@@ -208,6 +208,9 @@ pub struct CheckContrast;
 impl Tool for CheckContrast {
     fn name(&self) -> &'static str {
         "check_contrast"
+    }
+    fn live(&self) -> Live {
+        Live::Cannot("measured on grafta's own drawing of a file; not built for the open file yet")
     }
     fn description(&self) -> &'static str {
         "Check every visible text under a node (a screen, a frame, a component) against WCAG \

@@ -5037,6 +5037,7 @@ fn a_connector_runs_between_two_nodes_with_its_caps_and_line() {
 
 mod journal;
 mod layout;
+mod live;
 mod measure;
 mod memory;
 mod sites;

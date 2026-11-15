@@ -6,7 +6,7 @@
 use std::path::{Path, PathBuf};
 
 /// Each crate's layer, by the name the workspace depends on it by.
-const LAYERS: [(&str, Layer); 19] = [
+const LAYERS: [(&str, Layer); 20] = [
     ("kiwi", Layer::ReadSide),
     ("schema", Layer::ReadSide),
     ("figfile", Layer::ReadSide),
@@ -18,6 +18,7 @@ const LAYERS: [(&str, Layer); 19] = [
     ("figjam", Layer::Product),
     ("sites", Layer::Product),
     ("edge", Layer::Adapter),
+    ("bridge", Layer::Adapter),
     ("disk", Layer::Adapter),
     ("memory", Layer::Adapter),
     ("render", Layer::Adapter),
@@ -127,6 +128,26 @@ fn every_crate_points_inward() {
     }
     assert!(found.len() >= 9, "{} manifests read", found.len());
     assert!(wrong.is_empty(), "dependencies pointing outward:\n{}", wrong.join("\n"));
+}
+
+/// The crates that may name the bridge: it listens on this computer, so no
+/// crate on a file's read path, nor the browser's build, depends on it
+/// (constitution, Engineering Constraints).
+const REACH_THE_BRIDGE: [&str; 1] = ["mcp"];
+
+#[test]
+fn only_the_server_reaches_the_bridge() {
+    let crates = Path::new(env!("CARGO_MANIFEST_DIR")).join("..");
+    let mut found = Vec::new();
+    manifests(&crates, &mut found);
+    let reaching: Vec<String> = found
+        .iter()
+        .map(|path| std::fs::read_to_string(path).expect("readable manifest"))
+        .filter(|text| dependencies(text).iter().any(|on| on == "bridge"))
+        .map(|text| lib_name(&text))
+        .collect();
+    let wrong: Vec<&String> = reaching.iter().filter(|name| !REACH_THE_BRIDGE.contains(&name.as_str())).collect();
+    assert!(wrong.is_empty(), "these depend on the bridge: {wrong:?}");
 }
 
 #[test]

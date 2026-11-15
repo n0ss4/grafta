@@ -61,7 +61,7 @@
     "name": "close_file"
   },
   {
-    "description": "List the files currently open, with their handles, node counts, unsaved edits, how long each took to open, and the process's memory.",
+    "description": "List the files currently open, with their handles, node counts, unsaved edits, how long each took to open, and the process's memory; and the files open in Figma with grafta's panel on them, `in: \"Figma\"`, by handle and name.",
     "inputSchema": {
       "properties": {},
       "required": [],

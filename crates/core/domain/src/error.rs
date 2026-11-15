@@ -11,6 +11,7 @@ use std::path::PathBuf;
 
 use schema::Guid;
 
+use crate::port::LiveError;
 use crate::ToolError;
 
 mod binding;
@@ -143,6 +144,12 @@ pub enum DomainError {
     /// A node with no parent, named as the call named it.
     NoParent { id: String },
 
+    // ── Files open in Figma ──────────────────────────────────────────────────
+    /// A tool that does not act on a file open in Figma, and why.
+    NotInFigma { tool: &'static str, why: &'static str },
+    /// A call to a file open in Figma that was not answered with a result.
+    Live { handle: String, tool: &'static str, error: LiveError },
+
     // ── The file's message ───────────────────────────────────────────────────
     /// A node the graph has and the message does not.
     NotInFile { id: Guid },
@@ -265,14 +272,17 @@ impl DomainError {
             | Self::CannotRead { .. }
             | Self::UnknownHandle { .. }
             | Self::UnknownNode { .. }
-            | Self::UnknownRawNode { .. } => Kind::NotFound,
+            | Self::UnknownRawNode { .. }
+            | Self::Live { error: LiveError::NotOpen, .. } => Kind::NotFound,
             Self::StaleCursor
             | Self::WouldOverwrite { .. }
             | Self::TheDocument
             | Self::WrappingLayout { .. }
             | Self::NotAnInstance { .. }
             | Self::NoComponent { .. }
-            | Self::LibraryVariable { .. } => Kind::Refused,
+            | Self::LibraryVariable { .. }
+            | Self::NotInFigma { .. }
+            | Self::Live { error: LiveError::Stopped | LiveError::Refused(_), .. } => Kind::Refused,
             Self::Undecodable { .. }
             | Self::NoDocument { .. }
             | Self::NoGraph { .. }
@@ -293,7 +303,8 @@ impl DomainError {
             | Self::CannotCreate { .. }
             | Self::CannotWrite { .. }
             | Self::Authoring(_)
-            | Self::Render { .. } => Kind::Failed,
+            | Self::Render { .. }
+            | Self::Live { error: LiveError::Gone | LiveError::TimedOut { .. }, .. } => Kind::Failed,
             Self::Binding(error) => error.kind(),
             Self::Catalog(error) => error.kind(),
             Self::Component(error) => error.kind(),
@@ -409,6 +420,8 @@ impl fmt::Display for DomainError {
             Self::NotAnInstance { id, is } => write!(f, "{id} is a {is}, not an instance"),
             Self::NoComponent { id } => write!(f, "{id}'s component is not in this file"),
             Self::NoParent { id } => write!(f, "{id} has no parent"),
+            Self::NotInFigma { tool, why } => write!(f, "{tool} does not act on a file open in Figma: {why}"),
+            Self::Live { handle, tool, error } => live(f, handle, tool, error),
             Self::NotInFile { id } => write!(f, "{id} is not in the file"),
             Self::InGraphNotInFile { id } => write!(f, "{id} is in the graph but not in the file"),
             Self::NoNodeChange { id } => write!(f, "{id} has no node change"),
@@ -449,6 +462,33 @@ impl fmt::Display for DomainError {
 }
 
 impl std::error::Error for DomainError {}
+
+/// A call to a file open in Figma, unanswered, in words.
+fn live(f: &mut fmt::Formatter<'_>, handle: &str, tool: &str, error: &LiveError) -> fmt::Result {
+    match error {
+        LiveError::NotOpen => write!(
+            f,
+            "no file open in Figma has handle `{handle}`: its panel was closed, or it never connected. \
+             Open grafta's panel on the file in Figma, then call list_open"
+        ),
+        LiveError::Gone => write!(
+            f,
+            "`{handle}` was closed in Figma, or its panel was, while {tool} waited: whether it was done \
+             is not known. Open the panel again and look"
+        ),
+        LiveError::TimedOut { seconds } => write!(
+            f,
+            "Figma did not answer {tool} on `{handle}` within {seconds} s; the panel may be busy. \
+             Whether it was done is not known"
+        ),
+        LiveError::Stopped => write!(
+            f,
+            "grafta is stopped in Figma's panel on `{handle}`, by the person using it: nothing was done. \
+             They can press Resume"
+        ),
+        LiveError::Refused(words) => write!(f, "{tool} on `{handle}` in Figma: {words}"),
+    }
+}
 
 impl From<DomainError> for ToolError {
     fn from(error: DomainError) -> Self {

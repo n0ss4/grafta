@@ -1,0 +1,2347 @@
+{
+  "ports": [
+    47823,
+    47824,
+    47825,
+    47826,
+    47827
+  ],
+  "tools": [
+    {
+      "input_schema": {
+        "properties": {
+          "path": {
+            "description": "Path to a .fig file.",
+            "type": "string"
+          },
+          "recover": {
+            "description": "Replay edits this file had not saved when grafta last stopped. Default true; false discards them.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "open_file",
+      "why": "a file open in Figma is opened and closed in Figma: open grafta's panel on it"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "from": {
+            "description": "Any .fig, whose format the new file uses.",
+            "type": "string"
+          },
+          "page": {
+            "description": "The page's name. Default \"Page 1\".",
+            "type": "string"
+          },
+          "path": {
+            "description": "A new path ending in .fig.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "from"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "new_file",
+      "why": "Figma makes and saves its own files; to get a .fig of it, File → Save local copy… in Figma"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "close_file",
+      "why": "a file open in Figma is opened and closed in Figma: open grafta's panel on it"
+    },
+    {
+      "input_schema": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "live": "same",
+      "name": "list_open"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "summarize",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "budget": {
+            "description": "Maximum result size in bytes. Default 32768.",
+            "maximum": 98304,
+            "minimum": 1024,
+            "type": "integer"
+          },
+          "cursor": {
+            "description": "next_cursor from the previous page.",
+            "type": "string"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Results per page.",
+            "maximum": 1000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page": {
+            "description": "A page's id, from summarize.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle",
+          "page"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "list_screens",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "budget": {
+            "description": "Maximum result size in bytes. Default 32768.",
+            "maximum": 98304,
+            "minimum": 1024,
+            "type": "integer"
+          },
+          "cursor": {
+            "description": "next_cursor from the previous page.",
+            "type": "string"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Results per page.",
+            "maximum": 1000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "name": {
+            "description": "Case-insensitive substring of the node name.",
+            "type": "string"
+          },
+          "type": {
+            "description": "Node type, in the plugin API's spelling.",
+            "type": "string"
+          },
+          "within": {
+            "description": "Only search inside this node id (a page, a frame…).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "search_nodes",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "budget": {
+            "description": "Maximum result size in bytes. Default 32768.",
+            "maximum": 98304,
+            "minimum": 1024,
+            "type": "integer"
+          },
+          "children_from": {
+            "description": "Skip this many children of the node: to resume a result cut for budget.",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "depth": {
+            "description": "Levels of children to include. 0 = the node alone. Default 1.",
+            "maximum": 20,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "geometry": {
+            "description": "Include vector path data (SVG d strings). Default false.",
+            "type": "boolean"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "id": {
+            "description": "Node id, e.g. 12:345.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle",
+          "id"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "read_node",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "budget": {
+            "maximum": 98304,
+            "minimum": 1024,
+            "type": "integer"
+          },
+          "fields": {
+            "description": "Only these top-level fields. Default: all.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "id": {
+            "description": "Node id, e.g. 12:345.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle",
+          "id"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "read_raw",
+      "why": "the open file gives no bytes; save a local copy to read them"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "budget": {
+            "description": "Maximum result size in bytes. Default 32768.",
+            "maximum": 98304,
+            "minimum": 1024,
+            "type": "integer"
+          },
+          "cursor": {
+            "description": "next_cursor from the previous page.",
+            "type": "string"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Results per page.",
+            "maximum": 1000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "name": {
+            "description": "Only components whose name contains this (case-insensitive).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "list_components",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "budget": {
+            "description": "Maximum result size in bytes. Default 32768.",
+            "maximum": 98304,
+            "minimum": 1024,
+            "type": "integer"
+          },
+          "cursor": {
+            "description": "next_cursor from the previous page.",
+            "type": "string"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "id": {
+            "description": "A component or component set id.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Results per page.",
+            "maximum": 1000,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "handle",
+          "id"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "component_instances",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "budget": {
+            "description": "Maximum result size in bytes. Default 32768.",
+            "maximum": 98304,
+            "minimum": 1024,
+            "type": "integer"
+          },
+          "collection": {
+            "description": "Only this collection (name or id).",
+            "type": "string"
+          },
+          "cursor": {
+            "description": "next_cursor from the previous page.",
+            "type": "string"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Results per page.",
+            "maximum": 1000,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "handle"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "list_variables",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "collection": {
+            "description": "Only this collection (name or id); all when left out.",
+            "type": "string"
+          },
+          "dir": {
+            "description": "An existing folder for the token files.",
+            "type": "string"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle",
+          "dir"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "export_tokens",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "modes": {
+            "description": "Mode names, in order.",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "name": {
+            "description": "The collection's name, e.g. \"Colors\".",
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle",
+          "name",
+          "modes"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "create_variable_collection",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "collection": {
+            "description": "A collection's name or id.",
+            "type": "string"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "name": {
+            "description": "e.g. \"Brand/Primary\"; slashes group it in Figma's panel.",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "COLOR",
+              "FLOAT",
+              "STRING",
+              "BOOLEAN"
+            ]
+          },
+          "values": {
+            "description": "Mode name → value: \"#RRGGBB\" or \"#RRGGBBAA\" for COLOR, a number for FLOAT, a string for STRING, true or false for BOOLEAN, or { \"alias\": \"<variable name or id>\" } for another local variable of the same type.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "handle",
+          "collection",
+          "name",
+          "type",
+          "values"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "create_variable",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "id": {
+            "description": "A variable's id, or its name when only one has it.",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "values": {
+            "description": "Mode name → value: \"#RRGGBB\" or \"#RRGGBBAA\" for COLOR, a number for FLOAT, a string for STRING, true or false for BOOLEAN, or { \"alias\": \"<variable name or id>\" } for another local variable of the same type.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "handle",
+          "id"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "set_variable",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "add_mode": {
+            "type": "string"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "id": {
+            "description": "A collection's id or name.",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle",
+          "id"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "set_variable_collection",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "FILL",
+              "TEXT",
+              "EFFECT"
+            ]
+          }
+        },
+        "required": [
+          "handle"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "list_styles",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "effects": {
+            "description": "EFFECT: shadows and blurs, as set_properties takes them.",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "fills": {
+            "description": "FILL: paints, as set_properties takes them.",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "fontFamily": {
+            "type": "string"
+          },
+          "fontSize": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "fontStyle": {
+            "description": "e.g. \"Bold\", \"Semi Bold\".",
+            "type": "string"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "letterSpacing": {
+            "description": "Pixels, or { value, unit: PIXELS | PERCENT }."
+          },
+          "lineHeight": {
+            "description": "Pixels, or { value, unit: PIXELS | PERCENT }."
+          },
+          "name": {
+            "description": "e.g. \"Brand/Primary\"; slashes group it.",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "FILL",
+              "TEXT",
+              "EFFECT"
+            ]
+          }
+        },
+        "required": [
+          "handle",
+          "name",
+          "type"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "create_style",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "effects": {
+            "description": "EFFECT: shadows and blurs, as set_properties takes them.",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "fills": {
+            "description": "FILL: paints, as set_properties takes them.",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "fontFamily": {
+            "type": "string"
+          },
+          "fontSize": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "fontStyle": {
+            "description": "e.g. \"Bold\", \"Semi Bold\".",
+            "type": "string"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "id": {
+            "description": "A style's id, or its name when only one has it.",
+            "type": "string"
+          },
+          "letterSpacing": {
+            "description": "Pixels, or { value, unit: PIXELS | PERCENT }."
+          },
+          "lineHeight": {
+            "description": "Pixels, or { value, unit: PIXELS | PERCENT }."
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle",
+          "id"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "set_style",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "hash": {
+            "description": "The fill's imageHash.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle",
+          "hash"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "get_image",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "id": {
+            "description": "Node id, e.g. 12:345.",
+            "type": "string"
+          },
+          "max_size": {
+            "description": "Largest side in pixels; a larger picture is scaled down to fit. Default 2048.",
+            "maximum": 4096,
+            "minimum": 64,
+            "type": "integer"
+          },
+          "scale": {
+            "description": "Pixels per unit. Default 1.",
+            "maximum": 4,
+            "minimum": 0.1,
+            "type": "number"
+          }
+        },
+        "required": [
+          "handle",
+          "id"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "render_node",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "ids": {
+            "description": "Node ids, one page each, in order.",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "path": {
+            "description": "A new path ending in .pdf.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle",
+          "ids",
+          "path"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "export_pdf",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "all": {
+            "description": "List passing texts too. Default false.",
+            "type": "boolean"
+          },
+          "budget": {
+            "description": "Maximum result size in bytes. Default 32768.",
+            "maximum": 98304,
+            "minimum": 1024,
+            "type": "integer"
+          },
+          "cursor": {
+            "description": "next_cursor from the previous page.",
+            "type": "string"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "id": {
+            "description": "The node whose texts are checked.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Results per page.",
+            "maximum": 1000,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "handle",
+          "id"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "check_contrast",
+      "why": "measured on grafta's own drawing of a file; not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle",
+          "name"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "create_page",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "height": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parent": {
+            "description": "A page or frame id.",
+            "type": "string"
+          },
+          "width": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "handle",
+          "parent",
+          "name",
+          "width",
+          "height"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "create_frame",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "component": {
+            "description": "A component (or variant) id.",
+            "type": "string"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Default: the component's name.",
+            "type": "string"
+          },
+          "parent": {
+            "description": "A page or frame id.",
+            "type": "string"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "handle",
+          "parent",
+          "component"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "create_instance",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "id": {
+            "description": "The frame to turn into a component.",
+            "type": "string"
+          },
+          "name": {
+            "description": "A new name, e.g. \"Button/Primary\".",
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle",
+          "id"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "create_component",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The set's name, e.g. \"Product row\".",
+            "type": "string"
+          },
+          "variants": {
+            "items": {
+              "properties": {
+                "id": {
+                  "description": "A component.",
+                  "type": "string"
+                },
+                "values": {
+                  "description": "Property name → value, e.g. { \"State\": \"Substitute\" }.",
+                  "type": "object"
+                }
+              },
+              "required": [
+                "id",
+                "values"
+              ],
+              "type": "object"
+            },
+            "minItems": 2,
+            "type": "array"
+          }
+        },
+        "required": [
+          "handle",
+          "name",
+          "variants"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "create_variant_set",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "id": {
+            "description": "An instance of a variant.",
+            "type": "string"
+          },
+          "values": {
+            "description": "Property name → the value to switch to.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "handle",
+          "id",
+          "values"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "set_variant",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "component": {
+            "description": "A component's id.",
+            "type": "string"
+          },
+          "default": {
+            "description": "A string, true or false, or a component's name or id."
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "name": {
+            "description": "e.g. \"Label\", \"Show icon\".",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "TEXT",
+              "BOOLEAN",
+              "INSTANCE_SWAP"
+            ]
+          }
+        },
+        "required": [
+          "handle",
+          "component",
+          "name",
+          "type",
+          "default"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "add_component_property",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "characters": {
+            "type": "string"
+          },
+          "fills": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "fontFamily": {
+            "type": "string"
+          },
+          "fontSize": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "fontStyle": {
+            "type": "string"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "height": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "letterSpacing": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "properties": {
+                  "unit": {
+                    "enum": [
+                      "PIXELS",
+                      "PERCENT"
+                    ]
+                  },
+                  "value": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "value",
+                  "unit"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "lineHeight": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "properties": {
+                  "unit": {
+                    "enum": [
+                      "PIXELS",
+                      "PERCENT"
+                    ]
+                  },
+                  "value": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "value",
+                  "unit"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "name": {
+            "description": "Layer name. Default: the characters.",
+            "type": "string"
+          },
+          "paragraphIndent": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "paragraphSpacing": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "paragraphs": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "parent": {
+            "description": "A page or frame id.",
+            "type": "string"
+          },
+          "runs": {
+            "description": "The text as styled pieces; instead of characters.",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "textAlignHorizontal": {
+            "enum": [
+              "LEFT",
+              "CENTER",
+              "RIGHT",
+              "JUSTIFIED"
+            ]
+          },
+          "textAlignVertical": {
+            "enum": [
+              "TOP",
+              "CENTER",
+              "BOTTOM"
+            ]
+          },
+          "textAutoResize": {
+            "enum": [
+              "NONE",
+              "WIDTH_AND_HEIGHT",
+              "HEIGHT"
+            ]
+          },
+          "textCase": {
+            "enum": [
+              "ORIGINAL",
+              "UPPER",
+              "LOWER",
+              "TITLE",
+              "SMALL_CAPS",
+              "SMALL_CAPS_FORCED"
+            ]
+          },
+          "textDecoration": {
+            "enum": [
+              "NONE",
+              "UNDERLINE",
+              "STRIKETHROUGH"
+            ]
+          },
+          "width": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "handle",
+          "parent"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "create_text",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "fillRule": {
+            "enum": [
+              "NONZERO",
+              "EVENODD"
+            ]
+          },
+          "fills": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "height": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parent": {
+            "description": "A page or frame id.",
+            "type": "string"
+          },
+          "path": {
+            "description": "SVG path data: a string, or a list of strings drawn together."
+          },
+          "strokeCap": {
+            "enum": [
+              "NONE",
+              "ROUND",
+              "SQUARE"
+            ]
+          },
+          "strokeJoin": {
+            "enum": [
+              "MITER",
+              "ROUND",
+              "BEVEL"
+            ]
+          },
+          "strokeWeight": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "strokes": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "viewBox": {
+            "description": "[min x, min y, width, height] of the box the path is drawn in.",
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          },
+          "width": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "handle",
+          "parent",
+          "path"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "create_vector",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "arcData": {
+            "type": "object"
+          },
+          "cornerRadius": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "fills": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "height": {
+            "description": "Not for a LINE.",
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "innerRadius": {
+            "exclusiveMaximum": 1,
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parent": {
+            "description": "A page or frame id.",
+            "type": "string"
+          },
+          "pointCount": {
+            "minimum": 3,
+            "type": "integer"
+          },
+          "strokeWeight": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "strokes": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "type": {
+            "enum": [
+              "RECTANGLE",
+              "ELLIPSE",
+              "LINE",
+              "POLYGON",
+              "STAR"
+            ]
+          },
+          "width": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "handle",
+          "parent",
+          "type",
+          "width"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "create_shape",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "id": {
+            "description": "An instance you created.",
+            "type": "string"
+          },
+          "layer": {
+            "description": "A layer id in the component, or a path of ids through nested instances.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            ]
+          },
+          "properties": {
+            "additionalProperties": false,
+            "properties": {
+              "characters": {
+                "type": "string"
+              },
+              "fills": {
+                "description": "Paints, as set_properties takes them, an IMAGE by path included.",
+                "type": "array"
+              },
+              "strokes": {
+                "type": "array"
+              },
+              "visible": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "handle",
+          "id",
+          "properties"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "override_instance",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "component": {
+            "description": "A component, or a variant set.",
+            "type": "string"
+          },
+          "csv": {
+            "description": "A CSV file instead of rows: its first line names the keys.",
+            "type": "string"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "parent": {
+            "description": "A page or frame id.",
+            "type": "string"
+          },
+          "rows": {
+            "description": "One object per instance.",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "handle",
+          "component",
+          "parent"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "fill_template",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "layout": {
+            "description": "Flexbox as auto-layout (default), or every box where the browser put it.",
+            "enum": [
+              "auto",
+              "absolute"
+            ],
+            "type": "string"
+          },
+          "parent": {
+            "description": "A page or frame id.",
+            "type": "string"
+          },
+          "snapshot": {
+            "description": "The snapshot's JSON file.",
+            "type": "string"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "handle",
+          "parent",
+          "snapshot"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "import_layout",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "id": {
+            "description": "A frame, instance or text layer you created.",
+            "type": "string"
+          },
+          "properties": {
+            "additionalProperties": false,
+            "properties": {
+              "bottomLeftRadius": {
+                "anyOf": [
+                  {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "properties": {
+                      "variable": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "variable"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "bottomRightRadius": {
+                "anyOf": [
+                  {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "properties": {
+                      "variable": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "variable"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "characters": {
+                "type": "string"
+              },
+              "clipsContent": {
+                "type": "boolean"
+              },
+              "componentProperties": {
+                "additionalProperties": {
+                  "type": [
+                    "string",
+                    "boolean"
+                  ]
+                },
+                "description": "On an instance: property name → value (text, true/false, or a component for a swap).",
+                "type": "object"
+              },
+              "componentPropertyReferences": {
+                "description": "On a layer inside a component: { characters?, visible?, mainComponent? }, each a property of the component (add_component_property), or null to unbind.",
+                "type": "object"
+              },
+              "cornerRadius": {
+                "anyOf": [
+                  {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "properties": {
+                      "variable": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "variable"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "counterAxisSpacing": {
+                "anyOf": [
+                  {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "properties": {
+                      "variable": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "variable"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "effectStyle": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "effects": {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "explicitVariableModes": {
+                "description": "Collection name → mode name, e.g. { \"Theme\": \"Dark\" }; null clears one.",
+                "type": "object"
+              },
+              "fillStyle": {
+                "description": "A FILL style's name or id; null detaches it.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "fills": {
+                "items": {
+                  "properties": {
+                    "angle": {
+                      "type": "number"
+                    },
+                    "color": {
+                      "description": "#RRGGBB or #RRGGBBAA",
+                      "type": "string"
+                    },
+                    "gradientStops": {
+                      "items": {
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "gradientTransform": {
+                      "type": "array"
+                    },
+                    "image": {
+                      "description": "IMAGE: a PNG or JPEG file path, embedded in the file.",
+                      "type": "string"
+                    },
+                    "imageHash": {
+                      "description": "IMAGE: an image the file embeds, by the hash read_node shows.",
+                      "type": "string"
+                    },
+                    "opacity": {
+                      "maximum": 1,
+                      "minimum": 0,
+                      "type": "number"
+                    },
+                    "scaleMode": {
+                      "enum": [
+                        "FILL",
+                        "FIT",
+                        "STRETCH"
+                      ]
+                    },
+                    "type": {
+                      "enum": [
+                        "SOLID",
+                        "GRADIENT_LINEAR",
+                        "GRADIENT_RADIAL",
+                        "IMAGE"
+                      ]
+                    },
+                    "variable": {
+                      "description": "A local colour variable's name or id.",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "fontFamily": {
+                "type": "string"
+              },
+              "fontSize": {
+                "anyOf": [
+                  {
+                    "exclusiveMinimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "properties": {
+                      "variable": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "variable"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "fontStyle": {
+                "type": "string"
+              },
+              "height": {
+                "anyOf": [
+                  {
+                    "exclusiveMinimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "properties": {
+                      "variable": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "variable"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "itemSpacing": {
+                "anyOf": [
+                  {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "properties": {
+                      "variable": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "variable"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "letterSpacing": {},
+              "lineHeight": {},
+              "name": {
+                "type": "string"
+              },
+              "opacity": {
+                "anyOf": [
+                  {
+                    "maximum": 1,
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "properties": {
+                      "variable": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "variable"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "padding": {
+                "anyOf": [
+                  {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "properties": {
+                      "variable": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "variable"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "paddingBottom": {
+                "anyOf": [
+                  {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "properties": {
+                      "variable": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "variable"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "paddingLeft": {
+                "anyOf": [
+                  {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "properties": {
+                      "variable": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "variable"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "paddingRight": {
+                "anyOf": [
+                  {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "properties": {
+                      "variable": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "variable"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "paddingTop": {
+                "anyOf": [
+                  {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "properties": {
+                      "variable": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "variable"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "paragraphIndent": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "paragraphSpacing": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "paragraphs": {
+                "description": "On a text: one per line, { listType: NONE | UNORDERED | ORDERED, indentation?: 1 | 2 }.",
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "runs": {
+                "description": "On a text: the text as styled pieces, as create_text takes them.",
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "strokeAlign": {
+                "enum": [
+                  "INSIDE",
+                  "CENTER",
+                  "OUTSIDE"
+                ]
+              },
+              "strokeCap": {
+                "enum": [
+                  "NONE",
+                  "ROUND",
+                  "SQUARE"
+                ]
+              },
+              "strokeJoin": {
+                "enum": [
+                  "MITER",
+                  "ROUND",
+                  "BEVEL"
+                ]
+              },
+              "strokeStyle": {
+                "description": "A FILL style for the strokes; null detaches it.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "strokeWeight": {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              "strokes": {
+                "items": {
+                  "properties": {
+                    "angle": {
+                      "type": "number"
+                    },
+                    "color": {
+                      "description": "#RRGGBB or #RRGGBBAA",
+                      "type": "string"
+                    },
+                    "gradientStops": {
+                      "items": {
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "gradientTransform": {
+                      "type": "array"
+                    },
+                    "image": {
+                      "description": "IMAGE: a PNG or JPEG file path, embedded in the file.",
+                      "type": "string"
+                    },
+                    "imageHash": {
+                      "description": "IMAGE: an image the file embeds, by the hash read_node shows.",
+                      "type": "string"
+                    },
+                    "opacity": {
+                      "maximum": 1,
+                      "minimum": 0,
+                      "type": "number"
+                    },
+                    "scaleMode": {
+                      "enum": [
+                        "FILL",
+                        "FIT",
+                        "STRETCH"
+                      ]
+                    },
+                    "type": {
+                      "enum": [
+                        "SOLID",
+                        "GRADIENT_LINEAR",
+                        "GRADIENT_RADIAL",
+                        "IMAGE"
+                      ]
+                    },
+                    "variable": {
+                      "description": "A local colour variable's name or id.",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "textAlignHorizontal": {
+                "enum": [
+                  "LEFT",
+                  "CENTER",
+                  "RIGHT",
+                  "JUSTIFIED"
+                ]
+              },
+              "textAlignVertical": {
+                "enum": [
+                  "TOP",
+                  "CENTER",
+                  "BOTTOM"
+                ]
+              },
+              "textAutoResize": {
+                "enum": [
+                  "NONE",
+                  "WIDTH_AND_HEIGHT",
+                  "HEIGHT"
+                ]
+              },
+              "textCase": {
+                "enum": [
+                  "ORIGINAL",
+                  "UPPER",
+                  "LOWER",
+                  "TITLE",
+                  "SMALL_CAPS",
+                  "SMALL_CAPS_FORCED"
+                ]
+              },
+              "textDecoration": {
+                "enum": [
+                  "NONE",
+                  "UNDERLINE",
+                  "STRIKETHROUGH"
+                ]
+              },
+              "textStyle": {
+                "description": "On a text: a TEXT style's name or id.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "topLeftRadius": {
+                "anyOf": [
+                  {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "properties": {
+                      "variable": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "variable"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "topRightRadius": {
+                "anyOf": [
+                  {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "properties": {
+                      "variable": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "variable"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "visible": {
+                "type": "boolean"
+              },
+              "width": {
+                "anyOf": [
+                  {
+                    "exclusiveMinimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "properties": {
+                      "variable": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "variable"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "handle",
+          "id",
+          "properties"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "set_properties",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "behind": {
+            "description": "A node to go right behind, in its parent.",
+            "type": "string"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "in_front_of": {
+            "description": "A node to go right in front of, in its parent.",
+            "type": "string"
+          },
+          "parent": {
+            "description": "A page or frame id.",
+            "type": "string"
+          },
+          "to": {
+            "description": "With parent: the top of the stack (last, the default) or the bottom (first).",
+            "enum": [
+              "front",
+              "back"
+            ],
+            "type": "string"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "handle",
+          "id"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "move_node",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "also": {
+            "description": "More nodes deleted with it, in one call.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle",
+          "id"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "delete_node",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "ids": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "name": {
+            "description": "Default \"Group\".",
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle",
+          "ids"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "group_nodes",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "id": {
+            "description": "A group's id.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle",
+          "id"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "ungroup",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "height": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parent": {
+            "description": "A page's id.",
+            "type": "string"
+          },
+          "width": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "handle",
+          "parent",
+          "width",
+          "height"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "create_section",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parent": {
+            "description": "Where the copy goes; by default the original's parent.",
+            "type": "string"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "handle",
+          "id"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "duplicate_node",
+      "why": "not built for the open file yet"
+    },
+    {
+      "input_schema": {
+        "properties": {
+          "handle": {
+            "description": "The handle open_file returned.",
+            "type": "string"
+          },
+          "path": {
+            "description": "A new path ending in .fig, or .deck, .jam or .site for a Figma Slides, FigJam or Figma Sites file.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle",
+          "path"
+        ],
+        "type": "object"
+      },
+      "live": "cannot",
+      "name": "save_as",
+      "why": "Figma makes and saves its own files; to get a .fig of it, File → Save local copy… in Figma"
+    }
+  ]
+}

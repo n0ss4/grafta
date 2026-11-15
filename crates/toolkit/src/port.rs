@@ -17,5 +17,7 @@ pub fn on_disk() -> Ports {
         raster: std::sync::Arc::new(disk::Render),
         measure: std::sync::Arc::new(crate::edge::measure::Json),
         json: std::sync::Arc::new(crate::edge::measure::Text),
+        // No bridge: `grafta mcp` puts its own here.
+        live: std::sync::Arc::new(memory::MemoryLive::default()),
     }
 }

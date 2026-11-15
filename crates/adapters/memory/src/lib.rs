@@ -14,7 +14,10 @@ use schema::Guid;
 
 use disk::{FigCodec, Render};
 use domain::data::Data;
-use domain::port::{Contrast, Creating, DocumentStore, ImageSource, Journal, Measure, Pdf, Ports, Rasterizer, RenderError, Rendered, TextBox};
+use domain::port::{
+    Contrast, Creating, DocumentStore, ImageSource, Journal, LiveError, LiveFile, LiveFiles, Measure, Pdf, Ports, Rasterizer,
+    RenderError, Rendered, TextBox,
+};
 
 /// Files by path. A document store and an image source both, so an image a
 /// tool writes, as the import writes a `data:` URL's, is one a paint reads.
@@ -206,6 +209,45 @@ impl Measure for Written {
     }
 }
 
+/// How a file open in Figma, stood in for, answers a call: the handle, the
+/// tool and its arguments.
+pub type Answer = dyn Fn(&str, &str, &Data) -> Result<Data, LiveError> + Send + Sync;
+
+/// Files open in Figma, in memory: each call is kept and answered by a
+/// function. The default lists nothing, as wherever no bridge runs.
+#[derive(Default)]
+pub struct MemoryLive {
+    files: Vec<LiveFile>,
+    answer: Option<Box<Answer>>,
+    calls: Mutex<Vec<(String, String, Data)>>,
+}
+
+impl MemoryLive {
+    /// `files` open, each call to one of them answered by `answer`.
+    pub fn with(files: Vec<LiveFile>, answer: impl Fn(&str, &str, &Data) -> Result<Data, LiveError> + Send + Sync + 'static) -> Self {
+        Self { files, answer: Some(Box::new(answer)), calls: Mutex::default() }
+    }
+
+    /// Every call carried, in order: the handle, the tool, its arguments.
+    #[must_use]
+    pub fn calls(&self) -> Vec<(String, String, Data)> {
+        self.calls.lock().unwrap_or_else(std::sync::PoisonError::into_inner).clone()
+    }
+}
+
+impl LiveFiles for MemoryLive {
+    fn list(&self) -> Vec<LiveFile> {
+        self.files.clone()
+    }
+
+    fn call(&self, handle: &str, tool: &str, args: &Data) -> Result<Data, LiveError> {
+        let answer = self.answer.as_ref().filter(|_| self.files.iter().any(|f| f.handle.as_str() == handle));
+        let answer = answer.ok_or(LiveError::NotOpen)?;
+        self.calls.lock().unwrap_or_else(std::sync::PoisonError::into_inner).push((handle.into(), tool.into(), args.clone()));
+        answer(handle, tool, args)
+    }
+}
+
 /// Ports in memory: `store` holds documents and images, `journal` the
 /// journals, `faces` the fonts installed. `figfile` is the codec, as on disk,
 /// since it touches none; a value is measured by its own writing.
@@ -219,6 +261,7 @@ pub fn ports(store: &Arc<Memory>, journal: &Arc<MemoryJournal>, faces: FixedFace
             raster: Arc::new(faces),
             measure: Arc::new(Written),
             json: Arc::new(edge::measure::Text),
+            live: Arc::new(MemoryLive::default()),
     }
 }
 

@@ -5,7 +5,7 @@ use serde_json::{json, Value};
 
 use super::args::{number, optional_number, optional_string, optional_strings, string};
 use super::schema::{handle_property, schema};
-use super::{Request, Tool};
+use super::{Request, Live, Tool};
 use crate::tools::write;
 use crate::error::WriteError;
 use crate::{DomainError, ToolError};
@@ -110,6 +110,9 @@ pub struct SaveAs;
 impl Tool for SaveAs {
     fn name(&self) -> &'static str {
         "save_as"
+    }
+    fn live(&self) -> Live {
+        Live::Cannot(super::SAVED_BY_FIGMA)
     }
     fn description(&self) -> &'static str {
         "Write the open file, with its edits, to a NEW path ending in its product's extension: .fig, or .deck for a \

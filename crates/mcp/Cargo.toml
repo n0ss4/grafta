@@ -14,6 +14,7 @@ readme = "../../README.md"
 name = "mcp"
 
 [dependencies]
+bridge.workspace = true
 toolkit.workspace = true
 
 rmcp.workspace = true
