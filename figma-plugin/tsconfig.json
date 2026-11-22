@@ -22,6 +22,7 @@
     "src"
   ],
   "exclude": [
-    "src/ui.ts"
+    "src/ui.ts",
+    "src/activity.ts"
   ]
 }

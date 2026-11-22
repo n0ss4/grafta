@@ -59,6 +59,27 @@ const WHAT: Record<string, string> = {
   reactions: "prototype", explicitVariableModes: "mode",
 };
 
+/** What kind of thing a tool does: a look, or one of the writes. */
+export function kindOf(tool: string): SaidKind {
+  return PHRASES[tool]?.kind ?? "change";
+}
+
+/** A phrase's first verb, past, as going on ("Changing") and as asked for ("change"). */
+const VERBS: Record<string, [string, string]> = {
+  Looked: ["Looking", "look"], Searched: ["Searching", "search"], Viewed: ["Viewing", "view"],
+  Added: ["Adding", "add"], Drew: ["Drawing", "draw"], Made: ["Making", "make"], Combined: ["Combining", "combine"],
+  Duplicated: ["Duplicating", "duplicate"], Grouped: ["Grouping", "group"], Changed: ["Changing", "change"],
+  Switched: ["Switching", "switch"], Ungrouped: ["Ungrouping", "ungroup"], Moved: ["Moving", "move"], Deleted: ["Deleting", "delete"],
+};
+
+/** "Changed the fill of “Card”" as "Changing the fill of “Card”" (going) or "change the fill of “Card”" (asked). */
+export function tense(text: string, form: "going" | "asked"): string {
+  const [first, ...rest] = text.split(" ");
+  const verb = VERBS[first];
+  if (!verb) return form === "asked" ? text.charAt(0).toLowerCase() + text.slice(1) : text;
+  return [form === "going" ? verb[0] : verb[1], ...rest].join(" ");
+}
+
 /** The name of the layer a call is about, read before the call: a layer it deletes is gone after. */
 export async function before(args: Args): Promise<string | undefined> {
   if (typeof args.id !== "string") return undefined;

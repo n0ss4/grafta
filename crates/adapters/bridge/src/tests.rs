@@ -147,6 +147,28 @@ async fn a_call_unanswered_in_time_times_out_and_the_late_answer_is_dropped() {
     assert_eq!(to_json(&again.await.unwrap().unwrap()), json!({ "second": true }));
 }
 
+/// A call the person is deciding on in the panel (Ask me first) waits past the
+/// usual timeout, up to `asking`.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_call_the_person_is_deciding_on_waits_longer() {
+    let bridge = Arc::new(start(Options { timeout: Duration::from_millis(200), asking: Duration::from_secs(3), ..options() }));
+    let (mut panel, handle) = allowed(&bridge).await;
+    let waiting = calling(&bridge, &handle, json!({}));
+    let call = next(&mut panel).await;
+    send(&mut panel, json!({ "asking": call["id"] })).await;
+    tokio::time::sleep(Duration::from_millis(600)).await;
+    send(&mut panel, json!({ "id": call["id"], "result": { "applied": true } })).await;
+    assert_eq!(to_json(&waiting.await.unwrap().unwrap()), json!({ "applied": true }));
+
+    // Asked, and never answered: it times out at `asking`.
+    let bridge = Arc::new(start(Options { timeout: Duration::from_millis(100), asking: Duration::from_millis(400), ..options() }));
+    let (mut panel, handle) = allowed(&bridge).await;
+    let waiting = calling(&bridge, &handle, json!({}));
+    let call = next(&mut panel).await;
+    send(&mut panel, json!({ "asking": call["id"] })).await;
+    assert_eq!(waiting.await.unwrap(), Err(LiveError::TimedOut { seconds: 1 }));
+}
+
 #[tokio::test(flavor = "multi_thread")]
 async fn the_panel_leaving_mid_call_answers_it_gone_and_unlists_the_file() {
     let bridge = Arc::new(start(options()));
