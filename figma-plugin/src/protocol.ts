@@ -5,6 +5,8 @@
 export interface Caller {
   name: string;
   version: string;
+  /** The shape of the messages it speaks (contract.json's `protocol`); none before there was one. */
+  protocol?: number;
   secret: string;
 }
 

@@ -1,6 +1,7 @@
 // grafta's panel, its window: the connections to grafta on this computer, one
 // to each grafta that answers on its ports, and what the person sees and
 // decides. It sends nothing anywhere but to those connections.
+import { PROTOCOL } from "./contract";
 import { PORTS } from "./ports";
 import type { Caller, Call, FileInfo, Said, SaidKind, ToMain, ToPanel } from "./protocol";
 
@@ -15,6 +16,8 @@ interface Connection {
   socket: WebSocket;
   caller?: Caller;
   allowed: boolean;
+  /** Why this grafta and this panel cannot work together, when they speak another protocol. */
+  mismatch?: string;
 }
 
 const connections = new Map<number, Connection>();
@@ -53,11 +56,12 @@ function send(connection: Connection, value: unknown): void {
   if (connection.socket.readyState === WebSocket.OPEN) connection.socket.send(JSON.stringify(value));
 }
 
-type State = "searching" | "found" | "connected" | "stopped";
+type State = "searching" | "found" | "mismatch" | "connected" | "stopped";
 
 const SAID: Record<State, { pill: string; sub: string }> = {
   searching: { pill: "Searching", sub: "Start grafta in your AI app: this panel finds it on its own." },
   found: { pill: "Found", sub: "grafta is running here. Waiting for the app to say who it is." },
+  mismatch: { pill: "Update needed", sub: "" },
   connected: { pill: "Connected", sub: "Ask your AI app to read or change this file. Each call is one step of undo." },
   stopped: { pill: "Stopped", sub: "Every call is refused until you resume." },
 };
@@ -65,18 +69,34 @@ const SAID: Record<State, { pill: string; sub: string }> = {
 function render(): void {
   const open = [...connections.values()];
   const allowed = open.filter((c) => c.allowed);
-  const state: State = stopped ? "stopped" : allowed.length ? "connected" : open.length ? "found" : "searching";
+  const mismatched = open.find((c) => c.mismatch);
+  const usable = open.filter((c) => !c.mismatch);
+  const state: State = stopped
+    ? "stopped"
+    : allowed.length
+      ? "connected"
+      : usable.length
+        ? "found"
+        : mismatched
+          ? "mismatch"
+          : "searching";
   document.body.dataset.state = state;
   element("pill").textContent = SAID[state].pill;
   element("state-sub").textContent =
-    state === "found" && asking.length ? "An app is asking to use this file: allow it below, or refuse it." : SAID[state].sub;
+    state === "found" && asking.length
+      ? "An app is asking to use this file: allow it below, or refuse it."
+      : state === "mismatch"
+        ? (mismatched?.mismatch ?? "")
+        : SAID[state].sub;
   element("state").textContent = stopped
     ? "Stopped: grafta can do nothing here"
     : allowed.length
       ? `Connected to ${allowed.length === 1 ? (allowed[0].caller?.name ?? "an app") : `${allowed.length} apps`}`
-      : open.length
+      : usable.length
         ? "grafta found on this computer"
-        : "Looking for grafta on this computer…";
+        : mismatched
+          ? `grafta ${mismatched.caller?.version ?? ""} and this panel do not match`
+          : "Looking for grafta on this computer…";
   const list = element<HTMLUListElement>("callers");
   list.replaceChildren(...allowed.map((c) => chip(c.caller?.name ?? "an app", c.caller?.version)));
   // One app is named in the state above; the list is for two or more.
@@ -193,6 +213,13 @@ function receive(connection: Connection, text: string): void {
   const hello = message.hello as Caller | undefined;
   if (hello) {
     connection.caller = hello;
+    connection.mismatch = mismatch(hello);
+    // Nothing is sent: the connection stays open, so the panel does not
+    // reconnect each second, and grafta lists no file until one is updated.
+    if (connection.mismatch) {
+      render();
+      return;
+    }
     if (refused.has(hello.secret)) {
       send(connection, { allowed: false, why: "the person did not allow it" });
       connection.socket.close();
@@ -213,6 +240,15 @@ function receive(connection: Connection, text: string): void {
     const call: Call = { connection: connection.number, id: message.id, tool: message.tool, args: (message.args ?? {}) as Record<string, unknown> };
     toMain({ kind: "call", call });
   }
+}
+
+/** Why `hello`'s grafta cannot work with this panel, or nothing when it can. */
+function mismatch(hello: Caller): string | undefined {
+  const theirs = hello.protocol ?? 0;
+  if (theirs === PROTOCOL) return undefined;
+  return theirs < PROTOCOL
+    ? `grafta ${hello.version} is older than this panel. Update grafta in your AI app and start it again.`
+    : `This panel is older than grafta ${hello.version}. Import the panel again from grafta-figma-plugin.zip of grafta ${hello.version}'s release.`;
 }
 
 function connect(port: number): void {

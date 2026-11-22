@@ -62,6 +62,8 @@
   [data-state="connected"] .pill .dot { background: var(--accent); }
   [data-state="stopped"] .pill { color: var(--text); }
   [data-state="stopped"] .pill .dot { background: var(--warn); }
+  [data-state="mismatch"] .pill { color: var(--text); }
+  [data-state="mismatch"] .pill .dot { background: var(--warn); }
 
   main { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
 
@@ -76,13 +78,15 @@
   [data-state="searching"] .badge .i-search,
   [data-state="found"] .badge .i-search,
   [data-state="connected"] .badge .i-link,
-  [data-state="stopped"] .badge .i-pause { display: block; }
+  [data-state="stopped"] .badge .i-pause,
+  [data-state="mismatch"] .badge .i-update { display: block; }
   [data-state="searching"] .badge::after {
     content: ""; position: absolute; inset: 0; border-radius: inherit;
     border: 1.5px solid var(--accent); opacity: 0; animation: ring 1.8s ease-out infinite;
   }
   [data-state="connected"] .badge { background: var(--accent-soft); color: var(--accent-text); }
-  [data-state="stopped"] .badge { color: var(--warn); }
+  [data-state="stopped"] .badge,
+  [data-state="mismatch"] .badge { color: var(--warn); }
   .hero-title { font-size: 12px; line-height: 16px; font-weight: 600; margin-top: 1px; }
   .hero-sub { color: var(--muted); margin-top: 2px; }
 
@@ -198,6 +202,7 @@
       <svg class="i i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
       <svg class="i i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>
       <svg class="i i-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/></svg>
+      <svg class="i i-update" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4.5h-4.5"/></svg>
     </div>
     <div>
       <div class="hero-title" id="state">Looking for grafta on this computer…</div>

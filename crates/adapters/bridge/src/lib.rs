@@ -34,6 +34,12 @@ use tokio_tungstenite::tungstenite::http::StatusCode;
 use tokio_tungstenite::tungstenite::protocol::WebSocketConfig;
 use tokio_tungstenite::tungstenite::{Error as WsError, Message};
 
+/// The shape of the messages between grafta and its panel, sent in `hello`
+/// and written to the panel's `contract.json`. A panel speaking another
+/// connects to nothing and says which of the two to update: the panel is
+/// imported from a release's zip, grafta installed apart, so they can differ. Bump it
+/// when a message changes shape, never for a release alone.
+pub const PROTOCOL: u32 = 1;
 /// The ports the bridge may listen on, in order; the panel tries each.
 pub const PORTS: [u16; 5] = [47823, 47824, 47825, 47826, 47827];
 /// The `Origin` a panel's connection carries: a plugin's panel is a document
@@ -240,7 +246,8 @@ impl Shared {
     }
 
     fn hello(&self, caller: &str) -> String {
-        json!({ "hello": { "name": caller, "version": env!("CARGO_PKG_VERSION"), "secret": self.options.secret } }).to_string()
+        json!({ "hello": { "name": caller, "version": env!("CARGO_PKG_VERSION"), "protocol": PROTOCOL, "secret": self.options.secret } })
+            .to_string()
     }
 
     /// A frame from the panel on connection `number`.
