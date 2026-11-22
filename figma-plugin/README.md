@@ -6,8 +6,8 @@ change shows in place, and one call is one step of Figma's undo.
 
 The panel talks to `grafta mcp` on your own computer and to nothing else: the
 manifest allows `ws://localhost` on grafta's five ports alone. It asks you to
-allow each AI app once, shows the call being done and the last five, and Stop
-refuses every call until Resume.
+allow each AI app once, says in plain words what each call did (the last
+fifty, scrolling), and Stop refuses every call until Resume.
 
 ## Working on it
 
@@ -33,5 +33,8 @@ AI app, built from the same commit.
 - `src/tools/`: one function per tool, keyed by grafta's name, each taking the
   tool's arguments and returning its result keys. `view.ts` is read_node's
   view, rule for rule from `crates/core/app/src/view.rs`.
+- `assets/icon.svg`, `assets/icon.png`: the plugin's icon, 128 by 128. Figma
+  takes it in the publish dialog, not from the manifest, so a plugin imported
+  for development shows none.
 - `src/contract.json`: written by grafta (`GRAFTA_RECORD=1 cargo test -p
   grafta-mcp`), never by hand: the tools, what each does here, the ports.
