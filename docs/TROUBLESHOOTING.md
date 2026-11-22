@@ -7,6 +7,8 @@ By what you see. Each section says why it happens and what to do.
 - [Text looks wrong, or a result says a font is not installed](#text-looks-wrong-or-a-result-says-a-font-is-not-installed)
 - [grafta's panel in Figma stays on "Looking for grafta"](#graftas-panel-in-figma-stays-on-looking-for-grafta)
 - [grafta's panel in Figma says "Update needed"](#graftas-panel-in-figma-says-update-needed)
+- [A result says the person skipped a change, or did not answer](#a-result-says-the-person-skipped-a-change-or-did-not-answer)
+- [A result says a layer is protected](#a-result-says-a-layer-is-protected)
 - [Your AI app does not see the file you have open](#your-ai-app-does-not-see-the-file-you-have-open)
 - [A result says grafta is stopped in Figma's panel](#a-result-says-grafta-is-stopped-in-figmas-panel)
 - [Figma refuses a change, saying it is limited](#figma-refuses-a-change-saying-it-is-limited)
@@ -180,6 +182,29 @@ installed apart, so one can be updated and the other not.
 - *This panel is older than grafta …*: download `grafta-figma-plugin.zip`
   from the same release as your grafta (`grafta --version`), unzip it over the
   old folder, and close and open the panel in Figma.
+
+## A result says the person skipped a change, or did not answer
+
+Your AI says a change was skipped, or that you *did not answer in Figma's
+panel in time*.
+
+**Why.** grafta's panel is in *Ask me first*: each change waits for you to
+click *Apply* or *Skip*, in the panel or on the notice at the bottom of the
+canvas, for up to 110 seconds. Nothing is changed until you do.
+
+**What to do.** Apply or skip each change as it comes, or click *Apply the
+rest of this request without asking* to let the rest of one request through.
+To stop being asked, choose *Apply directly* at the bottom of the panel.
+
+## A result says a layer is protected
+
+Your AI says a layer *is protected in grafta's panel in Figma*.
+
+**Why.** You protected it, or a layer holding it, in the panel: grafta changes
+nothing in it, and makes nothing inside it.
+
+**What to do.** If the change is wanted, click *Unprotect* beside it in the
+panel, under *Protected from the AI*, and ask again.
 
 ## Your AI app does not see the file you have open
 

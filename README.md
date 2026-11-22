@@ -118,8 +118,10 @@ Then ask about what you have open:
 > Make the selected card's corners 12 and its title bold.
 
 Each change shows in the file as it is made, and Figma saves it: each call
-grafta makes is one step of *Edit → Undo*. The panel shows each call, and **Stop** refuses every
-call until you press Resume. It talks to grafta on your computer and to nothing
+grafta makes is one step of *Edit → Undo*. The panel gathers the calls of each
+request and shows each one before and after, with *Revert this request* to put it all back. Choose
+**Ask me first** to apply or skip each change yourself, protect the layers the AI must not touch,
+and **Stop** refuses every call until you press Resume. It talks to grafta on your computer and to nothing
 else. A few tools are not there yet, such as `export_pdf` and `check_contrast`:
 the [tool reference](docs/TOOLS.md) says, for each, what it does on the open file.
 Figma in a browser has not been tried.
