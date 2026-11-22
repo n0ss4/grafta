@@ -90,3 +90,26 @@ fn a_nested_hugging_frame_is_sized_before_its_parent_uses_it() {
     assert_eq!(geometry(&mut kit, &h, &outer).2, 105.0);
     assert_eq!(geometry(&mut kit, &h, &outer).3, 50.0);
 }
+
+/// A text that grows in a file's own hugging frames grows each of them, up to
+/// the outermost, as Figma lays them out: not only the frame holding it (row
+/// 116: `order.fig`'s Card kept its height when its texts grew).
+#[test]
+fn a_grown_text_grows_every_hugging_frame_around_it() {
+    let (mut kit, h) = kit();
+    let hug = json!({ "layoutMode": "VERTICAL", "padding": 10, "primaryAxisSizingMode": "AUTO" });
+    let outer = frame(&mut kit, &h, "1:1", 200.0, 10.0, hug.clone());
+    let inner = frame(&mut kit, &h, &outer, 180.0, 10.0, hug);
+    let text = call(&mut kit, "create_text", json!({ "handle": h, "parent": inner, "characters": "Grows", "fontSize": 12 })).unwrap()["id"].as_str().unwrap().to_string();
+    // As in a file opened again: nothing in it is grafta's own to lay out.
+    let session = kit.session_mut(&h).unwrap();
+    session.created.clear();
+    session.laid_out.clear();
+    call(&mut kit, "set_properties", json!({ "handle": h, "id": text, "properties": { "fontSize": 40 } })).unwrap();
+    let (_, _, _, text_h) = geometry(&mut kit, &h, &text);
+    let (_, _, _, inner_h) = geometry(&mut kit, &h, &inner);
+    let (_, _, _, outer_h) = geometry(&mut kit, &h, &outer);
+    assert!(text_h > 40.0, "the text grew: {text_h}");
+    assert!((inner_h - (text_h + 20.0)).abs() < 0.01, "inner hugs the text: {inner_h} for {text_h}");
+    assert!((outer_h - (inner_h + 20.0)).abs() < 0.01, "outer hugs inner: {outer_h} for {inner_h}");
+}

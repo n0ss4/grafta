@@ -33,20 +33,24 @@ pub fn settle(session: &mut Session) -> Result<(), ToolError> {
     Ok(())
 }
 
-/// One pass. Returns whether anything changed.
+/// One pass, deepest frame first. A frame whose own size changed has its
+/// auto-layout parent laid out after it in the same pass, and so on up: a
+/// text that grows in a hugging frame grows every hugging frame around it, as
+/// in Figma. Returns whether anything changed.
 fn pass(session: &mut Session) -> Result<bool, ToolError> {
-    let mut frames: Vec<(usize, Guid)> = session
+    use std::cmp::Reverse;
+    use std::collections::BTreeSet;
+    let mut queue: BTreeSet<(Reverse<usize>, Guid)> = session
         .created
         .iter()
         .chain(&session.laid_out)
         .filter_map(|&id| session.graph.node(id))
         .filter(|node| node.layout.mode != LayoutMode::None)
-        .map(|node| (depth(session, node), node.id))
+        .map(|node| (Reverse(depth(session, node)), node.id))
         .collect();
-    frames.sort_by_key(|frame| std::cmp::Reverse(frame.0));
 
     let mut changed = false;
-    for (_, id) in frames {
+    while let Some((_, id)) = queue.pop_first() {
         let writes = lay_out(session, id);
         let mut touched = Vec::new();
         for (node, fields) in writes {
@@ -58,8 +62,32 @@ fn pass(session: &mut Session) -> Result<bool, ToolError> {
             changed = true;
             session.refresh(&touched);
         }
+        if touched.contains(&id) {
+            if let Some(parent) = carried_up(session, id) {
+                if !session.laid_out.contains(&parent) && !session.created.contains(&parent) {
+                    session.laid_out.push(parent);
+                }
+                if let Some(node) = session.graph.node(parent) {
+                    queue.insert((Reverse(depth(session, node)), parent));
+                }
+            }
+        }
     }
     Ok(changed)
+}
+
+/// The auto-layout frame a resized frame flows in, when grafta can lay it out
+/// as Figma would: not one that wraps, nor one its product lays out itself.
+fn carried_up(session: &Session, id: Guid) -> Option<Guid> {
+    let node = session.graph.node(id)?;
+    if node.layout.positioning == StackPositioning::Absolute.as_wire() || !node.visible {
+        return None;
+    }
+    let parent = session.graph.node(node.parent_id?)?;
+    let lays_out = parent.layout.mode != LayoutMode::None
+        && !parent.layout.wrap
+        && session.products.behaviours_of(parent.node_type).all(|b| b.lays_out_children());
+    lays_out.then_some(parent.id)
 }
 
 fn depth(session: &Session, node: &SceneNode) -> usize {
@@ -223,23 +251,33 @@ fn lay_out(session: &Session, id: Guid) -> Writes {
 /// Write a position and a size into a node change. Returns whether anything
 /// actually changed.
 fn write(session: &mut Session, id: Guid, (position, size): Placement) -> Result<bool, ToolError> {
+    // Read first: asking for a node's fields to change marks it edited, and
+    // one laid out where it already is must stay as the file had it.
+    let Some(raw) = session.raw(id) else { return Ok(false) };
+    let near = |old: Option<f32>, new: f32| old.is_some_and(|o| (o - new).abs() <= 0.001);
+    let transform = raw.field(Field::Transform);
+    let moves = position.filter(|&(x, y)| {
+        !(near(transform.and_then(|t| t.field(Field::M02)).and_then(Raw::as_f32).or(Some(0.0)), x)
+            && near(transform.and_then(|t| t.field(Field::M12)).and_then(Raw::as_f32).or(Some(0.0)), y))
+    });
+    let old = raw.field(Field::Size);
+    let resizes = size.filter(|&(w, h)| {
+        !(near(old.and_then(|s| s.field(Field::X)).and_then(Raw::as_f32), w) && near(old.and_then(|s| s.field(Field::Y)).and_then(Raw::as_f32), h))
+    });
+    if moves.is_none() && resizes.is_none() {
+        return Ok(false);
+    }
     let Some(fields) = session.fields_mut(id) else { return Ok(false) };
     let mut changed = false;
-    if let Some((x, y)) = position {
+    if let Some((x, y)) = moves {
         if let Some(Raw::Object(t)) = fields.field_mut(Field::Transform) {
-            for (key, value) in [(Field::M02, x), (Field::M12, y)] {
-                let old = t.field(key).and_then(Raw::as_f32).unwrap_or(0.0);
-                if (old - value).abs() > 0.001 {
-                    t.set(key, Raw::Float(value));
-                    changed = true;
-                }
-            }
+            t.set(Field::M02, Raw::Float(x));
+            t.set(Field::M12, Raw::Float(y));
+            changed = true;
         }
     }
-    if let Some((w, h)) = size {
-        fields.set(Field::Size,
-            object([(Field::X, Raw::Float(w)), (Field::Y, Raw::Float(h))]),
-        );
+    if let Some((w, h)) = resizes {
+        fields.set(Field::Size, object([(Field::X, Raw::Float(w)), (Field::Y, Raw::Float(h))]));
         changed = true;
     }
     Ok(changed)

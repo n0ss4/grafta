@@ -42,7 +42,7 @@
         },
         "results": [
           {
-            "height": 365,
+            "height": 379.21997,
             "id": "1735549286:1",
             "name": "Order",
             "type": "FRAME",
@@ -120,24 +120,16 @@
                 "variable": "Ink"
               }
             ],
-            "height": 28,
+            "height": 33.88,
             "id": "1735549286:2",
-            "layoutSizingHorizontal": "FIXED",
-            "layoutSizingVertical": "FIXED",
+            "layoutSizingHorizontal": "HUG",
+            "layoutSizingVertical": "HUG",
             "name": "My order",
             "style": {
               "fontFamily": "Inter",
               "fontSize": 28,
               "fontStyle": "Bold",
               "fontWeight": 700,
-              "letterSpacing": {
-                "unit": "PERCENT",
-                "value": 0.0
-              },
-              "lineHeight": {
-                "unit": "PERCENT",
-                "value": 100.0
-              },
               "textAlignHorizontal": "LEFT",
               "textAlignVertical": "TOP",
               "textAutoResize": "WIDTH_AND_HEIGHT"
@@ -156,24 +148,16 @@
                 "variable": "Muted"
               }
             ],
-            "height": 14,
+            "height": 16.94,
             "id": "1735549286:22",
-            "layoutSizingHorizontal": "FIXED",
-            "layoutSizingVertical": "FIXED",
+            "layoutSizingHorizontal": "HUG",
+            "layoutSizingVertical": "HUG",
             "name": "Placed 2 Oct · 3 items",
             "style": {
               "fontFamily": "Inter",
               "fontSize": 14,
               "fontStyle": "Regular",
               "fontWeight": 400,
-              "letterSpacing": {
-                "unit": "PERCENT",
-                "value": 0.0
-              },
-              "lineHeight": {
-                "unit": "PERCENT",
-                "value": 100.0
-              },
               "textAlignHorizontal": "LEFT",
               "textAlignVertical": "TOP",
               "textAutoResize": "WIDTH_AND_HEIGHT"
@@ -181,7 +165,7 @@
             "type": "TEXT",
             "width": 144.9,
             "x": 24,
-            "y": 72
+            "y": 77.880005
           },
           {
             "childCount": 3,
@@ -208,7 +192,7 @@
                 "variable": "Surface"
               }
             ],
-            "height": 132,
+            "height": 134.52,
             "id": "1735549286:3",
             "itemSpacing": 14,
             "layoutAlign": "STRETCH",
@@ -234,7 +218,7 @@
             "type": "FRAME",
             "width": 312,
             "x": 24,
-            "y": 106
+            "y": 114.82001
           },
           {
             "childCount": 2,
@@ -249,7 +233,7 @@
                 "variable": "Accent"
               }
             ],
-            "height": 50,
+            "height": 50.15,
             "id": "1735549286:7",
             "itemSpacing": 8,
             "layoutAlign": "STRETCH",
@@ -266,7 +250,7 @@
             "type": "FRAME",
             "width": 312,
             "x": 24,
-            "y": 258
+            "y": 269.34003
           },
           {
             "characters": "Delivered to the door · no signature",
@@ -277,24 +261,16 @@
                 "variable": "Muted"
               }
             ],
-            "height": 13,
+            "height": 15.73,
             "id": "1735549286:33",
-            "layoutSizingHorizontal": "FIXED",
-            "layoutSizingVertical": "FIXED",
+            "layoutSizingHorizontal": "HUG",
+            "layoutSizingVertical": "HUG",
             "name": "Delivered to the door · no signature",
             "style": {
               "fontFamily": "Inter",
               "fontSize": 13,
               "fontStyle": "Regular",
               "fontWeight": 400,
-              "letterSpacing": {
-                "unit": "PERCENT",
-                "value": 0.0
-              },
-              "lineHeight": {
-                "unit": "PERCENT",
-                "value": 100.0
-              },
               "textAlignHorizontal": "LEFT",
               "textAlignVertical": "TOP",
               "textAutoResize": "WIDTH_AND_HEIGHT"
@@ -302,7 +278,7 @@
             "type": "TEXT",
             "width": 217.12,
             "x": 24,
-            "y": 328
+            "y": 339.49002
           }
         ],
         "counterAxisAlignItems": "MIN",
@@ -317,7 +293,7 @@
             "variable": "Background"
           }
         ],
-        "height": 365,
+        "height": 379.21997,
         "id": "1735549286:1",
         "itemSpacing": 20,
         "layoutMode": "VERTICAL",

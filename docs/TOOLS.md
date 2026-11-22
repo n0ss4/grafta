@@ -238,7 +238,7 @@ Create an empty frame (no fill, no auto-layout) on a page or inside a frame, at 
 
 ### `create_text`
 
-Create a text layer on a page or in a frame. characters is the text (a line break starts a new paragraph). fontFamily and fontStyle name a font as Figma does (e.g. "Inter", "Semi Bold"); by default, the file's most used font. fontSize, fills (like set_properties: SOLID colour or a local colour variable; default black), x, y, textAlignHorizontal (LEFT, CENTER, RIGHT, JUSTIFIED), lineHeight (pixels, or { value, unit: PIXELS | PERCENT }), letterSpacing (likewise). Give width to wrap text inside a fixed width; give height too to fix the box (textAutoResize NONE); without either the box fits the text. Rich text: runs instead of characters, [{ characters, fontFamily?, fontStyle?, fontSize?, fills?, textDecoration?, textCase?, letterSpacing?, lineHeight?, hyperlink?: { type: URL, value } }], each run styled apart from the layer (a link is underlined unless it says otherwise); paragraphs, one per line of the text, [{ listType: NONE | UNORDERED | ORDERED, indentation?: 1 | 2 }]; paragraphSpacing, paragraphIndent, textDecoration (NONE, UNDERLINE, STRIKETHROUGH), textCase (ORIGINAL, UPPER, LOWER, TITLE, SMALL_CAPS, SMALL_CAPS_FORCED), textAlignVertical (TOP, CENTER, BOTTOM) and textAutoResize (NONE, WIDTH_AND_HEIGHT, HEIGHT). Figma lays the text out when the file is opened, so the size grafta reports is provisional.
+Create a text layer on a page or in a frame. characters is the text (a line break starts a new paragraph). fontFamily and fontStyle name a font as Figma does (e.g. "Inter", "Semi Bold"); by default, the file's most used font. fontSize, fills (like set_properties: SOLID colour or a local colour variable; default black), x, y, textAlignHorizontal (LEFT, CENTER, RIGHT, JUSTIFIED), lineHeight (pixels, { value, unit: PIXELS | PERCENT } or { unit: AUTO }; default Auto, or the file's usual one at that size), letterSpacing (pixels or { value, unit: PIXELS | PERCENT }). Give width to wrap text inside a fixed width; give height too to fix the box (textAutoResize NONE); without either the box fits the text. Rich text: runs instead of characters, [{ characters, fontFamily?, fontStyle?, fontSize?, fills?, textDecoration?, textCase?, letterSpacing?, lineHeight?, hyperlink?: { type: URL, value } }], each run styled apart from the layer (a link is underlined unless it says otherwise); paragraphs, one per line of the text, [{ listType: NONE | UNORDERED | ORDERED, indentation?: 1 | 2 }]; paragraphSpacing, paragraphIndent, textDecoration (NONE, UNDERLINE, STRIKETHROUGH), textCase (ORIGINAL, UPPER, LOWER, TITLE, SMALL_CAPS, SMALL_CAPS_FORCED), textAlignVertical (TOP, CENTER, BOTTOM) and textAutoResize (NONE, WIDTH_AND_HEIGHT, HEIGHT). Figma lays the text out when the file is opened, so the size grafta reports is provisional.
 
 **On the open file in Figma, unlike on a file:** Figma makes the text and lays it out, so `size` is Figma's own and not provisional, and the result has no `unsaved_edits`; with no fontFamily, the font and size most used by the current page's texts (Figma's default when it has none), and Figma's own line height when none is given.
 
@@ -253,7 +253,7 @@ Create a text layer on a page or in a frame. characters is the text (a line brea
 | `fontStyle` | string |  |  |
 | `height` | number, > 0 |  |  |
 | `letterSpacing` | number or object { unit, value } |  |  |
-| `lineHeight` | number or object { unit, value } |  |  |
+| `lineHeight` | number or object { unit, value } or object { unit } |  |  |
 | `name` | string |  | Layer name. Default: the characters. |
 | `paragraphIndent` | number, ≥ 0 |  |  |
 | `paragraphSpacing` | number, ≥ 0 |  |  |
@@ -644,7 +644,7 @@ Make a style: type FILL with fills (paints, as set_properties takes them), TEXT 
 | `fontSize` | number, > 0 |  |  |
 | `fontStyle` | string |  | e.g. "Bold", "Semi Bold". |
 | `letterSpacing` | any |  | Pixels, or { value, unit: PIXELS \| PERCENT }. |
-| `lineHeight` | any |  | Pixels, or { value, unit: PIXELS \| PERCENT }. |
+| `lineHeight` | any |  | Pixels, { value, unit: PIXELS \| PERCENT } or { unit: AUTO }. |
 
 ### `set_style`
 
@@ -662,7 +662,7 @@ Change a colour, text or effect style, grafta's or one the file already has (a k
 | `fontSize` | number, > 0 |  |  |
 | `fontStyle` | string |  | e.g. "Bold", "Semi Bold". |
 | `letterSpacing` | any |  | Pixels, or { value, unit: PIXELS \| PERCENT }. |
-| `lineHeight` | any |  | Pixels, or { value, unit: PIXELS \| PERCENT }. |
+| `lineHeight` | any |  | Pixels, { value, unit: PIXELS \| PERCENT } or { unit: AUTO }. |
 | `name` | string |  |  |
 
 ## Save
