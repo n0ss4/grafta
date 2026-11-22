@@ -245,8 +245,17 @@ async function textChanges(node: Node, properties: Record<string, unknown>, undo
         throw new Error(`properties.${key}: ${words(error)}`);
       });
   if ("fontFamily" in properties || "fontStyle" in properties) {
-    const now = text.fontName === figma.mixed ? text.getRangeFontName(0, 1) : text.fontName;
-    const font = { family: String(properties.fontFamily ?? (now as FontName).family), style: String(properties.fontStyle ?? (now as FontName).style) };
+    // The font in use, from the fonts the text's characters hold, as loadFonts
+    // read them: on a text no plugin has set yet, `fontName` was seen giving
+    // no family (2026-11-22), and "undefined Bold" was asked of Figma.
+    const held = text.characters.length ? text.getRangeAllFontNames(0, text.characters.length) : [];
+    const now = held[0] ?? (text.fontName === figma.mixed ? text.getRangeFontName(0, 1) : text.fontName) as FontName;
+    const family = properties.fontFamily ?? now?.family;
+    const style = properties.fontStyle ?? now?.style;
+    if (typeof family !== "string" || typeof style !== "string") {
+      throw new Error(`properties.${"fontFamily" in properties ? "fontStyle" : "fontFamily"}: Figma gave this text no font to keep; pass fontFamily and fontStyle together`);
+    }
+    const font = { family, style };
     await at("fontFamily" in properties ? "fontFamily" : "fontStyle", async () => {
       await figma.loadFontAsync(font);
       assign(node, "fontName", font, undo);

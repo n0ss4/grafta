@@ -19,6 +19,8 @@ export interface FileInfo {
 /** A call from grafta, carried to the main thread. */
 export interface Call {
   connection: number;
+  /** The AI app's name, as its hello gave it. */
+  caller?: string;
   id: number;
   tool: string;
   args: Record<string, unknown>;
@@ -34,15 +36,99 @@ export interface Said {
   ok: boolean;
 }
 
+/** One property a call changed, as the person reads it: "Fill", "#FFFFFF", "#F59E0B". */
+export interface Change {
+  property: string;
+  before: string;
+  after: string;
+}
+
+/** A layer a request made, changed or removed, and what changed on it. */
+export interface LayerView {
+  id: string;
+  name: string;
+  made: boolean;
+  removed: boolean;
+  changes: Change[];
+  more: number;
+}
+
+/** One request, as the panel shows it. */
+export interface RequestView {
+  id: number;
+  started: number;
+  ended: number;
+  caller: string;
+  made: number;
+  changed: number;
+  removed: number;
+  layers: LayerView[];
+  /** The frame it worked in, and its picture before and after, as PNG. */
+  context?: string;
+  before?: Uint8Array;
+  after?: Uint8Array;
+  reverted: boolean;
+  revertable: boolean;
+  notes: string[];
+  /** From this session; a request from the file's history cannot be reverted. */
+  live: boolean;
+}
+
+/** A change waiting for the person, in Ask me first. */
+export interface PendingView {
+  id: number;
+  /** The connection and grafta's id for the call, so grafta is told the person is deciding. */
+  connection: number;
+  call: number;
+  caller: string;
+  /** "change the fill of “Card”". */
+  text: string;
+  planned: Change[];
+  /** The frame now, as PNG. */
+  now?: Uint8Array;
+  /** When it is skipped on its own, as Date.now() gives it. */
+  until: number;
+}
+
+export interface ProtectedView {
+  id: string;
+  name: string;
+  type: string;
+}
+
 export type ToMain =
   | { kind: "known"; connection: number; caller: Caller }
   | { kind: "allow"; caller: Caller }
   | { kind: "call"; call: Call }
   | { kind: "selftest" }
-  | { kind: "resize"; width: number; height: number; keep: boolean };
+  | { kind: "resize"; width: number; height: number; keep: boolean }
+  | { kind: "focus"; id: string }
+  | { kind: "follow"; on: boolean }
+  | { kind: "ask"; on: boolean }
+  | { kind: "decide"; id: number; apply: boolean; rest: boolean }
+  | { kind: "revert"; request: number }
+  | { kind: "show"; request: number }
+  | { kind: "protect" }
+  | { kind: "unprotect"; id: string };
 
 export type ToPanel =
   | { kind: "file"; file: FileInfo; selftest?: boolean }
   | { kind: "selftest"; table: string }
   | { kind: "known"; connection: number; known: boolean; file: FileInfo }
-  | { kind: "answer"; connection: number; id: number; tool: string; result?: unknown; error?: string; ms: number; said?: Said };
+  | { kind: "follow"; on: boolean }
+  | { kind: "ask"; on: boolean }
+  | { kind: "now"; text: string; working: boolean }
+  | { kind: "request"; request: RequestView }
+  | { kind: "history"; requests: RequestView[] }
+  | { kind: "pending"; pending: PendingView | null }
+  | { kind: "protected"; list: ProtectedView[] }
+  | {
+      kind: "answer";
+      connection: number;
+      id: number;
+      tool: string;
+      result?: unknown;
+      error?: string;
+      ms: number;
+      said?: Said;
+    };

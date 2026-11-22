@@ -12,7 +12,7 @@
 //! panel; then each call is a JSON text frame carried to it and answered
 //! there, in the tool's own result keys. Nothing of the file is kept here.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::io;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr, TcpListener as StdListener};
 use std::path::Path;
@@ -39,7 +39,7 @@ use tokio_tungstenite::tungstenite::{Error as WsError, Message};
 /// connects to nothing and says which of the two to update: the panel is
 /// imported from a release's zip, grafta installed apart, so they can differ. Bump it
 /// when a message changes shape, never for a release alone.
-pub const PROTOCOL: u32 = 1;
+pub const PROTOCOL: u32 = 2;
 /// The ports the bridge may listen on, in order; the panel tries each.
 pub const PORTS: [u16; 5] = [47823, 47824, 47825, 47826, 47827];
 /// The `Origin` a panel's connection carries: a plugin's panel is a document
@@ -47,6 +47,9 @@ pub const PORTS: [u16; 5] = [47823, 47824, 47825, 47826, 47827];
 pub const PANEL_ORIGIN: &str = "null";
 /// How long a call waits for Figma's answer.
 pub const TIMEOUT: Duration = Duration::from_secs(30);
+/// How long a call waits when the panel says the person is deciding on it
+/// (`{ "asking": id }`, its Ask me first): a person reads and chooses.
+pub const ASKING: Duration = Duration::from_secs(120);
 /// The largest message either side takes. A read of 2,707 nodes was 2.2 MB
 /// (research M2); a drawing at 2× of a large frame is more.
 pub const MAX_MESSAGE: usize = 64 * 1024 * 1024;
@@ -64,6 +67,8 @@ pub struct Options {
     /// What the panel remembers this install of grafta by.
     pub secret: String,
     pub timeout: Duration,
+    /// How long a call the person is deciding on waits.
+    pub asking: Duration,
     pub max_message: usize,
 }
 
@@ -71,7 +76,7 @@ impl Options {
     /// The bridge as `grafta mcp` runs it, with this install's secret.
     #[must_use]
     pub fn new(secret: String) -> Self {
-        Self { ports: PORTS.to_vec(), origin: PANEL_ORIGIN.into(), secret, timeout: TIMEOUT, max_message: MAX_MESSAGE }
+        Self { ports: PORTS.to_vec(), origin: PANEL_ORIGIN.into(), secret, timeout: TIMEOUT, asking: ASKING, max_message: MAX_MESSAGE }
     }
 }
 
@@ -98,6 +103,8 @@ struct Open {
     stopped: bool,
     out: mpsc::UnboundedSender<String>,
     waiting: HashMap<u64, SyncSender<Result<Data, LiveError>>>,
+    /// Calls the person is deciding on, which wait longer.
+    asking: HashSet<u64>,
 }
 
 /// What a panel's frame asks of its connection.
@@ -262,8 +269,19 @@ impl Shared {
             }
             return Then::Keep;
         }
+        if let Some(id) = message.get("asking").and_then(Value::as_u64) {
+            if let Some(open) = self.files().iter_mut().find(|open| open.connection == number) {
+                if open.waiting.contains_key(&id) {
+                    open.asking.insert(id);
+                }
+            }
+            return Then::Keep;
+        }
         if let Some(id) = message.get("id").and_then(Value::as_u64) {
-            let waiting = self.files().iter_mut().find(|open| open.connection == number).and_then(|open| open.waiting.remove(&id));
+            let waiting = self.files().iter_mut().find(|open| open.connection == number).and_then(|open| {
+                open.asking.remove(&id);
+                open.waiting.remove(&id)
+            });
             // An answer no call waits for any more came too late: dropped.
             if let Some(waiting) = waiting {
                 drop(waiting.send(answer(&message)));
@@ -291,7 +309,7 @@ impl Shared {
             }
             seed = seed.wrapping_add(PORTS.len() as u64);
         };
-        files.push(Open { connection: number, handle, name, stopped: false, out: out.clone(), waiting: HashMap::new() });
+        files.push(Open { connection: number, handle, name, stopped: false, out: out.clone(), waiting: HashMap::new(), asking: HashSet::new() });
         Then::Keep
     }
 
@@ -348,16 +366,26 @@ impl LiveFiles for Bridge {
             open.out.send(frame).map_err(|_| LiveError::Gone)?;
             open.waiting.insert(id, sender);
         }
-        let timeout = self.shared.options.timeout;
-        match answered.recv_timeout(timeout) {
-            Ok(answer) => answer,
-            Err(RecvTimeoutError::Timeout) => {
-                for open in self.shared.files().iter_mut() {
-                    open.waiting.remove(&id);
+        let started = std::time::Instant::now();
+        loop {
+            let asking = self.shared.files().iter().any(|open| open.asking.contains(&id));
+            let limit = if asking { self.shared.options.asking } else { self.shared.options.timeout };
+            match answered.recv_timeout(limit.saturating_sub(started.elapsed())) {
+                Ok(answer) => return answer,
+                Err(RecvTimeoutError::Disconnected) => return Err(LiveError::Gone),
+                Err(RecvTimeoutError::Timeout) => {
+                    // The person may have been asked meanwhile: then it waits on.
+                    let asked = self.shared.files().iter().any(|open| open.asking.contains(&id));
+                    if asked && started.elapsed() < self.shared.options.asking {
+                        continue;
+                    }
+                    for open in self.shared.files().iter_mut() {
+                        open.waiting.remove(&id);
+                        open.asking.remove(&id);
+                    }
+                    return Err(LiveError::TimedOut { seconds: limit.as_secs().max(1) });
                 }
-                Err(LiveError::TimedOut { seconds: timeout.as_secs().max(1) })
             }
-            Err(RecvTimeoutError::Disconnected) => Err(LiveError::Gone),
         }
     }
 }

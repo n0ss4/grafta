@@ -3,12 +3,11 @@
 // decides. It sends nothing anywhere but to those connections.
 import { PROTOCOL } from "./contract";
 import { PORTS } from "./ports";
-import type { Caller, Call, FileInfo, Said, SaidKind, ToMain, ToPanel } from "./protocol";
+import * as activity from "./activity";
+import type { Caller, Call, FileInfo, ToMain, ToPanel } from "./protocol";
 
 /** How often a port with nothing on it is tried again. */
 const RETRY_MS = 1000;
-/** How many calls done are kept, the list scrolling past what fits. */
-const LAST = 50;
 
 interface Connection {
   number: number;
@@ -26,22 +25,12 @@ const trying = new Set<number>();
 const refused = new Set<string>();
 /** Connections waiting for the person to allow or refuse them. */
 const asking: Connection[] = [];
-interface Done {
-  said: Said;
-  /** Figma's words, when it refused. */
-  error?: string;
-  /** The tools behind the row, newest first: several when looks are merged. */
-  tools: string[];
-  ms: number;
-}
+/** Whether each change is selected and brought into view on the canvas. */
+let follow = true;
 
-/** A development build: rows also give the tool and its time. */
-let dev = false;
-/** Bumped when the calls done change; the list is drawn again only then, so it does not flicker. */
-let edits = 0;
-let drawn = -1;
+/** Whether each change waits for the person, Ask me first. */
+let ask = false;
 
-const last: Done[] = [];
 let file: FileInfo = { name: "", editor: "figma" };
 let stopped = false;
 let next = 1;
@@ -104,19 +93,22 @@ function render(): void {
   const waiting = asking[0];
   element("ask").hidden = !waiting;
   if (waiting) element("ask-name").textContent = waiting.caller?.name ?? "An app";
-  if (drawn !== edits) {
-    element<HTMLUListElement>("last").replaceChildren(...last.map(row));
-    drawn = edits;
-  }
-  element("last").hidden = last.length === 0;
-  element("last-empty").hidden = last.length > 0;
-  element("clear").hidden = last.length === 0;
   element("stop-text").textContent = stopped ? "Resume" : "Stop";
-}
-
-function doing(tool: string | undefined): void {
-  element("doing-wrap").hidden = tool === undefined;
-  element("doing").textContent = tool === undefined ? "" : dev ? tool : "Working…";
+  element("follow").setAttribute("aria-pressed", String(follow));
+  element("mode-apply").setAttribute("aria-pressed", String(!ask));
+  element("mode-ask").setAttribute("aria-pressed", String(ask));
+  // Connected, the pill says what goes on: working, or waiting for the person.
+  if (state === "connected") {
+    const app = allowed.length === 1 ? (allowed[0].caller?.name ?? "An app") : `${allowed.length} apps`;
+    const doing = activity.waiting() ? "waiting for you" : activity.working() ? "working" : "connected";
+    element("pill").textContent = `${app} · ${doing}`;
+    document.body.dataset.doing = activity.waiting() ? "waiting" : activity.working() ? "working" : "idle";
+  } else delete document.body.dataset.doing;
+  // The state in full only when it needs saying: connected, the work speaks.
+  element("hero").hidden = state === "connected";
+  element("work").hidden = state !== "connected" && state !== "stopped";
+  element("foot").hidden = state !== "connected" && state !== "stopped";
+  activity.draw(toMain, file.name, render);
 }
 
 function chip(name: string, version: string | undefined): HTMLLIElement {
@@ -135,66 +127,6 @@ function chip(name: string, version: string | undefined): HTMLLIElement {
     li.append(v);
   }
   return li;
-}
-
-const SVG = "http://www.w3.org/2000/svg";
-/** One icon per kind of call, as SVG paths on a 24 grid. */
-const ICONS: Record<SaidKind | "failed", string> = {
-  look: "M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12s-3.5 6.5-9.5 6.5S2.5 12 2.5 12zM12 14.75a2.75 2.75 0 1 0 0-5.5 2.75 2.75 0 0 0 0 5.5z",
-  make: "M12 5v14M5 12h14",
-  change: "M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4",
-  move: "M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3",
-  remove: "M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3",
-  failed: "M12 8v5M12 16.5v.01M10.3 3.9L2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z",
-};
-
-function icon(kind: SaidKind | "failed"): SVGSVGElement {
-  const svg = document.createElementNS(SVG, "svg");
-  svg.setAttribute("viewBox", "0 0 24 24");
-  const path = document.createElementNS(SVG, "path");
-  path.setAttribute("d", ICONS[kind]);
-  for (const [k, v] of Object.entries({ fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round" }))
-    path.setAttribute(k, v);
-  svg.append(path);
-  return svg;
-}
-
-function span(className: string, text: string): HTMLSpanElement {
-  const el = document.createElement("span");
-  el.className = className;
-  el.textContent = text;
-  return el;
-}
-
-function row(done: Done): HTMLLIElement {
-  const li = document.createElement("li");
-  li.className = done.said.ok ? done.said.kind : "failed";
-  li.title = done.tools.join(", ");
-  const badge = document.createElement("span");
-  badge.className = "kind";
-  badge.append(icon(done.said.ok ? done.said.kind : "failed"));
-  const body = document.createElement("span");
-  body.className = "body";
-  body.append(span("text", done.said.text));
-  if (done.error) body.append(span("why", done.error));
-  if (dev) body.append(span("tech", `${done.tools[0]} · ${done.ms} ms`));
-  li.append(badge, body);
-  if (done.tools.length > 1) li.append(span("count", `×${done.tools.length}`));
-  return li;
-}
-
-/** A call done goes on top; looks one after another share a row, so changes stay in sight. */
-function record(done: Done): void {
-  edits++;
-  const top = last[0];
-  if (top && done.said.kind === "look" && done.said.ok && top.said.kind === "look" && top.said.ok) {
-    top.tools.unshift(...done.tools);
-    top.said = { ...top.said, text: "Looked through the file" };
-    top.ms = done.ms;
-    return;
-  }
-  last.unshift(done);
-  last.length = Math.min(last.length, LAST);
 }
 
 function grant(connection: Connection): void {
@@ -236,8 +168,13 @@ function receive(connection: Connection, text: string): void {
       send(connection, { id: message.id, error: "the person stopped grafta in Figma's panel: nothing was done", ms: 0 });
       return;
     }
-    doing(message.tool);
-    const call: Call = { connection: connection.number, id: message.id, tool: message.tool, args: (message.args ?? {}) as Record<string, unknown> };
+    const call: Call = {
+      connection: connection.number,
+      caller: connection.caller?.name,
+      id: message.id,
+      tool: message.tool,
+      args: (message.args ?? {}) as Record<string, unknown>,
+    };
     toMain({ kind: "call", call });
   }
 }
@@ -279,14 +216,37 @@ window.onmessage = (event: MessageEvent) => {
   switch (message.kind) {
     case "file":
       file = message.file;
-      dev = message.selftest === true;
-      edits++;
-      element("selftest-section").hidden = !dev;
+      element("selftest-section").hidden = message.selftest !== true;
       break;
     case "selftest":
       element<HTMLButtonElement>("selftest").disabled = false;
       element<HTMLTextAreaElement>("selftest-table").value = message.table;
       element("selftest-table").hidden = false;
+      break;
+    case "follow":
+      follow = message.on;
+      break;
+    case "ask":
+      ask = message.on;
+      break;
+    case "now":
+      activity.onNow(message.text, message.working);
+      break;
+    case "request":
+      activity.onRequest(message.request);
+      break;
+    case "history":
+      activity.onHistory(message.requests);
+      break;
+    case "pending": {
+      activity.onPending(message.pending);
+      // grafta waits longer for a call the person is deciding on.
+      const asked = message.pending && connections.get(message.pending.connection);
+      if (asked && message.pending) send(asked, { asking: message.pending.call });
+      break;
+    }
+    case "protected":
+      activity.onProtected(message.list);
       break;
     case "known": {
       file = message.file;
@@ -299,13 +259,6 @@ window.onmessage = (event: MessageEvent) => {
     case "answer": {
       const connection = connections.get(message.connection);
       if (connection) send(connection, { id: message.id, result: message.result, error: message.error, ms: message.ms });
-      record({
-        said: message.said ?? { kind: "change", text: message.tool, ok: message.error === undefined },
-        error: message.error,
-        tools: [message.tool],
-        ms: message.ms,
-      });
-      doing(undefined);
       break;
     }
   }
@@ -331,11 +284,25 @@ element("refuse").onclick = () => {
   render();
 };
 
-element("clear").onclick = () => {
-  last.length = 0;
-  edits++;
+element("follow").onclick = () => {
+  follow = !follow;
+  toMain({ kind: "follow", on: follow });
   render();
 };
+
+element("mode-apply").onclick = () => {
+  ask = false;
+  toMain({ kind: "ask", on: false });
+  render();
+};
+
+element("mode-ask").onclick = () => {
+  ask = true;
+  toMain({ kind: "ask", on: true });
+  render();
+};
+
+element("protect").onclick = () => toMain({ kind: "protect" });
 
 element("stop").onclick = () => {
   stopped = !stopped;
@@ -373,4 +340,8 @@ function tryAll(): void {
 
 tryAll();
 setInterval(tryAll, RETRY_MS);
+// A countdown, and the work fading from sight once done.
+setInterval(() => {
+  if (activity.waiting() || document.body.dataset.doing === "working") render();
+}, 500);
 render();

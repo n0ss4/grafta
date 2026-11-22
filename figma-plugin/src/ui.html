@@ -45,17 +45,18 @@
   svg { display: block; }
 
   /* The top: the mark, the name, and the state as a pill. */
-  .top { display: flex; align-items: center; gap: 8px; padding: 12px 12px 10px; border-bottom: 1px solid var(--line); }
+  .top { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 12px 12px 10px; border-bottom: 1px solid var(--line); }
   .top .mark { width: 20px; height: 20px; }
   .mark .line { stroke: var(--mark-line); }
   .mark .node { fill: var(--mark-line); }
   .mark .anchor { fill: var(--mark-anchor); }
   .word { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; }
   .pill {
-    margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+    margin-left: auto; display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 70%;
     padding: 2px 8px 2px 7px; border-radius: 999px; font-weight: 500;
     background: var(--raised); color: var(--muted);
   }
+  .pill-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--faint); flex: none; }
   [data-state="searching"] .pill .dot { animation: blink 1.4s ease-in-out infinite; }
   [data-state="connected"] .pill { background: var(--accent-soft); color: var(--accent-text); }
@@ -65,7 +66,8 @@
   [data-state="mismatch"] .pill { color: var(--text); }
   [data-state="mismatch"] .pill .dot { background: var(--warn); }
 
-  main { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+  main { flex: 1; min-width: 0; overflow-y: auto; overflow-x: hidden; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+  main > *, .work > *, .req.open > *, .pending > * { min-width: 0; }
 
   /* The state, said in full. */
   .hero { display: flex; gap: 12px; align-items: flex-start; }
@@ -133,7 +135,6 @@
   /* The last calls, in words. */
   /* The activity takes the room left, and only its list scrolls: the state and Stop stay in sight. */
   .activity { flex: 1 0 140px; min-height: 0; display: flex; flex-direction: column; }
-  .calls {
     list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 8px;
     flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
   }
@@ -141,20 +142,101 @@
   .link { all: unset; cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--muted); }
   .link:hover { color: var(--text); }
   .link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
-  .calls li { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; }
-  .calls li + li { border-top: 1px solid var(--line); }
-  .calls li:first-child { animation: rise 180ms ease-out; }
-  .calls .kind { flex: none; width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; background: var(--raised); color: var(--muted); }
-  .calls .kind svg { width: 13px; height: 13px; }
-  .calls .make .kind, .calls .change .kind, .calls .move .kind { background: var(--accent-soft); color: var(--accent-text); }
-  .calls .remove .kind { color: var(--text); }
-  .calls .failed .kind { background: var(--danger-soft); color: var(--danger); }
-  .calls .body { display: flex; flex-direction: column; min-width: 0; padding-top: 3px; }
-  .calls .text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
-  .calls .look .text { color: var(--muted); }
-  .calls .why { color: var(--danger); margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-  .calls .tech { margin-top: 2px; color: var(--faint); font: 10px/14px ui-monospace, "SF Mono", Menlo, monospace; }
-  .calls .count { margin-left: auto; padding-top: 3px; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .diff { display: flex; flex-direction: column; gap: 4px; font-size: 11px; width: 100%; }
+  .diff .change { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 8px; align-items: start; }
+  .diff .values { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; min-width: 0; }
+  .diff .property { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .diff .value { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; font-variant-numeric: tabular-nums; }
+  .diff .value .swatch { display: inline-block; vertical-align: -1px; margin-right: 5px; }
+  .diff .v-was { color: var(--faint); text-decoration: line-through; text-decoration-color: var(--line); }
+  .diff .arrow { color: var(--faint); }
+  .diff .and { grid-column: 1 / -1; color: var(--faint); }
+  .swatch { flex: none; width: 10px; height: 10px; border-radius: 3px; box-shadow: inset 0 0 0 1px var(--line); }
+  .toggle { display: inline-flex; align-items: center; gap: 5px; }
+  .toggle .check { width: 10px; height: 10px; border-radius: 3px; border: 1.5px solid currentColor; box-sizing: border-box; }
+  .toggle[aria-pressed="true"] { color: var(--accent-text); }
+  .toggle[aria-pressed="true"] .check { background: var(--accent); border-color: var(--accent); }
+  .activity { flex: none; display: flex; flex-direction: column; }
+  .activity .label { margin-bottom: 8px; }
+  .copy { align-self: flex-start; margin-top: 8px; color: var(--accent-text); }
+  .work { display: flex; flex-direction: column; gap: 12px; }
+  [data-doing="working"] .pill { background: var(--accent-soft); color: var(--accent-text); }
+  [data-doing="working"] .pill .dot { background: var(--accent); animation: blink 1.2s ease-in-out infinite; }
+  [data-doing="waiting"] .pill { background: rgb(245 166 35 / 0.14); color: var(--text); }
+  [data-doing="waiting"] .pill .dot { background: var(--warn); }
+  [data-doing="idle"] .pill { background: var(--accent-soft); color: var(--accent-text); }
+  [data-doing="idle"] .pill .dot { background: var(--accent); }
+
+  /* The work going on. */
+  .now { background: var(--raised); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 7px; animation: rise 180ms ease-out; }
+  .now-title { font-weight: 600; font-size: 12px; }
+  .now-text { color: var(--faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; position: relative; }
+  .bar i { position: absolute; inset: 0 auto 0 0; width: 40%; border-radius: 2px; background: var(--accent); animation: slide 1.2s ease-in-out infinite; }
+  @keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+
+  /* A change waiting for the person. */
+  .pending { border: 1.5px solid var(--warn); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 10px; animation: rise 180ms ease-out; }
+  .pending-title { font-weight: 600; font-size: 12px; overflow-wrap: anywhere; }
+  .pending-sub { color: var(--muted); margin-top: -6px; font-variant-numeric: tabular-nums; }
+  .rest { align-self: flex-start; color: var(--accent-text); text-decoration: underline; text-underline-offset: 2px; }
+
+  /* The requests. */
+  .requests { display: flex; flex-direction: column; gap: 8px; }
+  .req { border: 1px solid var(--line); border-radius: 10px; }
+  .req.open { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .req.closed { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 8px; width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; }
+  .req.closed:hover { background: var(--raised); }
+  .req .when { color: var(--faint); font-weight: 500; font-variant-numeric: tabular-nums; flex: none; }
+  .req.open .when { color: var(--text); font-weight: 600; font-size: 12px; }
+  .req .what { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .req.reverted .what { color: var(--faint); text-decoration: line-through; }
+  .reverted-tag { color: var(--danger); font-weight: 500; flex: none; }
+  .chevron { flex: none; width: 6px; height: 6px; margin: 0 2px 0 auto; border: solid var(--faint); border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg); }
+  .req.open .chevron { transform: rotate(45deg); margin-top: -3px; }
+  .req-head { all: unset; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .req-sub { color: var(--muted); margin-top: -6px; overflow-wrap: anywhere; }
+  .thumbs { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 6px; }
+  .thumbs > .arrow { color: var(--faint); }
+  .thumb { margin: 0; min-width: 0; position: relative; height: 96px; border-radius: 8px; background: var(--raised); display: grid; place-items: center; overflow: hidden; }
+  .thumb.after { background: var(--accent-soft); box-shadow: inset 0 0 0 1px rgb(31 157 107 / 0.35); }
+  .thumb.wide { height: 120px; }
+  .thumb figcaption { position: absolute; top: 5px; left: 7px; font-size: 10px; font-weight: 500; color: var(--faint); }
+  .thumb.after figcaption { color: var(--accent-text); }
+  .thumb img { max-width: calc(100% - 16px); max-height: calc(100% - 26px); margin-top: 12px; object-fit: contain; border-radius: 3px; }
+  .thumb .nothing { color: var(--faint); margin-top: 10px; }
+  .layers { display: flex; flex-direction: column; gap: 8px; }
+  .layer { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+  .layer-name { all: unset; font-weight: 600; cursor: pointer; overflow-wrap: anywhere; }
+  .layer-name:hover:not(:disabled) { text-decoration: underline; text-underline-offset: 2px; }
+  .layer-name:disabled { cursor: default; color: var(--faint); }
+  .tag { font-size: 10px; line-height: 16px; font-weight: 500; padding: 0 5px; border-radius: 4px; flex: none; }
+  .tag.made { background: var(--accent-soft); color: var(--accent-text); }
+  .tag.removed { background: var(--danger-soft); color: var(--danger); }
+  .layer .diff { flex-basis: 100%; margin: 2px 0 0; }
+  .note { color: var(--muted); font-size: 10px; line-height: 14px; overflow-wrap: anywhere; }
+  .req-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .req-actions button { min-width: 0; flex: 1 1 120px; justify-content: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  button.danger { color: var(--danger); background: var(--danger-soft); border-color: transparent; }
+  button.danger:hover:not(:disabled) { filter: brightness(0.97); background: var(--danger-soft); }
+
+  /* The layers kept from the AI. */
+  .protected { background: var(--raised); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .protected-title { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 12px; }
+  .protected-title svg { width: 12px; height: 12px; }
+  .protected-sub { color: var(--muted); margin-top: -4px; }
+  .kept-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .kept { display: flex; align-items: center; gap: 6px; }
+  .kept-type { color: var(--faint); flex: none; }
+  .kept-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+  .add { align-self: flex-start; color: var(--accent-text); }
+
+  /* How changes are made. */
+  .mode { display: inline-flex; gap: 2px; padding: 2px; border-radius: 8px; background: var(--raised); }
+  .mode button { height: 24px; padding: 0 8px; border: 0; background: transparent; color: var(--muted); white-space: nowrap; }
+  .mode button[aria-pressed="true"] { background: var(--bg); color: var(--text); box-shadow: 0 1px 2px rgb(0 0 0 / 0.1); }
+  main > .local { justify-content: center; color: var(--faint); padding-top: 4px; }
+
   .empty { color: var(--faint); padding: 10px; border: 1px dashed var(--line); border-radius: 8px; text-align: center; }
 
   .dev { border-top: 1px dashed var(--line); padding-top: 10px; }
@@ -164,10 +246,10 @@
     border: 1px solid var(--line); border-radius: 6px;
   }
 
-  footer { display: flex; align-items: center; gap: 8px; padding: 10px 18px 10px 12px; border-top: 1px solid var(--line); }
+  footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 16px 10px 12px; border-top: 1px solid var(--line); }
   .local { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
   .local svg { width: 12px; height: 12px; flex: none; }
-  footer button { margin-left: auto; }
+  footer #stop { margin-left: auto; padding: 0 10px; }
   [data-state="stopped"] #stop { background: var(--accent); color: var(--on-accent); border-color: transparent; }
   .i-play { display: none; }
   [data-state="stopped"] #stop .i-play { display: block; }
@@ -194,10 +276,10 @@
     <circle class="anchor" cx="50" cy="46" r="8"/>
   </svg>
   <span class="word">grafta</span>
-  <span class="pill"><span class="dot"></span><span id="pill">Searching</span></span>
+  <span class="pill"><span class="dot"></span><span id="pill" class="pill-text">Searching</span></span>
 </header>
 <main>
-  <div class="hero">
+  <div class="hero" id="hero">
     <div class="badge" aria-hidden="true">
       <svg class="i i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
       <svg class="i i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>
@@ -221,23 +303,42 @@
     <ul class="chips" id="callers"></ul>
   </section>
 
-  <section class="activity">
-    <div class="label">Activity <span class="end"><span class="doing" id="doing-wrap" hidden><span class="spinner"></span><span id="doing"></span></span><button class="link" id="clear" hidden>Clear</button></span></div>
-    <ul class="calls" id="last" hidden></ul>
-    <div class="empty" id="last-empty">No calls yet. Ask your AI app to work on this file.</div>
-  </section>
+  <div class="work" id="work" hidden>
+    <div class="pending" id="pending" hidden></div>
+    <div class="now" id="now" hidden>
+      <div class="now-title" id="now-title">Working</div>
+      <div class="bar"><i></i></div>
+      <div class="now-text" id="now-text"></div>
+    </div>
+    <section class="activity">
+      <div class="label"><span id="requests-count">Activity</span><button class="link toggle" id="follow" aria-pressed="true" title="Select and show each change on the canvas"><i class="check"></i>Follow</button></div>
+      <div class="requests" id="requests"></div>
+      <button class="link copy" id="copy" hidden title="Copy today's changes as text, for Slack or a ticket">Copy for the team</button>
+      <div class="empty" id="requests-empty">No changes yet. Ask your AI app to work on this file: each request shows here, before and after.</div>
+    </section>
+    <section class="protected">
+      <div class="protected-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Protected from the AI</div>
+      <div class="protected-sub">grafta refuses any change in these, and says why.</div>
+      <ul class="kept-list" id="protected-list" hidden></ul>
+      <button class="link add" id="protect">+ Protect what I have selected</button>
+    </section>
+  </div>
 
   <section class="dev" id="selftest-section" hidden>
     <div class="label">Development build</div>
     <button id="selftest">Run self-test</button>
     <textarea id="selftest-table" readonly hidden rows="8"></textarea>
   </section>
-</main>
-<footer>
-  <span class="local">
+  <div class="local">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
     Nothing leaves this computer
-  </span>
+  </div>
+</main>
+<footer id="foot">
+  <div class="mode" role="group" aria-label="How changes are made">
+    <button id="mode-apply" aria-pressed="true" title="Each change is made as the AI asks">Apply directly</button>
+    <button id="mode-ask" aria-pressed="false" title="Each change waits for you to apply or skip it">Ask me first</button>
+  </div>
   <button id="stop" title="Stop: refuse every call until you resume">
     <svg class="i-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/></svg>
     <svg class="i-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.7l-10-6.5A1 1 0 0 0 8 5.5z"/></svg>
