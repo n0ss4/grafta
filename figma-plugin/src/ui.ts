@@ -248,7 +248,7 @@ function mismatch(hello: Caller): string | undefined {
   if (theirs === PROTOCOL) return undefined;
   return theirs < PROTOCOL
     ? `grafta ${hello.version} is older than this panel. Update grafta in your AI app and start it again.`
-    : `This panel is older than grafta ${hello.version}. Update the panel: from Figma, or the grafta-figma-plugin.zip of grafta ${hello.version}'s release.`;
+    : `This panel is older than grafta ${hello.version}. Import the panel again from grafta-figma-plugin.zip of grafta ${hello.version}'s release.`;
 }
 
 function connect(port: number): void {

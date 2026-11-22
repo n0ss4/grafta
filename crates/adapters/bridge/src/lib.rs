@@ -36,8 +36,8 @@ use tokio_tungstenite::tungstenite::{Error as WsError, Message};
 
 /// The shape of the messages between grafta and its panel, sent in `hello`
 /// and written to the panel's `contract.json`. A panel speaking another
-/// connects to nothing and says which of the two to update. A Figma Community
-/// plugin updates itself and grafta does not, so they can differ. Bump it
+/// connects to nothing and says which of the two to update: the panel is
+/// imported from a release's zip, grafta installed apart, so they can differ. Bump it
 /// when a message changes shape, never for a release alone.
 pub const PROTOCOL: u32 = 1;
 /// The ports the bridge may listen on, in order; the panel tries each.

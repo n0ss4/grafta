@@ -169,17 +169,17 @@ The panel found grafta, but says *grafta … and this panel do not match*.
 
 **Why.** grafta and its panel speak to each other in messages whose shape
 changes now and then. Each release says which shape it speaks, and the panel
-works only with a grafta that speaks its own. A panel installed from Figma
-updates itself, and grafta does not, so they can drift apart.
+works only with a grafta that speaks its own. The panel and grafta are
+installed apart, so one can be updated and the other not.
 
 **What to do.** The panel says which one to update.
 
 - *grafta … is older than this panel*: update grafta the way you installed it
   ([installing](../README.md#install)), then start your AI app or a new
   conversation in it again.
-- *This panel is older than grafta …*: update the panel. From Figma, or, if
-  you imported it, with the `grafta-figma-plugin.zip` of the same release as
-  your grafta (`grafta --version`).
+- *This panel is older than grafta …*: download `grafta-figma-plugin.zip`
+  from the same release as your grafta (`grafta --version`), unzip it over the
+  old folder, and close and open the panel in Figma.
 
 ## Your AI app does not see the file you have open
 
