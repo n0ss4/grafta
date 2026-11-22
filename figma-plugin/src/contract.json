@@ -579,7 +579,7 @@
             "description": "Pixels, or { value, unit: PIXELS | PERCENT }."
           },
           "lineHeight": {
-            "description": "Pixels, or { value, unit: PIXELS | PERCENT }."
+            "description": "Pixels, { value, unit: PIXELS | PERCENT } or { unit: AUTO }."
           },
           "name": {
             "description": "e.g. \"Brand/Primary\"; slashes group it.",
@@ -644,7 +644,7 @@
             "description": "Pixels, or { value, unit: PIXELS | PERCENT }."
           },
           "lineHeight": {
-            "description": "Pixels, or { value, unit: PIXELS | PERCENT }."
+            "description": "Pixels, { value, unit: PIXELS | PERCENT } or { unit: AUTO }."
           },
           "name": {
             "type": "string"
@@ -1098,6 +1098,17 @@
                 },
                 "required": [
                   "value",
+                  "unit"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "unit": {
+                    "const": "AUTO"
+                  }
+                },
+                "required": [
                   "unit"
                 ],
                 "type": "object"

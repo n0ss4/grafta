@@ -560,7 +560,7 @@
           "description": "Pixels, or { value, unit: PIXELS | PERCENT }."
         },
         "lineHeight": {
-          "description": "Pixels, or { value, unit: PIXELS | PERCENT }."
+          "description": "Pixels, { value, unit: PIXELS | PERCENT } or { unit: AUTO }."
         },
         "name": {
           "description": "e.g. \"Brand/Primary\"; slashes group it.",
@@ -624,7 +624,7 @@
           "description": "Pixels, or { value, unit: PIXELS | PERCENT }."
         },
         "lineHeight": {
-          "description": "Pixels, or { value, unit: PIXELS | PERCENT }."
+          "description": "Pixels, { value, unit: PIXELS | PERCENT } or { unit: AUTO }."
         },
         "name": {
           "type": "string"
@@ -993,7 +993,7 @@
     "name": "add_component_property"
   },
   {
-    "description": "Create a text layer on a page or in a frame. characters is the text (a line break starts a new paragraph). fontFamily and fontStyle name a font as Figma does (e.g. \"Inter\", \"Semi Bold\"); by default, the file's most used font. fontSize, fills (like set_properties: SOLID colour or a local colour variable; default black), x, y, textAlignHorizontal (LEFT, CENTER, RIGHT, JUSTIFIED), lineHeight (pixels, or { value, unit: PIXELS | PERCENT }), letterSpacing (likewise). Give width to wrap text inside a fixed width; give height too to fix the box (textAutoResize NONE); without either the box fits the text. Rich text: runs instead of characters, [{ characters, fontFamily?, fontStyle?, fontSize?, fills?, textDecoration?, textCase?, letterSpacing?, lineHeight?, hyperlink?: { type: URL, value } }], each run styled apart from the layer (a link is underlined unless it says otherwise); paragraphs, one per line of the text, [{ listType: NONE | UNORDERED | ORDERED, indentation?: 1 | 2 }]; paragraphSpacing, paragraphIndent, textDecoration (NONE, UNDERLINE, STRIKETHROUGH), textCase (ORIGINAL, UPPER, LOWER, TITLE, SMALL_CAPS, SMALL_CAPS_FORCED), textAlignVertical (TOP, CENTER, BOTTOM) and textAutoResize (NONE, WIDTH_AND_HEIGHT, HEIGHT). Figma lays the text out when the file is opened, so the size grafta reports is provisional.",
+    "description": "Create a text layer on a page or in a frame. characters is the text (a line break starts a new paragraph). fontFamily and fontStyle name a font as Figma does (e.g. \"Inter\", \"Semi Bold\"); by default, the file's most used font. fontSize, fills (like set_properties: SOLID colour or a local colour variable; default black), x, y, textAlignHorizontal (LEFT, CENTER, RIGHT, JUSTIFIED), lineHeight (pixels, { value, unit: PIXELS | PERCENT } or { unit: AUTO }; default Auto, or the file's usual one at that size), letterSpacing (pixels or { value, unit: PIXELS | PERCENT }). Give width to wrap text inside a fixed width; give height too to fix the box (textAutoResize NONE); without either the box fits the text. Rich text: runs instead of characters, [{ characters, fontFamily?, fontStyle?, fontSize?, fills?, textDecoration?, textCase?, letterSpacing?, lineHeight?, hyperlink?: { type: URL, value } }], each run styled apart from the layer (a link is underlined unless it says otherwise); paragraphs, one per line of the text, [{ listType: NONE | UNORDERED | ORDERED, indentation?: 1 | 2 }]; paragraphSpacing, paragraphIndent, textDecoration (NONE, UNDERLINE, STRIKETHROUGH), textCase (ORIGINAL, UPPER, LOWER, TITLE, SMALL_CAPS, SMALL_CAPS_FORCED), textAlignVertical (TOP, CENTER, BOTTOM) and textAutoResize (NONE, WIDTH_AND_HEIGHT, HEIGHT). Figma lays the text out when the file is opened, so the size grafta reports is provisional.",
     "inputSchema": {
       "properties": {
         "characters": {
@@ -1067,6 +1067,17 @@
               },
               "required": [
                 "value",
+                "unit"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "unit": {
+                  "const": "AUTO"
+                }
+              },
+              "required": [
                 "unit"
               ],
               "type": "object"

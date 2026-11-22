@@ -14,7 +14,7 @@ use model::{SceneGraph, SharedStyle, SharedStyleType};
 use schema::{object, Field, Guid, NumberUnits, StyleType, Wire, WireMut, WireName};
 
 use super::style::{closest, effects, paints};
-use super::text::{dimension_raw, font_name, font_size};
+use super::text::{dimension_raw, font_name, font_size, line_height_raw};
 use super::write::author_error;
 use crate::data::{data, Data};
 use crate::{Command, Query};
@@ -152,6 +152,7 @@ fn values(session: &Session, kind: StyleKind, given: &Data, current: Option<&Raw
             // By default the line height and letter spacing create_text writes.
             let dimension = |key: &str, positive: bool, default: (f32, NumberUnits)| -> Result<Option<Raw>, ToolError> {
                 match given.get(key) {
+                    Some(v) if key == "lineHeight" => Ok(Some(line_height_raw(key, v)?)),
                     Some(v) => Ok(Some(dimension_raw(key, v, positive)?)),
                     None if creating => Ok(Some(object([
                         (Field::Value, Raw::Float(default.0)),

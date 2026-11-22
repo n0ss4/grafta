@@ -68,7 +68,7 @@ fn value_schema() -> Map<String, Value> {
     m.insert("fontFamily".into(), json!({ "type": "string" }));
     m.insert("fontStyle".into(), json!({ "type": "string", "description": "e.g. \"Bold\", \"Semi Bold\"." }));
     m.insert("fontSize".into(), json!({ "type": "number", "exclusiveMinimum": 0 }));
-    m.insert("lineHeight".into(), json!({ "description": "Pixels, or { value, unit: PIXELS | PERCENT }." }));
+    m.insert("lineHeight".into(), json!({ "description": "Pixels, { value, unit: PIXELS | PERCENT } or { unit: AUTO }." }));
     m.insert("letterSpacing".into(), json!({ "description": "Pixels, or { value, unit: PIXELS | PERCENT }." }));
     m
 }

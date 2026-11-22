@@ -946,7 +946,7 @@ fn a_text_reads_back_with_its_characters_font_colour_and_place() {
     assert_eq!(node["style"]["fontFamily"], "Inter");
     assert_eq!(node["style"]["fontStyle"], "Bold");
     assert_eq!(node["style"]["fontSize"], 24);
-    assert_eq!(node["style"]["lineHeight"], json!({ "value": 32.0, "unit": "PIXELS" }));
+    assert_eq!(node["style"]["lineHeight"], json!({ "value": 32, "unit": "PIXELS" }));
     assert_eq!(node["style"]["textAutoResize"], "WIDTH_AND_HEIGHT");
     assert_eq!(node["fills"][0]["color"], "#FFFFFF");
     assert_eq!((node["x"].clone(), node["y"].clone()), (json!(24), json!(32)));
@@ -984,6 +984,34 @@ fn a_text_colour_binds_to_a_local_variable() {
     assert_eq!(node["fills"][0]["variable"], "primary/500");
 }
 
+/// A line height is stored as Figma stores it, and read as Figma reads it:
+/// a percentage as a multiple of the size (`RAW`), *Auto* as `{ PERCENT, 100 }`,
+/// left out of `read_node` as Figma's default (row 116).
+#[test]
+fn a_line_height_is_stored_and_read_as_figma_does() {
+    let (mut kit, handle) = kit();
+    let stored = |kit: &mut Toolkit, id: &str| call(kit, "read_raw", json!({ "handle": handle, "id": id })).unwrap()["lineHeight"].clone();
+    let shown = |kit: &mut Toolkit, id: &str| read(kit, &handle, id)["style"]["lineHeight"].clone();
+
+    let out = text(&mut kit, &handle, json!({ "parent": "1:1", "characters": "Loose", "lineHeight": { "value": 150, "unit": "PERCENT" } })).unwrap();
+    let id = out["id"].as_str().unwrap().to_string();
+    assert_eq!(stored(&mut kit, &id), json!({ "value": 1.5, "units": "RAW" }));
+    assert_eq!(shown(&mut kit, &id), json!({ "value": 150, "unit": "PERCENT" }));
+
+    set(&mut kit, &handle, &id, json!({ "lineHeight": { "unit": "AUTO" } })).unwrap();
+    assert_eq!(stored(&mut kit, &id), json!({ "value": 100, "units": "PERCENT" }));
+    assert_eq!(shown(&mut kit, &id), Value::Null, "Auto is left out");
+
+    set(&mut kit, &handle, &id, json!({ "lineHeight": 24 })).unwrap();
+    assert_eq!(stored(&mut kit, &id), json!({ "value": 24, "units": "PIXELS" }));
+    assert_eq!(shown(&mut kit, &id), json!({ "value": 24, "unit": "PIXELS" }));
+
+    // A text asked for with none is Auto, Figma's own default.
+    let out = text(&mut kit, &handle, json!({ "parent": "1:1", "characters": "Plain", "fontSize": 31 })).unwrap();
+    let id = out["id"].as_str().unwrap().to_string();
+    assert_eq!(shown(&mut kit, &id), Value::Null);
+}
+
 #[test]
 fn an_empty_or_badly_styled_text_is_refused() {
     let (mut kit, handle) = kit();
@@ -991,7 +1019,7 @@ fn an_empty_or_badly_styled_text_is_refused() {
         (json!({ "parent": "1:1", "characters": "" }), "non-empty"),
         (json!({ "parent": "1:1", "characters": "x", "fontSize": 0 }), "greater than 0"),
         (json!({ "parent": "1:1", "characters": "x", "textAlignHorizontal": "MIDDLE" }), "LEFT, CENTER"),
-        (json!({ "parent": "1:1", "characters": "x", "lineHeight": { "value": 20, "unit": "EM" } }), "PIXELS or PERCENT"),
+        (json!({ "parent": "1:1", "characters": "x", "lineHeight": { "value": 20, "unit": "EM" } }), "PIXELS, PERCENT or AUTO"),
     ] {
         let error = text(&mut kit, &handle, args.clone()).unwrap_err();
         assert!(error.to_string().contains(reason), "{args}: {error}");
@@ -5041,6 +5069,44 @@ mod live;
 mod measure;
 mod memory;
 mod sites;
+
+/// Figma stores a line height's *Auto* as `{ PERCENT, 100 }` and a percentage
+/// as `RAW`: in every fixture a `PERCENT` line height is 100, on a layer, a
+/// style or a run, and the reader shows it as Figma does, by leaving it out
+/// (row 116). 8,121 texts of eight files store it so; 1,939 store `RAW`.
+#[test]
+fn a_stored_percent_line_height_is_auto() {
+    use schema::{Field, NumberUnits, Wire};
+    let files = ["nuxtui.fig", "material3.fig", "UI3_ Figma's UI Kit (Community).fig", "MCP Apps for Claude (Community).fig", "macOS 27 (Community).fig", "Prototype Examples (Community).fig"];
+    for file in files {
+        let path = testkit::fixture::dir().join(file);
+        if !path.is_file() {
+            continue;
+        }
+        let mut kit = crate::new();
+        let handle = call(&mut kit, "open_file", json!({ "path": path })).unwrap()["handle"].as_str().unwrap().to_string();
+        let session = kit.session(&handle).unwrap();
+        let mut auto = 0;
+        let mut shown = None;
+        for (id, node) in &session.graph.nodes {
+            let Some(layer) = session.raw(*id) else { continue };
+            if shown.is_none() && node.text_style.is_some() && layer.field(Field::LineHeight).is_some_and(|l| l.is(Field::Units, NumberUnits::Percent)) {
+                shown = Some(*id);
+            }
+            let runs = layer.field(Field::TextData).and_then(|t| t.field(Field::StyleOverrideTable)).and_then(Raw::as_array).into_iter().flatten();
+            for line in layer.field(Field::LineHeight).into_iter().chain(runs.filter_map(|r| r.field(Field::LineHeight))) {
+                if line.is(Field::Units, NumberUnits::Percent) {
+                    assert_eq!(line.field(Field::Value).and_then(Raw::as_f32), Some(100.0), "{file}: {id:?}");
+                    auto += 1;
+                }
+            }
+        }
+        assert!(auto > 0, "{file}: no Auto line height");
+        let id = shown.unwrap();
+        let node = session.graph.node(id).unwrap();
+        assert_eq!(node.text_style.as_ref().unwrap().line_height, None, "{file}: {id:?} reads as Auto");
+    }
+}
 
 /// Every interaction of the four fixtures holding them read as a reaction,
 /// counted by kind against the census of specs/107 (SC-001).

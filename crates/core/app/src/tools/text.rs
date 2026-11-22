@@ -60,7 +60,7 @@ impl Command for CreateText {
             None => fonts.size_of(&font),
         };
         let line_height = match asked.get("lineHeight") {
-            Some(v) => dimension("lineHeight", v, true)?,
+            Some(v) => line_height("lineHeight", v)?,
             None => fonts.line_height_at(font_size),
         };
         let letter_spacing = match asked.get("letterSpacing") {
@@ -192,7 +192,7 @@ pub fn text_properties(
         relayout = true;
     }
     if let Some(v) = properties.get("lineHeight") {
-        write.push((Field::LineHeight, dimension("lineHeight", v, true)?.raw()));
+        write.push((Field::LineHeight, line_height("lineHeight", v)?.raw()));
         relayout = true;
     }
     if let Some(v) = properties.get("letterSpacing") {
@@ -285,6 +285,11 @@ pub fn dimension_raw(name: &str, value: &Data, positive_only: bool) -> Result<Ra
     Ok(dimension(name, value, positive_only)?.raw())
 }
 
+/// A line height as Figma stores it, from the plugin API's shape: see [`line_height`].
+pub fn line_height_raw(name: &str, value: &Data) -> Result<Raw, ToolError> {
+    Ok(line_height(name, value)?.raw())
+}
+
 pub fn font_size(value: &Data) -> Result<f32, ToolError> {
     positive("fontSize", value)
 }
@@ -330,11 +335,13 @@ impl Dimension {
         ])
     }
 
+    /// A stored line height in pixels, for the estimate made without fonts:
+    /// *Auto* as about 1.2 em, Inter's (34 px at 28 in Figma).
     fn pixels(self, font_size: f32) -> f32 {
-        if self.unit == NumberUnits::Percent {
-            font_size * self.value / 100.0
-        } else {
-            self.value
+        match self.unit {
+            NumberUnits::Pixels => self.value,
+            NumberUnits::Raw => font_size * self.value,
+            NumberUnits::Percent => font_size * AUTO_LINE,
         }
     }
 }
@@ -362,6 +369,32 @@ fn dimension(name: &str, value: &Data, positive_only: bool) -> Result<Dimension,
         return Err(DomainError::NotPositive { at: name.into(), got: Some(value.to_string()) }.into());
     }
     Ok(Dimension { value, unit })
+}
+
+/// About what Figma's *Auto* line height is, as a multiple of the size.
+const AUTO_LINE: f32 = 1.2;
+
+/// *Auto*, as Figma stores it.
+const AUTO: Dimension = Dimension { value: 100.0, unit: NumberUnits::Percent };
+
+/// A line height in the plugin API's shape (pixels, `{ value, unit: PIXELS |
+/// PERCENT }` or `{ unit: AUTO }`), as Figma stores it: *Auto* as
+/// `{ PERCENT, 100 }`, a percentage as a multiple of the size (`RAW`). Of
+/// 120,000 texts in eight files, 8,121 store `PERCENT`, every one 100, and
+/// 1,939 store a percentage as `RAW` 0.9 to 1.6 (row 116).
+fn line_height(name: &str, value: &Data) -> Result<Dimension, ToolError> {
+    if let Data::Map(map) = value {
+        match map.get("unit").and_then(Data::as_str) {
+            Some("AUTO") => return Ok(AUTO),
+            Some("PIXELS" | "PERCENT") => {}
+            other => return Err(invalid(&format!("{name}.unit"), "PIXELS, PERCENT or AUTO", other.map_or("nothing".to_string(), ToString::to_string))),
+        }
+    }
+    let asked = dimension(name, value, true)?;
+    Ok(match asked.unit {
+        NumberUnits::Percent => Dimension { value: asked.value / 100.0, unit: NumberUnits::Raw },
+        _ => asked,
+    })
 }
 
 /// One paragraph per line, in the six-field `PLAIN` shape every measured file
@@ -537,7 +570,6 @@ impl Fitted {
 /// `textAutoResize`; a fixed box is kept. A text whose box
 /// changed is laid out in its auto-layout parent, as a resized child is (D6).
 pub fn fit(session: &mut Session, ids: &[Guid]) -> Result<Fitted, ToolError> {
-    let fonts = FontCatalogue::of(session);
     let mut sizes = Vec::new();
     let (mut stand_ins, mut unmeasured) = (Vec::new(), false);
     for &id in ids {
@@ -550,9 +582,10 @@ pub fn fit(session: &mut Session, ids: &[Guid]) -> Result<Fitted, ToolError> {
         };
         let line_height = match style.line_height {
             Some(model::Dimension { value, unit: model::Unit::Pixels }) => Dimension { value, unit: NumberUnits::Pixels },
-            Some(model::Dimension { value, unit: model::Unit::Percent }) => Dimension { value, unit: NumberUnits::Percent },
-            Some(model::Dimension { value, unit: model::Unit::Raw }) => Dimension { value: value * 100.0, unit: NumberUnits::Percent },
-            None => fonts.line_height_at(style.font_size),
+            Some(model::Dimension { value, unit: model::Unit::Percent }) => Dimension { value: value / 100.0, unit: NumberUnits::Raw },
+            Some(model::Dimension { value, unit: model::Unit::Raw }) => Dimension { value, unit: NumberUnits::Raw },
+            // The reader's *Auto* (`{ PERCENT, 100 }` on the file).
+            None => AUTO,
         };
         let mut per_unit = vec![None; text.encode_utf16().count()];
         for run in &node.text_runs {
@@ -655,8 +688,10 @@ impl FontCatalogue {
             let tenth = (size * 10.0).round() as u32;
             *sizes.entry(key).or_default().entry(tenth).or_default() += 1;
             if let Some(lh) = nc.field(Field::LineHeight) {
-                let Some(unit @ (NumberUnits::Pixels | NumberUnits::Percent)) = lh.known::<NumberUnits>(Field::Units) else { continue };
-                let value = (lh.field(Field::Value).and_then(Raw::as_f32).unwrap_or(0.0) * 10.0).round() as u32;
+                let Some(unit) = lh.known::<NumberUnits>(Field::Units) else { continue };
+                // A tenth of a pixel or of a percent; a hundredth of a `RAW` multiple.
+                let scale = if unit == NumberUnits::Raw { 100.0 } else { 10.0 };
+                let value = (lh.field(Field::Value).and_then(Raw::as_f32).unwrap_or(0.0) * scale).round() as u32;
                 *line_heights.entry(tenth).or_default().entry((value, unit)).or_default() += 1;
             }
         }
@@ -729,8 +764,8 @@ impl FontCatalogue {
         self.line_heights
             .get(&tenth)
             .and_then(|lh| lh.iter().max_by_key(|(_, n)| **n).map(|(k, _)| *k))
-            .map_or(Dimension { value: 100.0, unit: NumberUnits::Percent }, |(value, unit)| Dimension {
-                value: value as f32 / 10.0,
+            .map_or(AUTO, |(value, unit)| Dimension {
+                value: value as f32 / if unit == NumberUnits::Raw { 100.0 } else { 10.0 },
                 unit,
             })
     }
