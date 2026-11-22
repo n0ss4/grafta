@@ -6,6 +6,7 @@
     47826,
     47827
   ],
+  "protocol": 1,
   "tools": [
     {
       "input_schema": {

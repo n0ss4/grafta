@@ -233,7 +233,7 @@ pub fn serve() -> Result<(), Box<dyn std::error::Error>> {
 
 /// What grafta's panel in Figma must agree on with this grafta, written to
 /// `figma-plugin/src/contract.json` so the plugin reads it and writes none of
-/// it by hand: the ports the bridge may listen on, and each tool's name,
+/// it by hand: the protocol both speak, the ports the bridge may listen on, and each tool's name,
 /// schema and what it does on a file open in Figma.
 #[must_use]
 pub fn contract() -> Value {
@@ -252,7 +252,7 @@ pub fn contract() -> Value {
             entry
         })
         .collect();
-    serde_json::json!({ "ports": bridge::PORTS, "tools": tools })
+    serde_json::json!({ "protocol": bridge::PROTOCOL, "ports": bridge::PORTS, "tools": tools })
 }
 
 /// Standard base64, for image content. Twenty lines rather than a dependency.

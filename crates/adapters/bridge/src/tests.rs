@@ -87,7 +87,7 @@ async fn the_panel_is_greeted_and_its_file_listed_once_it_allows() {
     let bridge = start(options());
     let mut panel = connect(&bridge).await;
     let hello = next(&mut panel).await;
-    assert_eq!(hello, json!({ "hello": { "name": NOBODY, "version": env!("CARGO_PKG_VERSION"), "secret": SECRET } }));
+    assert_eq!(hello, json!({ "hello": { "name": NOBODY, "version": env!("CARGO_PKG_VERSION"), "protocol": PROTOCOL, "secret": SECRET } }));
     assert!(bridge.list().is_empty(), "listed before it allowed");
     send(&mut panel, json!({ "allowed": true, "file": { "name": "Checkout", "editor": "figma" } })).await;
     let files = listed(&bridge, 1).await;

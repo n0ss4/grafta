@@ -6,6 +6,7 @@ By what you see. Each section says why it happens and what to do.
 - [Your AI app does not show grafta's tools](#your-ai-app-does-not-show-graftas-tools)
 - [Text looks wrong, or a result says a font is not installed](#text-looks-wrong-or-a-result-says-a-font-is-not-installed)
 - [grafta's panel in Figma stays on "Looking for grafta"](#graftas-panel-in-figma-stays-on-looking-for-grafta)
+- [grafta's panel in Figma says "Update needed"](#graftas-panel-in-figma-says-update-needed)
 - [Your AI app does not see the file you have open](#your-ai-app-does-not-see-the-file-you-have-open)
 - [A result says grafta is stopped in Figma's panel](#a-result-says-grafta-is-stopped-in-figmas-panel)
 - [Figma refuses a change, saying it is limited](#figma-refuses-a-change-saying-it-is-limited)
@@ -161,6 +162,24 @@ running it: grafta starts when the app starts its tools, and stops with it.
    conversations you are not using. grafta still works on files meanwhile.
 
 Figma in a browser has not been tried with the panel; use Figma's desktop app.
+
+## grafta's panel in Figma says "Update needed"
+
+The panel found grafta, but says *grafta … and this panel do not match*.
+
+**Why.** grafta and its panel speak to each other in messages whose shape
+changes now and then. Each release says which shape it speaks, and the panel
+works only with a grafta that speaks its own. A panel installed from Figma
+updates itself, and grafta does not, so they can drift apart.
+
+**What to do.** The panel says which one to update.
+
+- *grafta … is older than this panel*: update grafta the way you installed it
+  ([installing](../README.md#install)), then start your AI app or a new
+  conversation in it again.
+- *This panel is older than grafta …*: update the panel. From Figma, or, if
+  you imported it, with the `grafta-figma-plugin.zip` of the same release as
+  your grafta (`grafta --version`).
 
 ## Your AI app does not see the file you have open
 
