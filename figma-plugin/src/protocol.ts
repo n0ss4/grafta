@@ -22,14 +22,25 @@ export interface Call {
   args: Record<string, unknown>;
 }
 
+/** What kind of thing a call did, for its icon. */
+export type SaidKind = "look" | "make" | "change" | "move" | "remove";
+
+/** A call, said in a designer's words (said.ts). */
+export interface Said {
+  kind: SaidKind;
+  text: string;
+  ok: boolean;
+}
+
 export type ToMain =
   | { kind: "known"; connection: number; caller: Caller }
   | { kind: "allow"; caller: Caller }
   | { kind: "call"; call: Call }
-  | { kind: "selftest" };
+  | { kind: "selftest" }
+  | { kind: "resize"; width: number; height: number; keep: boolean };
 
 export type ToPanel =
   | { kind: "file"; file: FileInfo; selftest?: boolean }
   | { kind: "selftest"; table: string }
   | { kind: "known"; connection: number; known: boolean; file: FileInfo }
-  | { kind: "answer"; connection: number; id: number; tool: string; result?: unknown; error?: string; ms: number };
+  | { kind: "answer"; connection: number; id: number; tool: string; result?: unknown; error?: string; ms: number; said?: Said };

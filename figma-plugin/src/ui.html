@@ -1,53 +1,246 @@
 <!doctype html>
 <meta charset="utf-8">
 <style>
-  :root { color-scheme: light dark; }
+  :root {
+    color-scheme: light dark;
+    /* grafta's own colours, from web/src/styles/app.css; the rest is Figma's theme. */
+    --ink: #15171c;
+    --sap: #1f9d6b;
+    --deep-sap: #13704b;
+    --bud: #c6f26b;
+    --rust: #e5603a;
+    --mark-line: var(--ink);
+    --mark-anchor: var(--sap);
+    --accent: var(--sap);
+    --accent-text: var(--deep-sap);
+    --accent-soft: rgb(31 157 107 / 0.1);
+    --on-accent: #ffffff;
+    --text: var(--figma-color-text, #1e1e1e);
+    --muted: var(--figma-color-text-secondary, #6b6b6b);
+    --faint: var(--figma-color-text-tertiary, #9a9a9a);
+    --bg: var(--figma-color-bg, #ffffff);
+    --raised: var(--figma-color-bg-secondary, #f5f5f5);
+    --line: var(--figma-color-border, #e6e6e6);
+    --warn: var(--figma-color-icon-warning, #f5a623);
+    --danger: var(--figma-color-text-danger, #dc3412);
+    --danger-soft: rgb(220 52 18 / 0.1);
+  }
+  .figma-dark {
+    --mark-line: #f6f4ee;
+    --mark-anchor: var(--bud);
+    --accent: var(--bud);
+    --accent-text: var(--bud);
+    --accent-soft: rgb(198 242 107 / 0.1);
+    --on-accent: var(--ink);
+  }
   * { box-sizing: border-box; }
+  html, body { height: 100%; }
   body {
-    margin: 0; padding: 12px; font: 11px/16px Inter, system-ui, sans-serif;
-    color: var(--figma-color-text, #1e1e1e); background: var(--figma-color-bg, #fff);
+    margin: 0; display: flex; flex-direction: column;
+    font: 11px/16px Inter, system-ui, -apple-system, sans-serif;
+    color: var(--text); background: var(--bg);
+    -webkit-font-smoothing: antialiased;
   }
-  h1 { font-size: 12px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 8px; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--figma-color-icon-tertiary, #b3b3b3); flex: none; }
-  .dot.on { background: var(--figma-color-icon-success, #14ae5c); }
-  .dot.stopped { background: var(--figma-color-icon-warning, #f5a623); }
-  .muted { color: var(--figma-color-text-secondary, #757575); }
-  section { margin-top: 10px; }
-  ul { list-style: none; margin: 4px 0 0; padding: 0; }
-  li { padding: 2px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .ask {
-    border: 1px solid var(--figma-color-border-brand-strong, #0d99ff); border-radius: 6px; padding: 8px;
-    background: var(--figma-color-bg-brand-tertiary, #e5f4ff);
-  }
-  .row { display: flex; gap: 8px; margin-top: 8px; }
-  button {
-    font: inherit; border-radius: 5px; padding: 4px 10px; cursor: pointer;
-    border: 1px solid var(--figma-color-border, #e6e6e6); background: var(--figma-color-bg, #fff);
-    color: var(--figma-color-text, #1e1e1e);
-  }
-  button.primary { background: var(--figma-color-bg-brand, #0d99ff); color: var(--figma-color-text-onbrand, #fff); border-color: transparent; }
-  footer { margin-top: 12px; }
-  textarea { width: 100%; margin-top: 8px; font: 10px/14px ui-monospace, monospace; color: inherit; background: transparent; border: 1px solid var(--figma-color-border, #e6e6e6); border-radius: 5px; }
   [hidden] { display: none !important; }
+  svg { display: block; }
+
+  /* The top: the mark, the name, and the state as a pill. */
+  .top { display: flex; align-items: center; gap: 8px; padding: 12px 12px 10px; border-bottom: 1px solid var(--line); }
+  .top .mark { width: 20px; height: 20px; }
+  .mark .line { stroke: var(--mark-line); }
+  .mark .node { fill: var(--mark-line); }
+  .mark .anchor { fill: var(--mark-anchor); }
+  .word { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; }
+  .pill {
+    margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+    padding: 2px 8px 2px 7px; border-radius: 999px; font-weight: 500;
+    background: var(--raised); color: var(--muted);
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--faint); flex: none; }
+  [data-state="searching"] .pill .dot { animation: blink 1.4s ease-in-out infinite; }
+  [data-state="connected"] .pill { background: var(--accent-soft); color: var(--accent-text); }
+  [data-state="connected"] .pill .dot { background: var(--accent); }
+  [data-state="stopped"] .pill { color: var(--text); }
+  [data-state="stopped"] .pill .dot { background: var(--warn); }
+
+  main { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+
+  /* The state, said in full. */
+  .hero { display: flex; gap: 12px; align-items: flex-start; }
+  .badge {
+    position: relative; flex: none; width: 36px; height: 36px; border-radius: 10px;
+    display: grid; place-items: center; background: var(--raised); color: var(--muted);
+  }
+  .badge svg { width: 18px; height: 18px; }
+  .badge .i { display: none; }
+  [data-state="searching"] .badge .i-search,
+  [data-state="found"] .badge .i-search,
+  [data-state="connected"] .badge .i-link,
+  [data-state="stopped"] .badge .i-pause { display: block; }
+  [data-state="searching"] .badge::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit;
+    border: 1.5px solid var(--accent); opacity: 0; animation: ring 1.8s ease-out infinite;
+  }
+  [data-state="connected"] .badge { background: var(--accent-soft); color: var(--accent-text); }
+  [data-state="stopped"] .badge { color: var(--warn); }
+  .hero-title { font-size: 12px; line-height: 16px; font-weight: 600; margin-top: 1px; }
+  .hero-sub { color: var(--muted); margin-top: 2px; }
+
+  /* An app asking to be allowed. */
+  .ask {
+    border: 1px solid var(--accent); border-radius: 10px; padding: 12px;
+    background: var(--accent-soft); animation: rise 180ms ease-out;
+  }
+  .ask-title { font-weight: 600; font-size: 12px; }
+  .ask-sub { color: var(--muted); margin-top: 2px; }
+  .row { display: flex; gap: 8px; margin-top: 10px; }
+
+  button {
+    font: inherit; font-weight: 500; border-radius: 6px; height: 28px; padding: 0 12px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--line); background: var(--bg); color: var(--text);
+    transition: background 120ms, border-color 120ms;
+  }
+  button:hover { background: var(--raised); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  button:disabled { opacity: 0.5; cursor: default; }
+  button svg { width: 12px; height: 12px; }
+  button.primary { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+  button.primary:hover { filter: brightness(1.06); }
+  button.grow { flex: 1; justify-content: center; }
+
+  .label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--faint);
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;
+  }
+  .label .doing { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+  .spinner { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--line); border-top-color: var(--accent); animation: spin 0.7s linear infinite; }
+
+  /* The apps allowed, as chips. */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; max-width: 100%;
+    padding: 3px 8px; border-radius: 6px; background: var(--raised);
+  }
+  .chip .dot { background: var(--accent); }
+  .chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chip .v { color: var(--faint); }
+
+  /* The last calls, in words. */
+  /* The activity takes the room left, and only its list scrolls: the state and Stop stay in sight. */
+  .activity { flex: 1 0 140px; min-height: 0; display: flex; flex-direction: column; }
+  .calls {
+    list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 8px;
+    flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
+  }
+  .label .end { display: inline-flex; align-items: center; gap: 10px; }
+  .link { all: unset; cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--muted); }
+  .link:hover { color: var(--text); }
+  .link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+  .calls li { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; }
+  .calls li + li { border-top: 1px solid var(--line); }
+  .calls li:first-child { animation: rise 180ms ease-out; }
+  .calls .kind { flex: none; width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; background: var(--raised); color: var(--muted); }
+  .calls .kind svg { width: 13px; height: 13px; }
+  .calls .make .kind, .calls .change .kind, .calls .move .kind { background: var(--accent-soft); color: var(--accent-text); }
+  .calls .remove .kind { color: var(--text); }
+  .calls .failed .kind { background: var(--danger-soft); color: var(--danger); }
+  .calls .body { display: flex; flex-direction: column; min-width: 0; padding-top: 3px; }
+  .calls .text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+  .calls .look .text { color: var(--muted); }
+  .calls .why { color: var(--danger); margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .calls .tech { margin-top: 2px; color: var(--faint); font: 10px/14px ui-monospace, "SF Mono", Menlo, monospace; }
+  .calls .count { margin-left: auto; padding-top: 3px; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .empty { color: var(--faint); padding: 10px; border: 1px dashed var(--line); border-radius: 8px; text-align: center; }
+
+  .dev { border-top: 1px dashed var(--line); padding-top: 10px; }
+  textarea {
+    width: 100%; margin-top: 8px; padding: 6px; resize: vertical;
+    font: 10px/14px ui-monospace, monospace; color: inherit; background: var(--raised);
+    border: 1px solid var(--line); border-radius: 6px;
+  }
+
+  footer { display: flex; align-items: center; gap: 8px; padding: 10px 18px 10px 12px; border-top: 1px solid var(--line); }
+  .local { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+  .local svg { width: 12px; height: 12px; flex: none; }
+  footer button { margin-left: auto; }
+  [data-state="stopped"] #stop { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+  .i-play { display: none; }
+  [data-state="stopped"] #stop .i-play { display: block; }
+  [data-state="stopped"] #stop .i-pause { display: none; }
+
+  .grip {
+    position: fixed; right: 0; bottom: 0; width: 14px; height: 14px; cursor: nwse-resize;
+    color: var(--faint); touch-action: none; display: grid; place-items: end;
+  }
+  .grip:hover { color: var(--muted); }
+  .grip svg { width: 10px; height: 10px; margin: 0 2px 2px 0; }
+  @keyframes blink { 50% { opacity: 0.3; } }
+  @keyframes ring { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(1.45); opacity: 0; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes rise { from { transform: translateY(4px); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { *, *::after { animation: none !important; transition: none !important; } }
 </style>
-<h1><span class="dot" id="dot"></span><span id="state">Looking for grafta on this computer…</span></h1>
-<div class="ask" id="ask" hidden>
-  <div><b id="ask-name"></b> wants to read and change this file through grafta.</div>
-  <div class="row"><button class="primary" id="allow">Allow</button><button id="refuse">Refuse</button></div>
+<body data-state="searching">
+<header class="top">
+  <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+    <path class="line" d="M14 46 L32 18 L50 46" fill="none" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle class="node" cx="14" cy="46" r="8"/>
+    <circle class="node" cx="32" cy="18" r="8"/>
+    <circle class="anchor" cx="50" cy="46" r="8"/>
+  </svg>
+  <span class="word">grafta</span>
+  <span class="pill"><span class="dot"></span><span id="pill">Searching</span></span>
+</header>
+<main>
+  <div class="hero">
+    <div class="badge" aria-hidden="true">
+      <svg class="i i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
+      <svg class="i i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>
+      <svg class="i i-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/></svg>
+    </div>
+    <div>
+      <div class="hero-title" id="state">Looking for grafta on this computer…</div>
+      <div class="hero-sub" id="state-sub"></div>
+    </div>
+  </div>
+
+  <div class="ask" id="ask" hidden>
+    <div class="ask-title"><span id="ask-name"></span> wants to use this file</div>
+    <div class="ask-sub">It will read and change it through grafta. You are asked once per app.</div>
+    <div class="row"><button class="primary grow" id="allow">Allow</button><button class="grow" id="refuse">Refuse</button></div>
+  </div>
+
+  <section id="callers-section" hidden>
+    <div class="label">Allowed</div>
+    <ul class="chips" id="callers"></ul>
+  </section>
+
+  <section class="activity">
+    <div class="label">Activity <span class="end"><span class="doing" id="doing-wrap" hidden><span class="spinner"></span><span id="doing"></span></span><button class="link" id="clear" hidden>Clear</button></span></div>
+    <ul class="calls" id="last" hidden></ul>
+    <div class="empty" id="last-empty">No calls yet. Ask your AI app to work on this file.</div>
+  </section>
+
+  <section class="dev" id="selftest-section" hidden>
+    <div class="label">Development build</div>
+    <button id="selftest">Run self-test</button>
+    <textarea id="selftest-table" readonly hidden rows="8"></textarea>
+  </section>
+</main>
+<footer>
+  <span class="local">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+    Nothing leaves this computer
+  </span>
+  <button id="stop" title="Stop: refuse every call until you resume">
+    <svg class="i-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/></svg>
+    <svg class="i-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.7l-10-6.5A1 1 0 0 0 8 5.5z"/></svg>
+    <span id="stop-text">Stop</span>
+  </button>
+</footer>
+<div class="grip" id="grip" title="Drag to resize" aria-hidden="true">
+  <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><path d="M9 3L3 9M9 6.5L6.5 9"/></svg>
 </div>
-<section id="callers-section" hidden>
-  <div class="muted">Allowed</div>
-  <ul id="callers"></ul>
-</section>
-<section>
-  <div class="muted" id="doing">No call yet.</div>
-  <ul id="last"></ul>
-</section>
-<div class="row"><button id="stop">Stop</button></div>
-<section id="selftest-section" hidden>
-  <div class="muted">Development build</div>
-  <div class="row"><button id="selftest">Run self-test</button></div>
-  <textarea id="selftest-table" readonly hidden rows="8"></textarea>
-</section>
-<footer class="muted">Nothing leaves this computer: the panel talks to grafta on it alone.</footer>
 <!-- script -->
+</body>
