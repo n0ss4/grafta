@@ -1052,6 +1052,25 @@
       ],
       "live": "differs",
       "tool": "delete_node"
+    },
+    {
+      "args": {
+        "id": "$12.id",
+        "properties": {
+          "fills": [
+            {
+              "type": "SOLID",
+              "variable": "Self-test/Ink"
+            }
+          ]
+        }
+      },
+      "keys": [
+        "id",
+        "set"
+      ],
+      "live": "differs",
+      "tool": "set_properties"
     }
   ],
   "not_compared": {

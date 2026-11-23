@@ -87,10 +87,14 @@ export async function paintsIn(at: string, given: unknown, variables: (name: str
       blendMode: typeof p.blendMode === "string" ? (p.blendMode as BlendMode) : undefined,
     };
     if (type === "SOLID") {
-      const color = parseHex(`${where}.color`, p.color);
+      const bound = typeof p.variable === "string" ? await variables(p.variable) : undefined;
+      if (bound && bound.resolvedType !== "COLOR") throw new Error(`${where}.variable: ${bound.name} is a ${bound.resolvedType} variable, not a colour`);
+      if (p.color === undefined && !bound) throw new Error(`${where}: a paint needs a color or a variable`);
+      // As on a file: a paint given only its variable takes the colour the variable has in its collection's first mode.
+      const color = p.color === undefined ? await firstModeColour(`${where}.variable`, bound as Variable) : parseHex(`${where}.color`, p.color);
       let paint: SolidPaint = { type: "SOLID", color: { r: color.r, g: color.g, b: color.b }, ...defined(common) };
       if (color.a < 1 && common.opacity === undefined) paint = { ...paint, opacity: color.a };
-      if (typeof p.variable === "string") paint = figma.variables.setBoundVariableForPaint(paint, "color", await variables(p.variable));
+      if (bound) paint = figma.variables.setBoundVariableForPaint(paint, "color", bound);
       out.push(paint);
     } else if (type.startsWith("GRADIENT_")) {
       if (!Array.isArray(p.gradientStops)) throw new Error(`${where}.gradientStops: expected an array of { position, color, opacity? }`);
@@ -119,6 +123,25 @@ export async function paintsIn(at: string, given: unknown, variables: (name: str
     }
   }
   return out;
+}
+
+/** A colour variable's value in its collection's first mode, following aliases, as a file resolves it. */
+async function firstModeColour(at: string, variable: Variable): Promise<RGBA> {
+  let current = variable;
+  for (let depth = 0; depth <= 16; depth++) {
+    const collection = await figma.variables.getVariableCollectionByIdAsync(current.variableCollectionId);
+    const mode = collection?.modes[0]?.modeId;
+    const value = (mode !== undefined ? current.valuesByMode[mode] : undefined) ?? Object.values(current.valuesByMode)[0];
+    if (typeof value === "object" && value !== null && "type" in value && value.type === "VARIABLE_ALIAS") {
+      const next = await figma.variables.getVariableByIdAsync(value.id);
+      if (!next) break;
+      current = next;
+      continue;
+    }
+    if (typeof value === "object" && value !== null && "r" in value) return { r: value.r, g: value.g, b: value.b, a: "a" in value ? value.a : 1 };
+    break;
+  }
+  throw new Error(`${at}: ${variable.name} has no colour value to store beside the binding`);
 }
 
 function defined<T extends Record<string, unknown>>(value: T): Partial<T> {
