@@ -157,7 +157,8 @@ impl Tool for DeleteNode {
         "Delete a node (a page, frame, text or instance) and everything inside it. Returns \
          the ids removed. Refused when another node points at it or at something inside it \
          (an instance of a component in it, a prototype link to it, an override of one of its \
-         layers), naming who; and refused inside a component. `also` deletes more nodes in \
+         layers), naming who. A layer inside a component goes from every instance of it, \
+         unless an instance overrides it. `also` deletes more nodes in \
          the same call: what they point at among themselves does not count, so components \
          that use each other can go together."
     }
