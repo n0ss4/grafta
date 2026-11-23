@@ -1835,6 +1835,38 @@ fn a_change_in_a_component_drops_the_caches_of_every_instance_it_reaches() {
     assert!(cached(&mut kit, &handle, "1:5"), "an instance of an unrelated component keeps its cache");
 }
 
+/// Plant a cached expansion naming a layer of the component by its key, as
+/// Figma writes one: a derived size per layer.
+fn cache_naming(kit: &mut Toolkit, handle: &str, id: &str, key: (u32, u32)) {
+    let session = kit.session_mut(handle).unwrap();
+    let at = session.raw_index[&node_id(id)];
+    let Raw::Object(message) = &mut session.fig.node_changes else { unreachable!() };
+    let Some(Raw::Array(changes)) = message.get_mut("nodeChanges") else { unreachable!() };
+    let Raw::Object(fields) = &mut changes[at] else { unreachable!() };
+    let entry = obj(vec![("guidPath", obj(vec![("guids", Raw::Array(vec![guid(key.0, key.1)]))])), ("size", testkit::raw::size(16.0, 16.0))]);
+    fields.insert("derivedSymbolData", Raw::Array(vec![entry]));
+}
+
+#[test]
+fn a_layer_in_a_component_is_deleted_when_only_instances_caches_name_it() {
+    let (mut kit, handle) = kit();
+    // 1:42, an instance of Icon/Play (1:30), caches Shape (1:31, key 2:31), as
+    // every instance Figma saved caches its component's layers.
+    cache_naming(&mut kit, &handle, "1:42", (2, 31));
+    let out = call(&mut kit, "delete_node", json!({ "handle": handle, "id": "1:31" })).unwrap();
+    assert_eq!(out["removed"], json!(["1:31"]), "{out}");
+    assert!(!cached(&mut kit, &handle, "1:42"), "the cache naming it is dropped, for Figma to derive again");
+}
+
+#[test]
+fn a_layer_in_a_component_an_instance_overrides_is_still_refused() {
+    let (mut kit, handle) = kit();
+    let id = instance_of(&mut kit, &handle, "1:30");
+    overrides(&mut kit, &handle, &id, json!("1:31"), json!({ "fills": [{ "type": "SOLID", "color": "#EC4899" }] })).unwrap();
+    let error = call(&mut kit, "delete_node", json!({ "handle": handle, "id": "1:31" })).unwrap_err();
+    assert!(error.to_string().contains(&id), "{error}");
+}
+
 #[test]
 fn a_component_is_restyled_moved_and_given_children_after_it_is_made() {
     let (mut kit, handle) = kit();

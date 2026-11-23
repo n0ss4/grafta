@@ -325,7 +325,11 @@ impl Command for DeleteNode {
         for (root, parent) in &roots {
             session.products.emit(session, &NodeEvent::Deleted { node: *root, parent: *parent })?;
         }
-        let referrers = super::guard::references_into(session, &targets, 5);
+        // An instance's cache of a component this call changes is dropped once
+        // it succeeds, and Figma derives it again: it names the layer, and is
+        // no link to it. An override is, and refuses it.
+        let recached = super::guard::reached(session, &session.stale_components);
+        let referrers = super::guard::references_into(session, &targets, &recached, 5);
         if !referrers.is_empty() {
             let referrers = referrers.iter().map(|(who, field)| format!("{who} ({field})")).collect();
             return Err(WriteError::Referenced { id, referrers }.into());
