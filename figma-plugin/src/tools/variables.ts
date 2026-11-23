@@ -58,7 +58,13 @@ export async function createVariableCollection(args: Args): Promise<unknown> {
   const collection = figma.variables.createVariableCollection(String(args.name));
   try {
     collection.renameMode(collection.modes[0].modeId, modes[0]);
-    for (const mode of modes.slice(1)) collection.addMode(mode);
+    for (const mode of modes.slice(1)) {
+      try {
+        collection.addMode(mode);
+      } catch (error) {
+        throw planLimit(error, collection, `modes: ${mode}`, true);
+      }
+    }
   } catch (error) {
     collection.remove();
     throw error;
@@ -76,12 +82,39 @@ async function variableNamed(wanted: string): Promise<Variable> {
   return found[0];
 }
 
+/**
+ * Figma's refusal of a mode its plan does not allow, said plainly: "cannot
+ * modify modes beyond limit of 1" when a value is written, "Limited to 1 modes
+ * only" when a mode is added. Any other error is given back as it was.
+ */
+function planLimit(error: unknown, collection: VariableCollection, doing: string, adding: boolean): Error {
+  const said = error instanceof Error ? error.message : String(error);
+  const limit = /limit(?:ed)? (?:of|to) (\d+)/i.exec(said);
+  if (!limit) return error instanceof Error ? error : new Error(said);
+  const n = Number(limit[1]);
+  const modes = `${n} mode${n === 1 ? "" : "s"}`;
+  const names = collection.modes.map((m) => m.name);
+  const [can, cannot] = [names.slice(0, n), names.slice(n)];
+  const which = adding
+    ? `so no mode can be added to ${collection.name}`
+    : `so in ${collection.name} ${can.join(", ") || "no mode"} can be changed${cannot.length ? `, not ${cannot.join(", ")}` : ""}`;
+  return new Error(
+    `${doing}: this file's Figma plan allows a collection ${modes}, ${which}. ` +
+      `A .fig saved from Figma and edited with grafta offline has no such limit. Figma said: ${said}`,
+  );
+}
+
 /** Values by mode name, written into `variable`. */
 async function writeValues(variable: Variable, collection: VariableCollection, values: Record<string, unknown>): Promise<void> {
   for (const [mode, value] of Object.entries(values)) {
     const found = collection.modes.find((m) => m.name === mode || m.modeId === mode);
     if (!found) throw new Error(`values.${mode}: ${collection.name} has no such mode; it has ${collection.modes.map((m) => m.name).join(", ")}`);
-    variable.setValueForMode(found.modeId, await valueFor(`values.${mode}`, variable.resolvedType, value));
+    const given = await valueFor(`values.${mode}`, variable.resolvedType, value);
+    try {
+      variable.setValueForMode(found.modeId, given);
+    } catch (error) {
+      throw planLimit(error, collection, `values.${mode}`, false);
+    }
   }
 }
 
@@ -128,7 +161,14 @@ export async function setVariable(args: Args): Promise<unknown> {
     if (args.values !== undefined) await writeValues(variable, collection, args.values as Record<string, unknown>);
   } catch (error) {
     variable.name = before.name;
-    for (const [mode, value] of Object.entries(before.values)) variable.setValueForMode(mode, value);
+    // A mode the plan does not let be edited was not changed, and cannot be written back either.
+    for (const [mode, value] of Object.entries(before.values)) {
+      try {
+        variable.setValueForMode(mode, value);
+      } catch {
+        // left as it was
+      }
+    }
     throw error;
   }
   return variableJson(variable);
@@ -143,7 +183,7 @@ export async function setVariableCollection(args: Args): Promise<unknown> {
       collection.addMode(args.add_mode);
     } catch (error) {
       collection.name = name;
-      throw error;
+      throw planLimit(error, collection, `add_mode: ${args.add_mode}`, true);
     }
   }
   return collectionJson(collection);
