@@ -19,6 +19,7 @@ const PHRASES: Record<string, { kind: SaidKind; done: string; failed: string; no
   list_styles: { kind: "look", done: "Looked at the styles", failed: "Could not look at the styles" },
   get_image: { kind: "look", done: "Looked at an image", failed: "Could not look at an image" },
   render_node: { kind: "look", done: "Viewed {}", failed: "Could not view {}", none: "a layer" },
+  check_contrast: { kind: "look", done: "Checked the contrast of {}", failed: "Could not check the contrast of {}", none: "a layer" },
   create_page: { kind: "make", done: "Added page {}", failed: "Could not add page {}", none: "" },
   create_frame: { kind: "make", done: "Added frame {}", failed: "Could not add frame {}", none: "" },
   create_section: { kind: "make", done: "Added section {}", failed: "Could not add section {}", none: "" },
@@ -66,7 +67,7 @@ export function kindOf(tool: string): SaidKind {
 
 /** A phrase's first verb, past, as going on ("Changing") and as asked for ("change"). */
 const VERBS: Record<string, [string, string]> = {
-  Looked: ["Looking", "look"], Searched: ["Searching", "search"], Viewed: ["Viewing", "view"],
+  Looked: ["Looking", "look"], Checked: ["Checking", "check"], Searched: ["Searching", "search"], Viewed: ["Viewing", "view"],
   Added: ["Adding", "add"], Drew: ["Drawing", "draw"], Made: ["Making", "make"], Combined: ["Combining", "combine"],
   Duplicated: ["Duplicating", "duplicate"], Grouped: ["Grouping", "group"], Changed: ["Changing", "change"],
   Switched: ["Switching", "switch"], Ungrouped: ["Ungrouping", "ungroup"], Moved: ["Moving", "move"], Deleted: ["Deleting", "delete"],

@@ -311,56 +311,76 @@ impl Query for CheckContrast {
         if node.width <= 0.0 || node.height <= 0.0 {
             return Err(no_area(node));
         }
-        let all = self.all;
         let checked = session.ports.raster.contrast(&session.fig, &session.graph, node.id)
             .map_err(|error| DomainError::Render { error: error.to_string() })?;
-        let verdict = |c: &crate::port::Contrast| match c.ratio {
-            None => "unmeasured",
-            Some(r) if r + 1e-4 >= c.required => "passes",
-            Some(_) => "fails",
-        };
-        let count = |v: &str| checked.iter().filter(|c| verdict(c) == v).count();
-        let (passed, failed, unmeasured) = (count("passes"), count("fails"), count("unmeasured"));
-        let mut listed: Vec<&crate::port::Contrast> = checked.iter().filter(|c| all || verdict(c) != "passes").collect();
-        // The worst first: unmeasured, then failing by how far they fall short.
-        listed.sort_by(|a, b| {
-            let short = |c: &crate::port::Contrast| c.ratio.map_or(f32::MIN, |r| r - c.required);
-            short(a).partial_cmp(&short(b)).unwrap_or(std::cmp::Ordering::Equal)
-        });
-        let mut out = page(listed, &self.paging, session.edits, 50, 0, session.ports.measure.as_ref(), |c| {
-            let characters: String = c.sample.characters.chars().take(60).collect();
-            let mut text = data!({
-                "id": c.sample.id,
-                "name": c.sample.name,
-                "characters": characters,
-                "verdict": verdict(c),
-                "required": num(c.required),
-            });
-            if let Some(instance) = &c.sample.instance {
-                text["in_instance"] = data!(instance);
-            }
-            match c.ratio {
-                Some(ratio) => {
-                    text["ratio"] = data!(two_places(ratio));
-                    text["colour"] = data!(c.foreground);
-                    text["background"] = data!(c.background);
-                    if let Some((low, high)) = c.varies {
-                        text["background_varies"] = data!({ "lowest": two_places(low), "highest": two_places(high) });
-                    }
-                }
-                None => text["why"] = data!(c.sample.unmeasurable),
-            }
-            text
-        })?;
-        out["checked"] = data!(checked.len());
-        out["passed"] = data!(passed);
-        out["failed"] = data!(failed);
-        out["unmeasured"] = data!(unmeasured);
-        out["standard"] = data!("WCAG 2.2 AA: 4.5:1, or 3:1 for text of 24 px, or 18.66 px and bold; each text's box against what is drawn behind it");
-        Ok(Output::Data(out))
+        let checked = checked
+            .into_iter()
+            .map(|c| {
+                let (id, instance) = (data!(c.sample.id), c.sample.instance.map(|i| data!(i)));
+                (c, id, instance)
+            })
+            .collect();
+        contrast_answer(checked, self.all, &self.paging, session.edits, session.ports.measure.as_ref()).map(Output::Data)
     }
 }
 
+/// `check_contrast`'s result from the texts measured, each with its id and the
+/// instance it is in as the file names them: on a file, grafta's ids; on a
+/// file open in Figma, Figma's, which a layer inside an instance has as a path.
+pub fn contrast_answer(
+    checked: Vec<(crate::port::Contrast, Data, Option<Data>)>,
+    all: bool,
+    paging: &Paging,
+    edits: u32,
+    measure: &dyn crate::port::Measure,
+) -> Result<Data, ToolError> {
+    let verdict = |c: &crate::port::Contrast| match c.ratio {
+        None => "unmeasured",
+        Some(r) if r + 1e-4 >= c.required => "passes",
+        Some(_) => "fails",
+    };
+    let count = |v: &str| checked.iter().filter(|(c, _, _)| verdict(c) == v).count();
+    let (passed, failed, unmeasured) = (count("passes"), count("fails"), count("unmeasured"));
+    let total = checked.len();
+    let mut listed: Vec<&(crate::port::Contrast, Data, Option<Data>)> =
+        checked.iter().filter(|(c, _, _)| all || verdict(c) != "passes").collect();
+    // The worst first: unmeasured, then failing by how far they fall short.
+    listed.sort_by(|(a, _, _), (b, _, _)| {
+        let short = |c: &crate::port::Contrast| c.ratio.map_or(f32::MIN, |r| r - c.required);
+        short(a).partial_cmp(&short(b)).unwrap_or(std::cmp::Ordering::Equal)
+    });
+    let mut out = page(listed, paging, edits, 50, 0, measure, |(c, id, instance)| {
+        let characters: String = c.sample.characters.chars().take(60).collect();
+        let mut text = data!({
+            "id": id.clone(),
+            "name": c.sample.name,
+            "characters": characters,
+            "verdict": verdict(c),
+            "required": num(c.required),
+        });
+        if let Some(instance) = instance {
+            text["in_instance"] = instance.clone();
+        }
+        match c.ratio {
+            Some(ratio) => {
+                text["ratio"] = data!(two_places(ratio));
+                text["colour"] = data!(c.foreground);
+                text["background"] = data!(c.background);
+                if let Some((low, high)) = c.varies {
+                    text["background_varies"] = data!({ "lowest": two_places(low), "highest": two_places(high) });
+                }
+            }
+            None => text["why"] = data!(c.sample.unmeasurable),
+        }
+        text
+    })?;
+    out["checked"] = data!(total);
+    out["passed"] = data!(passed);
+    out["failed"] = data!(failed);
+    out["unmeasured"] = data!(unmeasured);
+    out["standard"] = data!("WCAG 2.2 AA: 4.5:1, or 3:1 for text of 24 px, or 18.66 px and bold; each text's box against what is drawn behind it");
+    Ok(out)
+}
 
 /// A ratio cut, not rounded, to two places, so 4.497 never reads as 4.50.
 fn two_places(ratio: f32) -> f64 {

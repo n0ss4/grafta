@@ -27,6 +27,9 @@ pub fn call(kit: &Toolkit, tool: &dyn Tool, handle: &str, args: &Value) -> Resul
         fields.remove("handle");
     }
     let answer = kit.ports().live.call(handle, tool.name(), &from_json(&carried)).map_err(unanswered)?;
+    if let Some(made) = tool.answer_from_figma(kit, args, &answer) {
+        return made;
+    }
     picture(answer).map_err(|error| unanswered(error).into())
 }
 
@@ -53,6 +56,12 @@ pub const CREATE_TEXT: &str = "Figma makes the text and lays it out, so `size` i
 /// What `create_vector` does there.
 pub const CREATE_VECTOR: &str = "Figma reads the path data as SVG and joins the paths into one vector, whose box \
      is its drawing's bounds, placed where the drawing falls in the asked box; the result has no `unsaved_edits`";
+
+/// What `check_contrast` does there.
+pub const CHECK_CONTRAST: &str = "the background is Figma's own drawing: the panel copies the node, makes the copy's \
+     texts transparent, has Figma draw it and deletes the copy, and grafta reads each text's box in that picture as on a file. \
+     Figma resolves the colours in the node's modes; the copy is one more step in Figma's undo, after which the file \
+     is as it was";
 
 /// What `delete_node` does there.
 pub const DELETE_NODE: &str = "Figma deletes and saves it, so the result has no `unsaved_edits`, and one call is \
@@ -82,7 +91,7 @@ fn picture(answer: Data) -> Result<Output, LiveError> {
 }
 
 /// Standard base64 back to bytes; `None` for anything else.
-fn base64(text: &str) -> Option<Vec<u8>> {
+pub(crate) fn base64(text: &str) -> Option<Vec<u8>> {
     let value = |c: u8| match c {
         b'A'..=b'Z' => Some(c - b'A'),
         b'a'..=b'z' => Some(c - b'a' + 26),

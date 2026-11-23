@@ -37,5 +37,6 @@
   { "tool": "create_instance", "args": { "parent": "$10.id", "component": "$24.id", "x": 800 } },
   { "tool": "set_properties", "args": { "id": "$35.id", "properties": { "componentProperties": { "Label": "Hola" } } } },
   { "tool": "delete_node", "args": { "id": "$35.id" } },
-  { "tool": "set_properties", "args": { "id": "$12.id", "properties": { "fills": [{ "type": "SOLID", "variable": "Self-test/Ink" }] } } }
+  { "tool": "set_properties", "args": { "id": "$12.id", "properties": { "fills": [{ "type": "SOLID", "variable": "Self-test/Ink" }] } } },
+  { "tool": "check_contrast", "args": { "id": "$2.results.0.id", "all": true } }
 ]

@@ -4,7 +4,7 @@
 
 The 45 tools grafta's MCP server lists, in its words, with their arguments. A model reads the same descriptions and schemas; `grafta tool <name> '<json>'` calls one from a terminal. Every call but `open_file`, `new_file` and `list_open` takes the `handle` `open_file` returns.
 
-On a file open in Figma's desktop app with grafta's panel on it, a tool takes the handle `list_open` gives it. Each tool below says what it does there: 7 do the same, 28 work with a difference they name, and 10 are not there, each with why.
+On a file open in Figma's desktop app with grafta's panel on it, a tool takes the handle `list_open` gives it. Each tool below says what it does there: 7 do the same, 29 work with a difference they name, and 9 are not there, each with why.
 
 - **Find your way**: [`open_file`](#open_file) [`summarize`](#summarize) [`list_screens`](#list_screens) [`search_nodes`](#search_nodes) [`list_open`](#list_open) [`close_file`](#close_file)
 - **Read**: [`read_node`](#read_node) [`read_raw`](#read_raw) [`list_components`](#list_components) [`component_instances`](#component_instances) [`get_image`](#get_image)
@@ -194,7 +194,7 @@ Write nodes (frames, boards, components) to a NEW .pdf file, a page each in the 
 
 Check every visible text under a node (a screen, a frame, a component) against WCAG 2.2 AA: its colour against what is actually drawn behind it, as render_node draws it, in the frame's mode and with instances' overrides. 4.5:1 is required, 3:1 for large text (24 px, or 18.66 px bold). Lists the texts that fail, with colour, background, ratio and what is required, and those that cannot be measured, with why; `all: true` lists the passing ones too. Over a background of several colours, the lowest ratio is given. Paged.
 
-**Not on the open file in Figma:** measured on grafta's own drawing of a file; not built for the open file yet.
+**On the open file in Figma, unlike on a file:** the background is Figma's own drawing: the panel copies the node, makes the copy's texts transparent, has Figma draw it and deletes the copy, and grafta reads each text's box in that picture as on a file. Figma resolves the colours in the node's modes; the copy is one more step in Figma's undo, after which the file is as it was.
 
 | Argument | Type | | Description |
 |---|---|---|---|

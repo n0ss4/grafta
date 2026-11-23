@@ -785,9 +785,9 @@
         ],
         "type": "object"
       },
-      "live": "cannot",
+      "live": "differs",
       "name": "check_contrast",
-      "why": "measured on grafta's own drawing of a file; not built for the open file yet"
+      "why": "the background is Figma's own drawing: the panel copies the node, makes the copy's texts transparent, has Figma draw it and deletes the copy, and grafta reads each text's box in that picture as on a file. Figma resolves the colours in the node's modes; the copy is one more step in Figma's undo, after which the file is as it was"
     },
     {
       "input_schema": {

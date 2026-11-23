@@ -1071,6 +1071,23 @@
       ],
       "live": "differs",
       "tool": "set_properties"
+    },
+    {
+      "args": {
+        "all": true,
+        "id": "$2.results.0.id"
+      },
+      "keys": [
+        "checked",
+        "failed",
+        "passed",
+        "results",
+        "standard",
+        "total",
+        "unmeasured"
+      ],
+      "live": "differs",
+      "tool": "check_contrast"
     }
   ],
   "not_compared": {

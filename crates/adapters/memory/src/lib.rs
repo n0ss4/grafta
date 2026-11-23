@@ -16,7 +16,7 @@ use disk::{FigCodec, Render};
 use domain::data::Data;
 use domain::port::{
     Contrast, Creating, DocumentStore, ImageSource, Journal, LiveError, LiveFile, LiveFiles, Measure, Pdf, Ports, Rasterizer,
-    RenderError, Rendered, TextBox,
+    RenderError, Rendered, TextBox, TextSample,
 };
 
 /// Files by path. A document store and an image source both, so an image a
@@ -179,6 +179,10 @@ impl Rasterizer for FixedFaces {
 
     fn contrast(&self, fig: &FigFile, graph: &SceneGraph, id: Guid) -> Result<Vec<Contrast>, RenderError> {
         Render.contrast(fig, graph, id)
+    }
+
+    fn contrast_over(&self, picture: &[u8], scale: f32, samples: Vec<TextSample>) -> Result<Vec<Contrast>, RenderError> {
+        Render.contrast_over(picture, scale, samples)
     }
 
     fn pdf(&self, fig: &FigFile, graph: &SceneGraph, ids: &[Guid]) -> Result<Pdf, RenderError> {

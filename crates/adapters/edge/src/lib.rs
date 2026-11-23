@@ -55,6 +55,11 @@ pub trait Tool: Sync {
     fn live(&self) -> Live {
         Live::Cannot(NOT_BUILT)
     }
+    /// Its result from what the panel in Figma answered, when grafta makes it
+    /// rather than passing the answer on; `None` passes it on.
+    fn answer_from_figma(&self, _kit: &Toolkit, _args: &Value, _answer: &crate::app::data::Data) -> Option<Result<Output, ToolError>> {
+        None
+    }
 }
 
 /// What a tool does on a file open in Figma, given its handle.

@@ -144,9 +144,9 @@ fn what_acts_there_is_what_was_built_and_what_never_will_says_why() {
         "add_component_property", "create_instance", "override_instance", "create_variable_collection", "create_variable",
         "set_variable", "set_variable_collection", "create_style", "set_style", "summarize", "create_page", "create_section",
         "create_frame", "create_text", "create_shape", "create_vector", "move_node", "duplicate_node", "group_nodes", "ungroup",
-        "delete_node",
+        "delete_node", "check_contrast",
     ];
-    let never = ["open_file", "close_file", "new_file", "save_as", "read_raw", "check_contrast"];
+    let never = ["open_file", "close_file", "new_file", "save_as", "read_raw"];
     for tool in crate::tools::ALL {
         match (tool.name(), tool.live()) {
             (name, Live::Same) if built.contains(&name) => {}
@@ -195,3 +195,58 @@ fn render_node_on_the_open_file_is_figma_s_picture() {
     let drawn = call(&mut kit, "render_node", json!({ "handle": open().as_str(), "id": "1:2" })).unwrap();
     assert_eq!(drawn, json!({ "mime": "image/png", "len": 4, "caption": { "id": "1:2", "drawn_by": "Figma" } }));
 }
+
+/// Standard base64, as the panel sends a picture.
+fn base64(bytes: &[u8]) -> String {
+    const DIGITS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut out = String::new();
+    for chunk in bytes.chunks(3) {
+        let n = chunk.iter().enumerate().fold(0u32, |n, (i, b)| n | (u32::from(*b) << (16 - 8 * i)));
+        for i in 0..4 {
+            out.push(if i <= chunk.len() { DIGITS[(n >> (18 - 6 * i) & 63) as usize] as char } else { '=' });
+        }
+    }
+    out
+}
+
+#[test]
+fn check_contrast_on_the_open_file_measures_figma_s_picture_as_on_a_file() {
+    use crate::port::Rasterizer;
+    // What is behind, as Figma would draw a white frame of 100 × 50 at 2 pixels a unit, its texts hidden.
+    let white = base64(&FixedFaces::default().blank_png(200, 100, [1.0, 1.0, 1.0, 1.0]).unwrap());
+    let (mut kit, live) = kit_with(move |_, tool, _| {
+        assert_eq!(tool, "check_contrast");
+        Ok(crate::edge::data::from_json(&json!({
+            "picture": white,
+            "scale": 2,
+            "texts": [
+                { "id": "1:3", "name": "Title", "characters": "Order", "at": [1, 0, 0, 1, 10, 10], "width": 40, "height": 15, "opacity": 1,
+                  "runs": [[0, 0, 0, 1, 16, 400]] },
+                { "id": "I1:4;5:6", "instance": "1:4", "name": "Hint", "characters": "Optional", "at": [1, 0, 0, 1, 10, 30], "width": 40,
+                  "height": 15, "opacity": 1, "runs": [[0.667, 0.667, 0.667, 1, 12, 400]] },
+                { "id": "1:7", "name": "Photo caption", "characters": "Sky", "at": [1, 0, 0, 1, 60, 10], "width": 20, "height": 10, "opacity": 1,
+                  "runs": [], "unmeasurable": "its fill is not a solid colour, so it has no one colour to measure" }
+            ]
+        })))
+    });
+    let checked = call(&mut kit, "check_contrast", json!({ "handle": open().as_str(), "id": "1:2" })).unwrap();
+    assert_eq!(live.calls().len(), 1);
+    assert_eq!((checked["checked"].as_u64(), checked["passed"].as_u64(), checked["failed"].as_u64(), checked["unmeasured"].as_u64()), (Some(3), Some(1), Some(1), Some(1)));
+    let listed = checked["results"].as_array().unwrap();
+    assert_eq!(listed[0]["id"], "1:7");
+    assert_eq!(listed[0]["why"], "its fill is not a solid colour, so it has no one colour to measure");
+    assert_eq!(listed[1]["id"], "I1:4;5:6");
+    assert_eq!(listed[1]["in_instance"], "1:4");
+    assert_eq!(listed[1]["background"], "#FFFFFF");
+    assert_eq!(listed[1]["colour"], "#AAAAAA");
+    assert_eq!(listed[1]["verdict"], "fails");
+    assert!((listed[1]["ratio"].as_f64().unwrap() - 2.32).abs() < 0.01, "{checked}");
+}
+
+#[test]
+fn check_contrast_on_the_open_file_says_an_answer_it_cannot_read() {
+    let (mut kit, _) = kit_with(|_, _, _| Ok(crate::edge::data::from_json(&json!({ "texts": [] }))));
+    let error = call(&mut kit, "check_contrast", json!({ "handle": open().as_str(), "id": "1:2" })).unwrap_err();
+    assert!(error.to_string().contains("no picture"), "{error}");
+}
+
