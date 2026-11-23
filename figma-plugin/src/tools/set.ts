@@ -78,7 +78,9 @@ export async function setProperties(args: Args): Promise<unknown> {
       try {
         await one(node, key, properties[key], undo, variables);
       } catch (error) {
-        throw new Error(`properties.${key}: ${words(error)}`);
+        // A message that already names the key, as componentProperties.<name> does, is not named twice.
+        const message = words(error);
+        throw new Error(message.startsWith(`${key}.`) ? `properties.${message}` : `properties.${key}: ${message}`);
       }
     }
     set.push(...keys);
