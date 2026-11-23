@@ -165,6 +165,9 @@ export async function createVector(args: Args): Promise<unknown> {
     vector.name = typeof args.name === "string" ? args.name : "Vector";
     vector.fills = fills;
     vector.strokes = strokes;
+    // As an SVG path is stroked, and as a file writes it: centred on the path.
+    // Figma's SVG import leaves INSIDE, which draws nothing on an open path.
+    vector.strokeAlign = "CENTER";
     vector.strokeWeight = typeof args.strokeWeight === "number" ? args.strokeWeight : 1;
     vector.strokeCap = (typeof args.strokeCap === "string" ? args.strokeCap : "NONE") as StrokeCap;
     vector.strokeJoin = (typeof args.strokeJoin === "string" ? args.strokeJoin : "MITER") as StrokeJoin;
