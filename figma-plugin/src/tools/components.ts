@@ -1,6 +1,6 @@
 // Components, variant sets, their properties and instances, on the open file.
 import { Args, nodeFor, pathOf } from "./nodes";
-import { paintsIn } from "./paint";
+import { paintsIn, setPaints } from "./paint";
 import { asked, DEFAULT_BUDGET, pageAsync } from "./paging";
 import { loadFonts, Variables } from "./set";
 
@@ -252,7 +252,8 @@ export async function overrideInstance(args: Args): Promise<unknown> {
         const given = key === "fills" || key === "strokes" ? await paintsIn(key, value, (name) => variables.named(name)) : value;
         const before = node[key];
         try {
-          node[key] = given;
+          if (key === "fills" || key === "strokes") setPaints(node, key, given as Paint[]);
+          else node[key] = given;
         } catch (error) {
           throw new Error(`properties.${key} on ${target.id}: ${error instanceof Error ? error.message : String(error)}`);
         }

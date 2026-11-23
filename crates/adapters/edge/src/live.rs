@@ -37,7 +37,9 @@ pub fn call(kit: &Toolkit, tool: &dyn Tool, handle: &str, args: &Value) -> Resul
 pub const SET_PROPERTIES: &str = "Figma makes the change and saves it, so the result is `{ id, set }` with no \
      `unsaved_edits`, and one call is one undo step there. Not built there yet, each refused by name with \
      nothing changed: componentPropertyReferences, reactions and the other prototype keys, an image by path \
-     (give its imageHash), and Slides' and FigJam's keys";
+     (give its imageHash), and Slides' and FigJam's keys. Figma drops the own opacity of a paint bound to a \
+     variable when it resolves the paint again for another mode (explicitVariableModes on the layer or a parent): \
+     for a translucent token, give the variable a colour with alpha";
 
 /// What a tool that writes does on a file open in Figma, unlike on a file.
 pub const WRITTEN: &str = "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one \

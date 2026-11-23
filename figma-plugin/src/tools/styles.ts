@@ -1,6 +1,6 @@
 // The file's colour, text and effect styles, on the open file.
 import { Args, Names, num } from "./nodes";
-import { paintsIn, paintsOut } from "./paint";
+import { paintsIn, paintsOut, setPaints } from "./paint";
 import { effects, Variables } from "./set";
 import { effect } from "./view";
 
@@ -54,7 +54,7 @@ async function write(style: BaseStyle, kind: Kind, args: Args): Promise<void> {
   if (wrong) throw new Error(`${wrong}: a ${kind} style takes ${keysFor(kind).join(", ")}`);
   if (kind === "FILL" && args.fills !== undefined) {
     const variables = new Variables();
-    (style as PaintStyle).paints = await paintsIn("fills", args.fills, (name) => variables.named(name));
+    setPaints(style as unknown as Record<string, unknown>, "paints", await paintsIn("fills", args.fills, (name) => variables.named(name)));
   }
   if (kind === "EFFECT" && args.effects !== undefined) (style as EffectStyle).effects = effects(args.effects);
   if (kind === "TEXT") {
