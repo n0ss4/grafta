@@ -5,7 +5,7 @@ use serde_json::{json, Value};
 
 use super::args::{number, optional_number, optional_string, optional_strings, string};
 use super::schema::{handle_property, schema};
-use super::{Request, Tool};
+use super::{Request, Live, Tool};
 use crate::tools::write;
 use crate::error::WriteError;
 use crate::{DomainError, ToolError};
@@ -15,6 +15,9 @@ pub struct CreatePage;
 impl Tool for CreatePage {
     fn name(&self) -> &'static str {
         "create_page"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
     }
     fn description(&self) -> &'static str {
         "Create a page at the end of the file's page list. Returns its id. Nothing is written \
@@ -37,6 +40,9 @@ pub struct CreateFrame;
 impl Tool for CreateFrame {
     fn name(&self) -> &'static str {
         "create_frame"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
     }
     fn description(&self) -> &'static str {
         "Create an empty frame (no fill, no auto-layout) on a page or inside a frame, at x,y \
@@ -76,6 +82,9 @@ impl Tool for CreateInstance {
     fn name(&self) -> &'static str {
         "create_instance"
     }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::CREATE_INSTANCE)
+    }
     fn description(&self) -> &'static str {
         "Create an instance of a component this file defines, on a page or inside a frame, at \
          x,y relative to the parent. It takes the component's own size. For a component set, \
@@ -111,6 +120,9 @@ impl Tool for SaveAs {
     fn name(&self) -> &'static str {
         "save_as"
     }
+    fn live(&self) -> Live {
+        Live::Cannot(super::SAVED_BY_FIGMA)
+    }
     fn description(&self) -> &'static str {
         "Write the open file, with its edits, to a NEW path ending in its product's extension: .fig, or .deck for a \
          Figma Slides file, .jam for FigJam, .site for Figma Sites. Never overwrites: a path \
@@ -138,11 +150,15 @@ impl Tool for DeleteNode {
     fn name(&self) -> &'static str {
         "delete_node"
     }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::DELETE_NODE)
+    }
     fn description(&self) -> &'static str {
         "Delete a node (a page, frame, text or instance) and everything inside it. Returns \
          the ids removed. Refused when another node points at it or at something inside it \
          (an instance of a component in it, a prototype link to it, an override of one of its \
-         layers), naming who; and refused inside a component. `also` deletes more nodes in \
+         layers), naming who. A layer inside a component goes from every instance of it, \
+         unless an instance overrides it. `also` deletes more nodes in \
          the same call: what they point at among themselves does not count, so components \
          that use each other can go together."
     }
@@ -172,6 +188,9 @@ pub struct MoveNode;
 impl Tool for MoveNode {
     fn name(&self) -> &'static str {
         "move_node"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
     }
     fn description(&self) -> &'static str {
         "Move a frame, component or component set, instance, text layer, shape or vector: into \

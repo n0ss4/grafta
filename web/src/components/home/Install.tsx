@@ -1,6 +1,10 @@
+import { GITHUB } from "~/content/site";
 import { Installer } from "../install/Installer";
 
-/** Getting grafta, on the page: pick the app, do its one step, try it on the sample. */
+/**
+ * Getting grafta, on the page: pick the app, do its one step, try it on the
+ * sample; and, for the file open in Figma, the panel, as the README says it.
+ */
 export function Install() {
   return (
     <section
@@ -22,7 +26,11 @@ export function Install() {
           <div className="mt-10">
             <Installer />
           </div>
-          <p className="mt-8 text-[14px] text-muted">
+          <p className="mt-8 max-w-[640px] text-[15px] leading-relaxed text-muted">
+            For the file you have open in Figma's desktop app, add grafta's panel to Figma once, then open it
+            on the file: <a href={`${GITHUB}#in-figma`}>how</a>.
+          </p>
+          <p className="mt-4 text-[14px] text-muted">
             Free and open source, under the MIT licence. For macOS, Linux and Windows. Not affiliated with
             Figma.
           </p>

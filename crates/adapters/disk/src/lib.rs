@@ -9,7 +9,7 @@ use std::path::{Path, PathBuf};
 
 use figfile::{Difference, FigFile};
 use model::{SceneGraph, SceneNode};
-use render::contrast::Contrast;
+use render::contrast::{Contrast, TextSample};
 use render::pdf::Pdf;
 use render::{RenderError, Rendered, TextBox};
 use schema::Guid;
@@ -139,6 +139,10 @@ impl Rasterizer for Render {
 
     fn contrast(&self, fig: &FigFile, graph: &SceneGraph, id: Guid) -> Result<Vec<Contrast>, RenderError> {
         render::contrast::contrast(fig, graph, id)
+    }
+
+    fn contrast_over(&self, picture: &[u8], scale: f32, samples: Vec<TextSample>) -> Result<Vec<Contrast>, RenderError> {
+        render::contrast::contrast_over(picture, scale, samples)
     }
 
     fn pdf(&self, fig: &FigFile, graph: &SceneGraph, ids: &[Guid]) -> Result<Pdf, RenderError> {

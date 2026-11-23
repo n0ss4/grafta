@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 use super::args::string;
 use super::data;
 use super::schema::{handle_property, schema};
-use super::{Request, Tool};
+use super::{Request, Live, Tool};
 use crate::tools::{images, rich_text, style};
 use crate::ToolError;
 
@@ -16,11 +16,16 @@ impl Tool for SetProperties {
     fn name(&self) -> &'static str {
         "set_properties"
     }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::SET_PROPERTIES)
+    }
     fn description(&self) -> &'static str {
         "Change a frame, instance or text layer you created, using read_node's names: x, y, width, height, name, \
          visible, clipsContent (clip children to the frame), auto-layout (layoutMode NONE | \
          HORIZONTAL | VERTICAL, itemSpacing, counterAxisSpacing, padding or paddingTop/Right/\
-         Bottom/Left, primaryAxisSizingMode and counterAxisSizingMode FIXED | AUTO, \
+         Bottom/Left, primaryAxisSizingMode and counterAxisSizingMode FIXED | AUTO (a frame \
+         given layoutMode alone hugs its children along that axis, as in Figma: give \
+         primaryAxisSizingMode FIXED to keep its size), \
          primaryAxisAlignItems MIN | CENTER | MAX | SPACE_BETWEEN, counterAxisAlignItems MIN | \
          CENTER | MAX, layoutWrap), a child's layoutGrow (0 | 1), layoutAlign (INHERIT | \
          STRETCH) and layoutPositioning (AUTO | ABSOLUTE), fills and strokes (SOLID paints: \

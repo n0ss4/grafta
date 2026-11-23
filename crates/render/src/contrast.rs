@@ -17,7 +17,6 @@ use crate::{draw_with, FigFile, RenderError, SceneGraph};
 /// Pixels per unit the background is drawn at.
 const SCALE: f32 = 2.0;
 
-
 /// Every visible text under `id`, measured against what is drawn behind it.
 pub fn contrast(fig: &FigFile, graph: &SceneGraph, id: Guid) -> Result<Vec<Contrast>, RenderError> {
     crate::on_own_stack(|| contrast_here(fig, graph, id))
@@ -38,17 +37,29 @@ fn contrast_here(fig: &FigFile, graph: &SceneGraph, id: Guid) -> Result<Vec<Cont
     let tree = resvg::usvg::Tree::from_str(&drawing.svg, &options).map_err(|error| RenderError(format!("the drawing did not parse: {error}")))?;
     let mut pixmap = resvg::tiny_skia::Pixmap::new(w, h).ok_or_else(|| RenderError(format!("cannot allocate {w}×{h} pixels")))?;
     resvg::render(&tree, resvg::tiny_skia::Transform::identity(), &mut pixmap.as_mut());
-    Ok(samples.into_iter().map(|sample| measure(sample, &pixmap)).collect())
+    Ok(samples.into_iter().map(|sample| measure(sample, &pixmap, SCALE)).collect())
 }
 
-fn measure(mut sample: TextSample, behind: &resvg::tiny_skia::Pixmap) -> Contrast {
+/// Texts measured against a picture of what is behind them drawn elsewhere:
+/// by Figma, of a file open there, its texts hidden. `picture` is a PNG of the
+/// checked node at `scale` pixels per unit, and each sample's box is in the
+/// node's space, as [`contrast`] takes them from grafta's own drawing.
+pub fn contrast_over(picture: &[u8], scale: f32, samples: Vec<TextSample>) -> Result<Vec<Contrast>, RenderError> {
+    if scale.is_nan() || scale <= 0.0 {
+        return Err(RenderError(format!("a picture at {scale} pixels per unit cannot be read")));
+    }
+    let pixmap = resvg::tiny_skia::Pixmap::decode_png(picture).map_err(|error| RenderError(format!("the picture of what is behind is not a PNG grafta reads: {error}")))?;
+    Ok(samples.into_iter().map(|sample| measure(sample, &pixmap, scale)).collect())
+}
+
+fn measure(mut sample: TextSample, behind: &resvg::tiny_skia::Pixmap, scale: f32) -> Contrast {
     let large = sample.runs.iter().all(|&(_, size, weight)| size >= 24.0 || (size >= 18.66 && weight >= 700));
     let required = if large { 3.0 } else { 4.5 };
     let unmeasured = |sample: TextSample| Contrast { sample, ratio: None, required, foreground: None, background: None, varies: None };
     if sample.unmeasurable.is_some() {
         return unmeasured(sample);
     }
-    let colours = colours_behind(&sample, behind);
+    let colours = colours_behind(&sample, behind, scale);
     if colours.is_empty() {
         sample.unmeasurable = Some("nothing is painted behind it in the checked node".into());
         return unmeasured(sample);
@@ -82,10 +93,10 @@ fn measure(mut sample: TextSample, behind: &resvg::tiny_skia::Pixmap) -> Contras
 /// The distinct opaque colours drawn under a text's box, 0–1. A pixel only
 /// partly covered is composited over white, as a page shows it; one not
 /// covered at all is nothing.
-fn colours_behind(sample: &TextSample, behind: &resvg::tiny_skia::Pixmap) -> Vec<[f32; 3]> {
+fn colours_behind(sample: &TextSample, behind: &resvg::tiny_skia::Pixmap, scale: f32) -> Vec<[f32; 3]> {
     let corners = [(0.0, 0.0), (sample.width, 0.0), (0.0, sample.height), (sample.width, sample.height)].map(|(x, y)| {
         let m = sample.at;
-        ((m[0] * x + m[2] * y + m[4]) * SCALE, (m[1] * x + m[3] * y + m[5]) * SCALE)
+        ((m[0] * x + m[2] * y + m[4]) * scale, (m[1] * x + m[3] * y + m[5]) * scale)
     });
     let clamp = |v: f32, max: u32| (v.max(0.0) as u32).min(max);
     let (x0, x1) = corners.iter().map(|c| c.0).fold((f32::MAX, f32::MIN), |(a, b), v| (a.min(v), b.max(v)));

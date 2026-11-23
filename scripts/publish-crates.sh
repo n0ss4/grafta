@@ -18,7 +18,7 @@ published() {
 
 for crate in grafta-kiwi grafta-schema grafta-figfile grafta-model grafta-domain grafta-app \
   grafta-render grafta-design grafta-disk grafta-figjam grafta-sites grafta-slides \
-  grafta-edge grafta-memory grafta-toolkit grafta-mcp grafta; do
+  grafta-edge grafta-bridge grafta-memory grafta-toolkit grafta-mcp grafta; do
   if published "$crate"; then
     echo "$crate $version is already published"
     continue

@@ -5,7 +5,7 @@ use serde_json::{json, Value};
 use super::args::string;
 use super::data;
 use super::schema::{handle_property, schema};
-use super::{Request, Tool};
+use super::{Request, Live, Tool};
 use crate::app::data::Data;
 use crate::error::OverrideError;
 use crate::tools::overrides;
@@ -17,6 +17,9 @@ pub struct OverrideInstance;
 impl Tool for OverrideInstance {
     fn name(&self) -> &'static str {
         "override_instance"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
     }
     fn description(&self) -> &'static str {
         "Change what an instance shows, without changing its component: the \

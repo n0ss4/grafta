@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 
 use super::args::{optional_string, string};
 use super::schema::schema;
-use super::{Request, Tool};
+use super::{Request, Live, Tool};
 use crate::tools::new_file;
 use crate::ToolError;
 
@@ -15,6 +15,9 @@ pub struct NewFile;
 impl Tool for NewFile {
     fn name(&self) -> &'static str {
         "new_file"
+    }
+    fn live(&self) -> Live {
+        Live::Cannot(super::SAVED_BY_FIGMA)
     }
     fn description(&self) -> &'static str {
         "Create a new, empty .fig at a path that does not exist, and open it: one page and \

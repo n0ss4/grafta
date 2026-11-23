@@ -67,9 +67,30 @@ impl Query for ListOpen {
                     "opened_delta_mb": s.opened_delta_mb,
                 })
             })
+            .chain(kit.ports().live.list().into_iter().map(|file| in_figma(kit, file)))
             .collect();
         Ok(Output::Data(data!({ "files": files, "process_resident_mb": crate::resident_mb() })))
     }
+}
+
+/// A file open in Figma, with the page the person is on and what they have
+/// selected, read from Figma now; what stops that being read is said instead.
+fn in_figma(kit: &Toolkit, file: crate::port::LiveFile) -> Data {
+    let mut entry = data!({ "handle": file.handle, "in": "Figma", "name": file.name });
+    match kit.ports().live.call(file.handle.as_str(), "list_open", &data!({})) {
+        Ok(now) => {
+            for key in ["page", "selection"] {
+                if let Some(value) = now.get(key) {
+                    entry[key] = value.clone();
+                }
+            }
+        }
+        Err(error) => {
+            let words = crate::ToolError::from(crate::DomainError::Live { handle: file.handle.to_string(), tool: "list_open", error });
+            entry["unread"] = data!(words.to_string());
+        }
+    }
+    entry
 }
 
 /// Seconds to the hundredth, as a person reads a timing.

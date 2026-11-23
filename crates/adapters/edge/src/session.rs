@@ -4,7 +4,7 @@ use serde_json::{json, Value};
 
 use super::args::string;
 use super::schema::{handle_property, schema};
-use super::{Request, Tool};
+use super::{Request, Live, Tool};
 use crate::tools::session;
 use crate::{DomainError, ToolError};
 
@@ -14,9 +14,14 @@ impl Tool for ListOpen {
     fn name(&self) -> &'static str {
         "list_open"
     }
+    fn live(&self) -> Live {
+        Live::Same
+    }
     fn description(&self) -> &'static str {
         "List the files currently open, with their handles, node counts, unsaved edits, how \
-         long each took to open, and the process's memory."
+         long each took to open, and the process's memory; and the files open in Figma with \
+         grafta's panel on them, `in: \"Figma\"`, by handle and name, each with the page the \
+         person is on and what they have selected."
     }
     fn input_schema(&self) -> Value {
         schema(json!({}), &[])
@@ -31,6 +36,9 @@ pub struct OpenFile;
 impl Tool for OpenFile {
     fn name(&self) -> &'static str {
         "open_file"
+    }
+    fn live(&self) -> Live {
+        Live::Cannot(super::OPENED_IN_FIGMA)
     }
     fn description(&self) -> &'static str {
         "Open a Figma .fig file and keep it open for later calls. Returns a handle and a \
@@ -72,6 +80,9 @@ pub struct CloseFile;
 impl Tool for CloseFile {
     fn name(&self) -> &'static str {
         "close_file"
+    }
+    fn live(&self) -> Live {
+        Live::Cannot(super::OPENED_IN_FIGMA)
     }
     fn description(&self) -> &'static str {
         "Close an open file and free the memory it holds. Edits not saved with save_as are \

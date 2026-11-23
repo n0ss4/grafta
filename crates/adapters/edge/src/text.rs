@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 use super::args::{optional_number, optional_string, string};
 use super::data;
 use super::schema::{handle_property, schema};
-use super::{Request, Tool};
+use super::{Live, Request, Tool};
 use crate::error::TextError;
 use crate::tools::{rich_text, text};
 use crate::{DomainError, ToolError};
@@ -17,13 +17,18 @@ impl Tool for CreateText {
     fn name(&self) -> &'static str {
         "create_text"
     }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::CREATE_TEXT)
+    }
     fn description(&self) -> &'static str {
         "Create a text layer on a page or in a frame. characters is the text (a line break \
          starts a new paragraph). fontFamily and fontStyle name a font as Figma does (e.g. \
          \"Inter\", \"Semi Bold\"); by default, the file's most used font. fontSize, fills (like \
          set_properties: SOLID colour or a local colour variable; default black), x, y, \
-         textAlignHorizontal (LEFT, CENTER, RIGHT, JUSTIFIED), lineHeight (pixels, or \
-         { value, unit: PIXELS | PERCENT }), letterSpacing (likewise). Give width to wrap \
+         textAlignHorizontal (LEFT, CENTER, RIGHT, JUSTIFIED), lineHeight (pixels, \
+         { value, unit: PIXELS | PERCENT } or { unit: AUTO }; default Auto, or the file's \
+         usual one at that size), letterSpacing (pixels or { value, unit: PIXELS | PERCENT }). \
+         Give width to wrap \
          text inside a fixed width; give height too to fix the box (textAutoResize NONE); \
          without either the box fits the text. Rich text: runs instead of characters, \
          [{ characters, fontFamily?, fontStyle?, fontSize?, fills?, textDecoration?, \
@@ -55,7 +60,11 @@ impl Tool for CreateText {
                 "y": { "type": "number" },
                 "width": { "type": "number", "exclusiveMinimum": 0 },
                 "textAlignHorizontal": { "enum": rich_text::TEXT_ALIGNS_HORIZONTAL.map(WireName::as_wire) },
-                "lineHeight": dimension.clone(),
+                "lineHeight": { "oneOf": [
+                    { "type": "number" },
+                    { "type": "object", "properties": { "value": { "type": "number" }, "unit": { "enum": ["PIXELS", "PERCENT"] } }, "required": ["value", "unit"] },
+                    { "type": "object", "properties": { "unit": { "const": "AUTO" } }, "required": ["unit"] },
+                ] },
                 "letterSpacing": dimension,
                 "height": { "type": "number", "exclusiveMinimum": 0 },
                 "runs": { "type": "array", "items": { "type": "object" }, "description": "The text as styled pieces; instead of characters." },

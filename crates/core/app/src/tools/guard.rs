@@ -57,9 +57,34 @@ pub fn enclosing_component(session: &Session, id: Guid) -> Option<Guid> {
 /// instance with no cache on open (a spike in Figma). Returns how many
 /// caches were dropped.
 pub fn drop_caches(session: &mut Session) -> usize {
-    let mut stale: HashSet<Guid> = session.stale_components.drain(..).collect();
+    let stale = std::mem::take(&mut session.stale_components);
     if stale.is_empty() {
         return 0;
+    }
+    let instances: Vec<usize> = reached(session, &stale).iter().filter_map(|id| session.raw_index.get(id).copied()).collect();
+    let kiwi::Value::Object(message) = &mut session.fig.node_changes else { return 0 };
+    let Some(kiwi::Value::Array(changes)) = message.field_mut(Field::NodeChanges) else { return 0 };
+    let mut dropped = 0;
+    for at in instances {
+        let Some(change) = changes.get_mut(at) else { continue };
+        if change.field(Field::DerivedSymbolData).is_none() {
+            continue;
+        }
+        session.undo.changing(change);
+        if let kiwi::Value::Object(fields) = change {
+            dropped += usize::from(fields.take(Field::DerivedSymbolData).is_some());
+        }
+    }
+    dropped
+}
+
+/// The instances whose cached expansion a change to `stale` components makes
+/// stale: instances of them, and of any component that holds one of them,
+/// however deep.
+pub fn reached(session: &Session, stale: &[Guid]) -> HashSet<Guid> {
+    let mut stale: HashSet<Guid> = stale.iter().copied().collect();
+    if stale.is_empty() {
+        return HashSet::new();
     }
     loop {
         let holders: Vec<Guid> = session
@@ -75,27 +100,13 @@ pub fn drop_caches(session: &mut Session) -> usize {
         }
         stale.extend(holders);
     }
-    let instances: Vec<usize> = session
+    session
         .graph
         .nodes
         .values()
         .filter(|n| n.node_type == NodeType::Instance && n.component_id.is_some_and(|c| stale.contains(&c)))
-        .filter_map(|n| session.raw_index.get(&n.id).copied())
-        .collect();
-    let kiwi::Value::Object(message) = &mut session.fig.node_changes else { return 0 };
-    let Some(kiwi::Value::Array(changes)) = message.field_mut(Field::NodeChanges) else { return 0 };
-    let mut dropped = 0;
-    for at in instances {
-        let Some(change) = changes.get_mut(at) else { continue };
-        if change.field(Field::DerivedSymbolData).is_none() {
-            continue;
-        }
-        session.undo.changing(change);
-        if let kiwi::Value::Object(fields) = change {
-            dropped += usize::from(fields.take(Field::DerivedSymbolData).is_some());
-        }
-    }
-    dropped
+        .map(|n| n.id)
+        .collect()
 }
 
 /// Whether grafta lays this frame out: it created it, or it changed the
@@ -138,7 +149,9 @@ pub fn take_layout(session: &mut Session, frame: Guid) -> Result<(), ToolError> 
 
 /// Every other node that points into `ids` (node ids or override keys): the
 /// referrer and the field, at most `limit` of them.
-pub fn references_into(session: &Session, ids: &HashSet<Guid>, limit: usize) -> Vec<(Guid, String)> {
+/// `recached` are the instances whose cache (`derivedSymbolData`) the change
+/// drops, for Figma to derive again: what it names is not a link.
+pub fn references_into(session: &Session, ids: &HashSet<Guid>, recached: &HashSet<Guid>, limit: usize) -> Vec<(Guid, String)> {
     fn walk(v: &Raw, path: &str, ids: &HashSet<Guid>, hits: &mut Vec<String>) {
         match v {
             Raw::Object(fields) => {
@@ -175,6 +188,9 @@ pub fn references_into(session: &Session, ids: &HashSet<Guid>, limit: usize) -> 
                 Field::from_wire(key),
                 Some(Field::Guid | Field::ParentIndex | Field::AncestorPathBeforeDeletion | Field::DetachedSymbolId)
             ) {
+                continue;
+            }
+            if Field::from_wire(key) == Some(Field::DerivedSymbolData) && recached.contains(&referrer) {
                 continue;
             }
             walk(value, key, ids, &mut hits);

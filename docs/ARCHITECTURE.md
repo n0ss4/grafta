@@ -32,10 +32,11 @@ same tool list.
 | | `crates/products/sites` | `grafta-sites` | Figma Sites: pages by route, each holding its breakpoints |
 | adapters | `crates/adapters/disk` | `grafta-disk` | the ports on the machine: the file system, `figfile`, the journal on disk, `render` |
 | | `crates/adapters/memory` | `grafta-memory` | the ports in memory, so tools, saves and replays are tested with no file on disk |
-| | `crates/adapters/edge` | `grafta-edge` | where JSON meets grafta: each tool's name, description and schema, its arguments read into a command or query, results written as JSON, the journal |
+| | `crates/adapters/edge` | `grafta-edge` | where JSON meets grafta: each tool's name, description and schema, its arguments read into a command or query, results written as JSON, the journal; a call on a file open in Figma carried there or refused by name (`Tool::live`) |
+| | `crates/adapters/bridge` | `grafta-bridge` | the files open in Figma: a WebSocket server on `127.0.0.1` and `::1` alone, which grafta's panel in Figma connects to. Only `mcp` depends on it |
 | | `crates/toolkit` | `grafta-toolkit` | the assembly: the domain on the disk's ports, with the products and the edge |
 | | `crates/render` | `grafta-render` | a node's subtree → SVG → PNG or PDF, offline, with notes on what is approximate |
-| front ends | `crates/mcp` | `grafta-mcp` | the MCP server over the toolkit, on stdio |
+| front ends | `crates/mcp` | `grafta-mcp` | the MCP server over the toolkit, on stdio; starts the bridge, and writes the plugin's `figma-plugin/src/contract.json` |
 | | `crates/cli` | `grafta` | the binary: `grafta mcp` and `grafta tool` |
 | tests | `crates/testkit` | (not published) | scene graphs and fixture loading shared by the tests |
 
@@ -51,7 +52,9 @@ Each package publishes as `grafta-*` and keeps its short lib name, so
   images, the rasteriser and font measurement through traits
   (`DocumentStore`, `Codec`, `Journal`, `ImageSource`, `Rasterizer`,
   `JsonText`, `Measure` in `core/domain/src/port.rs`). `disk` implements them
-  for real; `memory` for tests.
+  for real; `memory` for tests. The files open in Figma are one more,
+  `LiveFiles`: the bridge implements it in `grafta mcp`, and everywhere else
+  (`grafta tool`, the browser) it lists nothing.
 - **A product is a plugin.** `ProductProfile` (its container, name and
   summary) and `NodeBehavior` (what a node admits, how it is described, how its
   changes apply) are the domain's traits; `toolkit/src/product.rs` lists the

@@ -7,7 +7,7 @@ use serde_json::{json, Value};
 use super::args::{optional_number, optional_string, string};
 use super::data;
 use super::schema::{handle_property, schema};
-use super::{Request, Tool};
+use super::{Live, Request, Tool};
 use crate::error::VectorError;
 use crate::tools::{style, vector};
 use crate::{DomainError, ToolError};
@@ -22,6 +22,9 @@ pub struct CreateVector;
 impl Tool for CreateVector {
     fn name(&self) -> &'static str {
         "create_vector"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::CREATE_VECTOR)
     }
     fn description(&self) -> &'static str {
         "Draw a vector from SVG path data (M L H V C S Q T A Z), as icon sets publish it: \

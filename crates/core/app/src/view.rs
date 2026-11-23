@@ -173,6 +173,13 @@ fn sizing(graph: &SceneGraph, node: &SceneNode, horizontal: bool) -> Option<&'st
             return Some(HUG);
         }
     }
+    // A text sizes itself as its `textAutoResize` says, as Figma reads it.
+    if let Some(style) = &node.text_style {
+        match (TextAutoResize::from_wire(&style.text_auto_resize), horizontal) {
+            (Some(TextAutoResize::WidthAndHeight), _) | (Some(TextAutoResize::Height), false) => return Some(HUG),
+            _ => {}
+        }
+    }
     Some(StackSize::Fixed.as_wire())
 }
 
@@ -398,9 +405,10 @@ pub fn properties(graph: &SceneGraph, node: &SceneNode, geometry: bool) -> Map {
         s.insert("fontSize".into(), num(style.font_size));
         s.insert("fontWeight".into(), data!(style.font_weight));
         if let Some(line_height) = style.line_height {
-            s.insert("lineHeight".into(), data!({ "value": line_height.value, "unit": line_height.unit }));
+            s.insert("lineHeight".into(), data!({ "value": num(line_height.value), "unit": line_height.unit }));
         }
-        if let Some(spacing) = style.letter_spacing {
+        // 0, in any unit, is Figma's default, left out as it is.
+        if let Some(spacing) = style.letter_spacing.filter(|l| l.value != 0.0) {
             s.insert("letterSpacing".into(), data!({ "value": spacing.value, "unit": spacing.unit }));
         }
         s.insert("textAlignHorizontal".into(), data!(style.text_align_horizontal));
@@ -735,7 +743,7 @@ fn runs(graph: &SceneGraph, text: &str, runs: &[model::TextRun]) -> Data {
             r.insert("letterSpacing".into(), data!({ "value": spacing.value, "unit": spacing.unit }));
         }
         if let Some(line_height) = run.line_height {
-            r.insert("lineHeight".into(), data!({ "value": line_height.value, "unit": line_height.unit }));
+            r.insert("lineHeight".into(), data!({ "value": num(line_height.value), "unit": line_height.unit }));
         }
         if let Some(url) = &run.hyperlink {
             r.insert("hyperlink".into(), data!({ "type": "URL", "value": url }));

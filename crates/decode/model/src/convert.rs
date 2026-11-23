@@ -277,6 +277,20 @@ fn dimension(v: &Value) -> Option<Dimension> {
     Some(Dimension { value, unit })
 }
 
+/// A line height as Figma reads it. Figma stores *Auto* as `{ PERCENT, 100 }`
+/// and a percentage as a multiple of the size, `RAW`: of 120,000 texts in
+/// eight files, 8,121 store `PERCENT` and every one of them 100, and 1,939 store
+/// `RAW` 0.9 to 1.6 (row 116). So `{ PERCENT, 100 }` is *Auto*, read as no
+/// line height, the font's own; and `RAW` is the percentage Figma shows.
+/// Another `PERCENT`, which no file Figma saved holds, is read as written.
+fn line_height(v: &Value) -> Option<Dimension> {
+    match v.known::<NumberUnits>(Field::Units) {
+        Some(NumberUnits::Percent) if v.f32(Field::Value) == Some(100.0) => None,
+        Some(NumberUnits::Raw) => v.f32(Field::Value).map(|m| Dimension { value: (m * 100_000.0).round() / 1000.0, unit: Unit::Percent }),
+        _ => dimension(v),
+    }
+}
+
 pub(crate) fn text_style(nc: &Value) -> TextStyle {
     let font = nc.field(Field::FontName);
     let family = font
@@ -290,7 +304,7 @@ pub(crate) fn text_style(nc: &Value) -> TextStyle {
         font_family: family,
         font_style: style,
         font_size: nc.f32(Field::FontSize).unwrap_or(14.0),
-        line_height: nc.field(Field::LineHeight).and_then(dimension),
+        line_height: nc.field(Field::LineHeight).and_then(line_height),
         letter_spacing: nc.field(Field::LetterSpacing).and_then(dimension),
         text_align_horizontal: nc.str(Field::TextAlignHorizontal).unwrap_or(TextAlignHorizontal::Left.as_wire()).to_string(),
         text_align_vertical: nc.str(Field::TextAlignVertical).unwrap_or(TextAlignVertical::Top.as_wire()).to_string(),
@@ -568,7 +582,7 @@ impl Converter<'_> {
             text_decoration: entry.str(Field::TextDecoration).map(str::to_string),
             text_case: entry.str(Field::TextCase).map(str::to_string),
             letter_spacing: entry.field(Field::LetterSpacing).and_then(dimension),
-            line_height: entry.field(Field::LineHeight).and_then(dimension),
+            line_height: entry.field(Field::LineHeight).and_then(line_height),
             hyperlink: url,
             text_style_id: self.style_id(entry, Field::StyleIdForText),
             other,

@@ -4,7 +4,7 @@ use serde_json::{json, Value};
 
 use super::args::{budget, optional_bool, optional_integer, optional_string, paging, string};
 use super::schema::{handle_property, merge, paging_properties, schema};
-use super::{Request, Tool};
+use super::{Request, Live, Tool};
 use crate::tools::{read, screens};
 use crate::view::Limits;
 use crate::ToolError;
@@ -14,6 +14,9 @@ pub struct Summarize;
 impl Tool for Summarize {
     fn name(&self) -> &'static str {
         "summarize"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::SUMMARIZE)
     }
     fn description(&self) -> &'static str {
         "Overview of an open file: every page with its id, node count and number of top-level \
@@ -33,6 +36,9 @@ pub struct ListScreens;
 impl Tool for ListScreens {
     fn name(&self) -> &'static str {
         "list_screens"
+    }
+    fn live(&self) -> Live {
+        Live::Same
     }
     fn description(&self) -> &'static str {
         "The screens of a page, as a person sees them in Figma, in their order: a page's \
@@ -66,6 +72,11 @@ pub struct SearchNodes;
 impl Tool for SearchNodes {
     fn name(&self) -> &'static str {
         "search_nodes"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(
+            "the open file is searched a page at a time, within a time budget: `total` counts the matches on the pages searched so far, `pages_searched` of `pages` says how far it went, and `next_cursor` goes on to the rest",
+        )
     }
     fn description(&self) -> &'static str {
         "Find nodes by name (case-insensitive substring), by type (FRAME, TEXT, INSTANCE, \
@@ -103,6 +114,9 @@ pub struct ReadNode;
 impl Tool for ReadNode {
     fn name(&self) -> &'static str {
         "read_node"
+    }
+    fn live(&self) -> Live {
+        Live::Same
     }
     fn description(&self) -> &'static str {
         "Read one node exactly, in Figma's terms: geometry, fills/strokes (hex colours, bound \
@@ -147,6 +161,9 @@ pub struct ReadRaw;
 impl Tool for ReadRaw {
     fn name(&self) -> &'static str {
         "read_raw"
+    }
+    fn live(&self) -> Live {
+        Live::Cannot("the open file gives no bytes; save a local copy to read them")
     }
     fn description(&self) -> &'static str {
         "The node exactly as the file stores it: every field of its node change, including \

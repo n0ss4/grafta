@@ -14,7 +14,7 @@ use model::{LIST_NONE, LIST_ORDERED, LIST_UNORDERED};
 use schema::{object, Field, LineType, SourceDirectionality, TextAlignHorizontal, TextAlignVertical, TextAutoResize, TextCase, TextDecoration, Wire, WireMut, WireName};
 
 use super::style::paints;
-use super::text::{dimension_raw, font_name, positive, text_data};
+use super::text::{dimension_raw, font_name, line_height_raw, positive, text_data};
 use super::style::invalid;
 use crate::error::RichTextError;
 use crate::{DomainError, Session, ToolError};
@@ -190,7 +190,7 @@ fn entry(session: &Session, at: &str, run: &Map, layer: &Layer) -> Result<Vec<(F
         push(&mut fields, Field::LetterSpacing, dimension_raw(&format!("{at}.letterSpacing"), v, false)?);
     }
     if let Some(v) = run.get("lineHeight") {
-        push(&mut fields, Field::LineHeight, dimension_raw(&format!("{at}.lineHeight"), v, true)?);
+        push(&mut fields, Field::LineHeight, line_height_raw(&format!("{at}.lineHeight"), v)?);
     }
     if let Some(url) = link {
         push(&mut fields, Field::Hyperlink, object([(Field::Url, Raw::Str(url))]));

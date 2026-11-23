@@ -4,7 +4,7 @@ use serde_json::{json, Value};
 
 use super::args::{number, optional_number, optional_string, string};
 use super::schema::{handle_property, schema};
-use super::{Request, Tool};
+use super::{Live, Request, Tool};
 use crate::error::StructureError;
 use crate::tools::structure;
 use crate::ToolError;
@@ -25,6 +25,9 @@ pub struct GroupNodes;
 impl Tool for GroupNodes {
     fn name(&self) -> &'static str {
         "group_nodes"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
     }
     fn description(&self) -> &'static str {
         "Group layers that share a parent, as Figma's Group: the group sits at their bounds and \
@@ -55,6 +58,9 @@ impl Tool for Ungroup {
     fn name(&self) -> &'static str {
         "ungroup"
     }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
+    }
     fn description(&self) -> &'static str {
         "Ungroup a group: its layers go to the group's parent, in its place and order, each where \
          it was on the canvas, and the group is removed."
@@ -73,6 +79,9 @@ pub struct CreateSection;
 impl Tool for CreateSection {
     fn name(&self) -> &'static str {
         "create_section"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
     }
     fn description(&self) -> &'static str {
         "Make a section on a page, to organise screens (\"Onboarding\", \"Checkout\"). Then move \
@@ -110,6 +119,9 @@ pub struct DuplicateNode;
 impl Tool for DuplicateNode {
     fn name(&self) -> &'static str {
         "duplicate_node"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
     }
     fn description(&self) -> &'static str {
         "Duplicate a node with everything in it: every layer copied with a new id, instances \

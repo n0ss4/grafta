@@ -59,8 +59,9 @@ export function Hero({ scenes }: { scenes: Scene[] }) {
         </h1>
         <div className="lg:justify-self-end">
           <p className="hero-support max-w-[540px] text-[16px] leading-relaxed text-muted sm:text-[17px]">
-            Ask your AI what's in a file, change it, or turn it into code. No Figma account, no app running,
-            no API limits.
+            grafta reads and writes your Figma files, with no internet.{" "}
+            <b className="font-semibold text-text">New:</b> now from Figma's desktop app too, on the file you
+            have open.
           </p>
           <GetGrafta />
         </div>

@@ -14,6 +14,7 @@ pub mod component;
 pub mod data;
 pub mod import;
 pub mod journal;
+pub mod live;
 pub mod measure;
 pub mod new_file;
 pub mod overrides;
@@ -50,7 +51,38 @@ pub trait Tool: Sync {
     fn input_schema(&self) -> Value;
     /// The call's arguments read into what it asks.
     fn parse(&self, args: &Value) -> Result<Request, ToolError>;
+    /// What it does on a file open in Figma.
+    fn live(&self) -> Live {
+        Live::Cannot(NOT_BUILT)
+    }
+    /// Its result from what the panel in Figma answered, when grafta makes it
+    /// rather than passing the answer on; `None` passes it on.
+    fn answer_from_figma(&self, _kit: &Toolkit, _args: &Value, _answer: &crate::app::data::Data) -> Option<Result<Output, ToolError>> {
+        None
+    }
 }
+
+/// What a tool does on a file open in Figma, given its handle.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Live {
+    /// The same name, arguments and result keys as on a file.
+    Same,
+    /// Carried to Figma, and different there as the sentence says.
+    Differs(&'static str),
+    /// Refused there, with the reason.
+    Cannot(&'static str),
+}
+
+/// Why a tool not yet built for a file open in Figma refuses one, so a model
+/// does not read it as never.
+pub const NOT_BUILT: &str = "not built for the open file yet";
+
+/// Why `open_file` and `close_file` refuse a file open in Figma.
+pub(crate) const OPENED_IN_FIGMA: &str = "a file open in Figma is opened and closed in Figma: open grafta's panel on it";
+
+/// Why `new_file` and `save_as` refuse one.
+pub(crate) const SAVED_BY_FIGMA: &str =
+    "Figma makes and saves its own files; to get a .fig of it, File → Save local copy… in Figma";
 
 /// What a call asks, read from its arguments.
 pub enum Request {
@@ -123,6 +155,9 @@ pub fn call(kit: &mut Toolkit, name: &str, args: &Value) -> Result<Output, ToolE
     if !kit.replaying() {
         takes_all_of(tool, args)?;
     }
+    if let Some(handle) = in_figma(kit, args) {
+        return live::call(kit, tool, &handle, args);
+    }
     let (mut output, edited_handles) = match run(kit, tool, args) {
         Ok(done) => done,
         Err(error) => {
@@ -154,6 +189,18 @@ pub fn call(kit: &mut Toolkit, name: &str, args: &Value) -> Result<Output, ToolE
         }
     }
     Ok(output)
+}
+
+/// The handle a call names, when it is a file open in Figma's rather than an
+/// open file's, or shaped as one and open nowhere: a file grafta opened keeps
+/// its handle even in the unlikely case one in Figma has the same.
+fn in_figma(kit: &Toolkit, args: &Value) -> Option<String> {
+    let handle = args.get("handle").and_then(Value::as_str)?;
+    if kit.session(handle).is_ok() {
+        return None;
+    }
+    let listed = kit.ports().live.list().iter().any(|file| file.handle.as_str() == handle);
+    (listed || Handle::looks_in_figma(handle)).then(|| handle.to_owned())
 }
 
 /// Refuse an argument the tool's schema does not name, which it would ignore.

@@ -5,9 +5,10 @@ use serde_json::{json, Value};
 
 use super::args::{optional_integer, optional_number, optional_string, paging, string};
 use super::schema::{handle_property, merge, paging_properties, schema};
-use super::{Request, Tool};
+use super::{Request, Live, Tool};
 use crate::error::CatalogError;
 use crate::tools::{catalog, tokens};
+use crate::app::data::Data;
 use crate::{DomainError, ToolError};
 
 pub struct ListComponents;
@@ -15,6 +16,11 @@ pub struct ListComponents;
 impl Tool for ListComponents {
     fn name(&self) -> &'static str {
         "list_components"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(
+            "the open file is listed a page at a time, within a time budget: `total` counts the components on the pages listed so far, `pages_searched` of `pages` says how far it went, and `next_cursor` goes on to the rest",
+        )
     }
     fn description(&self) -> &'static str {
         "The components this file defines: every component set (with its variant properties \
@@ -49,6 +55,9 @@ impl Tool for ComponentInstances {
     fn name(&self) -> &'static str {
         "component_instances"
     }
+    fn live(&self) -> Live {
+        Live::Same
+    }
     fn description(&self) -> &'static str {
         "Where a component is used: every instance of it (of any variant, for a component \
          set), with id, name and path. Paged."
@@ -79,6 +88,9 @@ pub struct ListVariables;
 impl Tool for ListVariables {
     fn name(&self) -> &'static str {
         "list_variables"
+    }
+    fn live(&self) -> Live {
+        Live::Same
     }
     fn description(&self) -> &'static str {
         "The file's design variables (tokens): each collection with its modes, and each \
@@ -146,6 +158,9 @@ impl Tool for GetImage {
     fn name(&self) -> &'static str {
         "get_image"
     }
+    fn live(&self) -> Live {
+        Live::Same
+    }
     fn description(&self) -> &'static str {
         "An image the file embeds, by the imageHash a fill carries (read_node shows it). \
          Returned as an image, up to 4 MB; a larger one is described instead."
@@ -169,6 +184,9 @@ pub struct RenderNode;
 impl Tool for RenderNode {
     fn name(&self) -> &'static str {
         "render_node"
+    }
+    fn live(&self) -> Live {
+        Live::Differs("drawn by Figma itself: exact, with no notes, and it may differ from grafta's picture of a saved copy; the caption says `drawn_by: \"Figma\"`")
     }
     fn description(&self) -> &'static str {
         "Draw a node (a board, frame, component, instance, shape or text) as a PNG you can look \
@@ -208,6 +226,12 @@ pub struct CheckContrast;
 impl Tool for CheckContrast {
     fn name(&self) -> &'static str {
         "check_contrast"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(crate::live::CHECK_CONTRAST)
+    }
+    fn answer_from_figma(&self, kit: &crate::Toolkit, args: &Value, answer: &Data) -> Option<Result<crate::Output, ToolError>> {
+        Some(contrast_in_figma(kit, args, answer))
     }
     fn description(&self) -> &'static str {
         "Check every visible text under a node (a screen, a frame, a component) against WCAG \
@@ -288,4 +312,60 @@ impl Tool for ExportPdf {
         };
         Ok(Request::Query(Box::new(catalog::ExportPdf { handle, path, ids })))
     }
+}
+
+/// `check_contrast` on a file open in Figma, from what the panel answered:
+/// `{ picture, scale, texts }`, a PNG of the node its texts hidden, drawn by
+/// Figma, and each text as `TextSample` holds it. Measured by the same code
+/// as on a file, over Figma's picture.
+fn contrast_in_figma(kit: &crate::Toolkit, args: &Value, answer: &Data) -> Result<crate::Output, ToolError> {
+    use crate::port::TextSample;
+    let malformed = |what: &str| -> ToolError {
+        DomainError::Render { error: format!("the panel's answer to check_contrast has {what}; update grafta's panel in Figma") }.into()
+    };
+    let picture = answer.get("picture").and_then(Data::as_str).and_then(crate::live::base64).ok_or_else(|| malformed("no picture"))?;
+    let scale = answer.get("scale").and_then(Data::as_f64).ok_or_else(|| malformed("no scale"))? as f32;
+    let texts = answer.get("texts").and_then(Data::as_list).ok_or_else(|| malformed("no texts"))?;
+    let number = |text: &Data, key: &str| text.get(key).and_then(Data::as_f64).map(|v| v as f32);
+    let mut samples = Vec::with_capacity(texts.len());
+    let mut ids = Vec::with_capacity(texts.len());
+    for text in texts {
+        let id = text.get("id").and_then(Data::as_str).ok_or_else(|| malformed("a text with no id"))?;
+        let at: Vec<f32> = text.get("at").and_then(Data::as_list).map(|m| m.iter().filter_map(Data::as_f64).map(|v| v as f32).collect()).unwrap_or_default();
+        let at: [f32; 6] = at.try_into().map_err(|_| malformed("a text with no transform"))?;
+        let runs = text
+            .get("runs")
+            .and_then(Data::as_list)
+            .map(|runs| {
+                runs.iter()
+                    .filter_map(|run| {
+                        let v: Vec<f64> = run.as_list()?.iter().filter_map(Data::as_f64).collect();
+                        let [r, g, b, a, size, weight] = v[..] else { return None };
+                        Some(([r as f32, g as f32, b as f32, a as f32], size as f32, weight as u32))
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+        samples.push(TextSample {
+            id: schema::Guid::default(),
+            instance: None,
+            name: text.get("name").and_then(Data::as_str).unwrap_or_default().to_owned(),
+            characters: text.get("characters").and_then(Data::as_str).unwrap_or_default().to_owned(),
+            at,
+            width: number(text, "width").unwrap_or(0.0),
+            height: number(text, "height").unwrap_or(0.0),
+            opacity: number(text, "opacity").unwrap_or(1.0),
+            runs,
+            unmeasurable: text.get("unmeasurable").and_then(Data::as_str).map(str::to_owned),
+        });
+        ids.push((Data::from(id), text.get("instance").and_then(Data::as_str).map(Data::from)));
+    }
+    let checked = kit
+        .ports()
+        .raster
+        .contrast_over(&picture, scale, samples)
+        .map_err(|error| DomainError::Render { error: error.to_string() })?;
+    let checked = checked.into_iter().zip(ids).map(|(c, (id, instance))| (c, id, instance)).collect();
+    let all = args.get("all").and_then(Value::as_bool).unwrap_or(false);
+    catalog::contrast_answer(checked, all, &paging(args)?, 0, kit.ports().measure.as_ref()).map(crate::Output::Data)
 }

@@ -1,10 +1,11 @@
 //! Where the toolkit reaches the world.
 //!
 //! A tool decides; reading and writing files, journaling, encoding a document,
-//! drawing it, measuring a result and reading a file's own JSON go through
-//! these seven ports. The disk, `figfile`, the journal on disk and `render`
-//! are their adapters, and `serde_json` is the measure's and the JSON text's,
-//! at the edge. An adapter's failure comes back as its own
+//! drawing it, measuring a result, reading a file's own JSON and reaching the
+//! files open in Figma go through these eight ports. The disk, `figfile`, the
+//! journal on disk and `render` are their adapters, `serde_json` is the
+//! measure's and the JSON text's, at the edge, and the bridge on localhost
+//! is the open files'. An adapter's failure comes back as its own
 //! error, and the toolkit says it in the words of `DomainError`. What drawing
 //! returns is defined here, beside the port, and `render` produces it.
 
@@ -17,6 +18,7 @@ use model::{SceneGraph, SceneNode};
 use schema::Guid;
 
 use crate::data::Data;
+use crate::Handle;
 
 /// Where documents and the other files a tool reads or writes are kept.
 pub trait DocumentStore: Send + Sync {
@@ -75,6 +77,9 @@ pub trait ImageSource: Send + Sync {
 pub trait Rasterizer: Send + Sync {
     fn render(&self, fig: &FigFile, graph: &SceneGraph, id: Guid, scale: f32, max_size: u32) -> Result<Rendered, RenderError>;
     fn contrast(&self, fig: &FigFile, graph: &SceneGraph, id: Guid) -> Result<Vec<Contrast>, RenderError>;
+    /// Texts measured against a PNG of what is behind them drawn elsewhere (by
+    /// Figma, of a file open there), at `scale` pixels per unit.
+    fn contrast_over(&self, picture: &[u8], scale: f32, samples: Vec<TextSample>) -> Result<Vec<Contrast>, RenderError>;
     fn pdf(&self, fig: &FigFile, graph: &SceneGraph, ids: &[Guid]) -> Result<Pdf, RenderError>;
     fn blank_png(&self, width: u32, height: u32, rgba: [f32; 4]) -> Result<Vec<u8>, RenderError>;
     fn measure_text(&self, fig: &FigFile, graph: &SceneGraph, node: &SceneNode) -> Option<TextBox>;
@@ -101,7 +106,44 @@ pub trait Measure: Send + Sync {
     fn bytes(&self, data: &Data) -> usize;
 }
 
-/// The seven ports a toolkit and its sessions use.
+/// The files open in Figma with grafta's panel on them, on this computer.
+///
+/// Nothing of such a file is kept here: each call is carried to Figma and
+/// answered from it, in the tool's own result keys.
+pub trait LiveFiles: Send + Sync {
+    /// Every file open in Figma whose panel is connected and has allowed
+    /// this grafta.
+    fn list(&self) -> Vec<LiveFile>;
+    /// Carry a call to the file `handle` names: the tool's name and its
+    /// arguments, already checked and without `handle`.
+    fn call(&self, handle: &str, tool: &str, args: &Data) -> Result<Data, LiveError>;
+}
+
+/// A file open in Figma, as its panel named it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LiveFile {
+    pub handle: Handle,
+    /// The file's name as Figma shows it; two files may share one.
+    pub name: String,
+}
+
+/// Why a call to a file open in Figma was not answered with a result.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum LiveError {
+    /// No file open in Figma has that handle.
+    NotOpen,
+    /// The panel left while the call was waiting: whether it was done is not
+    /// known.
+    Gone,
+    /// The panel did not answer in time: whether it was done is not known.
+    TimedOut { seconds: u64 },
+    /// The person stopped grafta in the panel: nothing was done.
+    Stopped,
+    /// Figma, or the plugin, refused it, in its own words.
+    Refused(String),
+}
+
+/// The eight ports a toolkit and its sessions use.
 #[derive(Clone)]
 pub struct Ports {
     pub store: Arc<dyn DocumentStore>,
@@ -111,6 +153,7 @@ pub struct Ports {
     pub raster: Arc<dyn Rasterizer>,
     pub measure: Arc<dyn Measure>,
     pub json: Arc<dyn JsonText>,
+    pub live: Arc<dyn LiveFiles>,
 }
 
 // ── What drawing returns ─────────────────────────────────────────────────────

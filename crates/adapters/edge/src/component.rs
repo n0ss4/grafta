@@ -7,7 +7,7 @@ use serde_json::{json, Value};
 use super::args::{optional_string, string};
 use super::data;
 use super::schema::{handle_property, schema};
-use super::{Request, Tool};
+use super::{Request, Live, Tool};
 use crate::error::ComponentError;
 use crate::tools::{component, properties, style};
 use crate::{DomainError, ToolError};
@@ -17,6 +17,9 @@ pub struct CreateComponent;
 impl Tool for CreateComponent {
     fn name(&self) -> &'static str {
         "create_component"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::CREATE_COMPONENT)
     }
     fn description(&self) -> &'static str {
         "Turn a frame into a component, in place, keeping its children, so it can be reused: \
@@ -48,6 +51,9 @@ pub struct CreateVariantSet;
 impl Tool for CreateVariantSet {
     fn name(&self) -> &'static str {
         "create_variant_set"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
     }
     fn description(&self) -> &'static str {
         "Group components into a variant set, as Figma's own sets: one component with \
@@ -118,6 +124,9 @@ impl Tool for SetVariant {
     fn name(&self) -> &'static str {
         "set_variant"
     }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
+    }
     fn description(&self) -> &'static str {
         "Switch an instance of a variant to another variant of its set, by the values that \
          change: { \"State\": \"Substitute\" }. The other properties keep their values. Its \
@@ -156,6 +165,9 @@ pub struct AddComponentProperty;
 impl Tool for AddComponentProperty {
     fn name(&self) -> &'static str {
         "add_component_property"
+    }
+    fn live(&self) -> Live {
+        Live::Differs(super::live::WRITTEN)
     }
     fn description(&self) -> &'static str {
         "Give a component a property its instances set: TEXT (a label), BOOLEAN \
