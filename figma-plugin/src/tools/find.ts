@@ -24,19 +24,105 @@ function matcher(args: Args): (node: BaseNode) => boolean {
       `parameter "type": \`${given}\` is not a node type. Use FRAME, TEXT, INSTANCE, COMPONENT, COMPONENT_SET, PAGE, SECTION, GROUP, RECTANGLE, ELLIPSE, VECTOR, …`,
     );
   }
-  return (node) => (name === undefined || node.name.toLowerCase().includes(name)) && (type === undefined || node.type === type);
+  const text = lowered(args.text);
+  return (node) =>
+    (name === undefined || node.name.toLowerCase().includes(name)) &&
+    (type === undefined || node.type === type) &&
+    (text === undefined || (node.type === "TEXT" && node.characters.toLowerCase().includes(text)));
+}
+
+const lowered = (given: unknown): string | undefined => (typeof given === "string" ? given.toLowerCase() : undefined);
+
+type Alias = { id: string };
+const paintAliases = (paint: Paint): Alias[] => ("boundVariables" in paint ? aliases(Object.values(paint.boundVariables ?? {})) : []);
+const aliases = (value: unknown): Alias[] =>
+  Array.isArray(value) ? value.flatMap(aliases) : value && typeof value === "object" && "id" in value ? [value as Alias] : [];
+
+/** The ids of the styles a layer uses, its own and its text's runs'. */
+function styleIds(node: SceneNode): string[] {
+  const ids: unknown[] = [];
+  for (const key of ["fillStyleId", "strokeStyleId", "effectStyleId", "textStyleId"] as const) {
+    if (key in node) ids.push((node as unknown as Record<string, unknown>)[key]);
+  }
+  if (node.type === "TEXT") {
+    for (const run of node.getStyledTextSegments(["textStyleId", "fillStyleId"])) ids.push(run.textStyleId, run.fillStyleId);
+  }
+  return ids.filter((id): id is string => typeof id === "string" && id !== "");
+}
+
+/** The ids of the variables a layer binds: in any field, in its paints, in its text's runs. */
+function variableIds(node: SceneNode): string[] {
+  const found: Alias[] = [];
+  if ("boundVariables" in node) found.push(...Object.values(node.boundVariables ?? {}).flatMap(aliases));
+  for (const key of ["fills", "strokes"] as const) {
+    const paints = (node as unknown as Record<string, unknown>)[key];
+    if (Array.isArray(paints)) for (const paint of paints as Paint[]) found.push(...paintAliases(paint));
+  }
+  if (node.type === "TEXT") {
+    for (const run of node.getStyledTextSegments(["fills", "boundVariables"])) {
+      found.push(...aliases(Object.values(run.boundVariables ?? {})));
+      for (const paint of run.fills) found.push(...paintAliases(paint));
+    }
+  }
+  return found.map((alias) => alias.id);
+}
+
+/**
+ * What a search asks of the styles, variables and component a layer uses:
+ * names Figma gives only asynchronously, each looked up once.
+ */
+function usesMatcher(args: Args): ((node: BaseNode) => Promise<boolean>) | undefined {
+  const style = lowered(args.style);
+  const variable = lowered(args.variable);
+  const component = typeof args.component === "string" ? args.component : undefined;
+  if (style === undefined && variable === undefined && component === undefined) return undefined;
+  const names = new Map<string, Promise<string | undefined>>();
+  const once = (key: string, look: () => Promise<string | undefined>) => {
+    if (!names.has(key)) names.set(key, look().catch(() => undefined));
+    return names.get(key)!;
+  };
+  const any = async (ids: string[], look: (id: string) => Promise<string | undefined>, wanted: string) => {
+    for (const id of ids) if ((await look(id))?.toLowerCase().includes(wanted)) return true;
+    return false;
+  };
+  const styleName = (id: string) => once(`s${id}`, async () => (await figma.getStyleByIdAsync(id))?.name);
+  const variableName = (id: string) => once(`v${id}`, async () => (await figma.variables.getVariableByIdAsync(id))?.name);
+  return async (base) => {
+    if (base.type === "DOCUMENT" || base.type === "PAGE") return false;
+    const node = base as SceneNode;
+    if (style !== undefined && !(await any(styleIds(node), styleName, style))) return false;
+    if (variable !== undefined && !(await any(variableIds(node), variableName, variable))) return false;
+    if (component !== undefined) {
+      if (node.type !== "INSTANCE") return false;
+      const main = await node.getMainComponentAsync();
+      if (!main) return false;
+      const set = main.parent?.type === "COMPONENT_SET" ? main.parent : undefined;
+      const wanted = component.toLowerCase();
+      const named = [main, set].some((c) => c?.name.toLowerCase().includes(wanted));
+      if (main.id !== component && set?.id !== component && !named) return false;
+    }
+    return true;
+  };
+}
+
+async function narrowed(found: BaseNode[], uses: ((node: BaseNode) => Promise<boolean>) | undefined): Promise<BaseNode[]> {
+  if (!uses) return found;
+  const kept: BaseNode[] = [];
+  for (const node of found) if (await uses(node)) kept.push(node);
+  return kept;
 }
 
 const shown = (node: BaseNode): Found => ({ id: node.id, name: node.name, type: node.type, path: pathOf(node) });
 
 export async function searchNodes(args: Args): Promise<unknown> {
   const matches = matcher(args);
+  const uses = usesMatcher(args);
   if (typeof args.within === "string") {
     const root = await nodeFor(args.within);
     const found = "findAll" in root ? (root as ChildrenMixin).findAll(matches) : [];
-    return page(found, asked(args, 50, "w"), "w", 0, shown);
+    return page(await narrowed(found, uses), asked(args, 50, "w"), "w", 0, shown);
   }
-  return acrossPages(args, matches);
+  return acrossPages(args, matches, uses);
 }
 
 /**
@@ -44,7 +130,11 @@ export async function searchNodes(args: Args): Promise<unknown> {
  * page of results is full or the time is spent; the cursor names the page and
  * the place in it to go on from.
  */
-async function acrossPages(args: Args, matches: (node: BaseNode) => boolean): Promise<unknown> {
+async function acrossPages(
+  args: Args,
+  matches: (node: BaseNode) => boolean,
+  uses: ((node: BaseNode) => Promise<boolean>) | undefined,
+): Promise<unknown> {
   const limit = typeof args.limit === "number" ? args.limit : 50;
   const budget = typeof args.budget === "number" ? args.budget : DEFAULT_BUDGET;
   let [pageAt, offset] = [0, 0];
@@ -66,7 +156,7 @@ async function acrossPages(args: Args, matches: (node: BaseNode) => boolean): Pr
     }
     const pageNode = pages[at];
     await pageNode.loadAsync();
-    const found = [...(matches(pageNode) ? [pageNode] : []), ...pageNode.findAll(matches)];
+    const found = await narrowed([...(matches(pageNode) ? [pageNode] : []), ...pageNode.findAll(matches)], uses);
     total += found.length;
     searched += 1;
     const cut = page(found, { limit: limit - results.length, offset: at === pageAt ? offset : 0, budget }, "", 0, shown);
