@@ -2,7 +2,7 @@
 // each answered in the tool's result keys. A call that fails removes what it
 // had made, so nothing is left half done.
 import { Args, nodeFor, num } from "./nodes";
-import { paintsIn } from "./paint";
+import { paintsIn, setPaints } from "./paint";
 import { dimension, paragraphsIn, runsIn, setParagraphs, styleRuns } from "./richtext";
 import { Variables } from "./set";
 
@@ -101,8 +101,8 @@ export async function createShape(args: Args): Promise<unknown> {
     node.name = typeof args.name === "string" ? args.name : shape.name;
     node.resize(Number(args.width), kind === "LINE" ? 0 : Number(args.height));
     // As on a file: nothing is painted unless named.
-    node.fills = fills;
-    node.strokes = strokes ?? [];
+    setPaints(node as unknown as Record<string, unknown>, "fills", fills);
+    setPaints(node as unknown as Record<string, unknown>, "strokes", strokes ?? []);
     if (typeof args.strokeWeight === "number") node.strokeWeight = args.strokeWeight;
     const own = node as unknown as Record<string, unknown>;
     if (typeof args.cornerRadius === "number") own.cornerRadius = args.cornerRadius;
@@ -194,8 +194,8 @@ export async function createVector(args: Args): Promise<unknown> {
   }
   try {
     vector.name = typeof args.name === "string" ? args.name : "Vector";
-    vector.fills = fills;
-    vector.strokes = strokes;
+    setPaints(vector as unknown as Record<string, unknown>, "fills", fills);
+    setPaints(vector as unknown as Record<string, unknown>, "strokes", strokes);
     // As an SVG path is stroked, and as a file writes it: centred on the path.
     // Figma's SVG import leaves INSIDE, which draws nothing on an open path.
     vector.strokeAlign = "CENTER";
@@ -265,7 +265,7 @@ export async function createText(args: Args): Promise<unknown> {
     if (size !== undefined) text.fontSize = size;
     text.characters = characters;
     text.name = typeof args.name === "string" ? args.name : layerName(characters);
-    text.fills = fills;
+    setPaints(text as unknown as Record<string, unknown>, "fills", fills);
     if (args.lineHeight !== undefined) text.lineHeight = dimension(args.lineHeight) as LineHeight;
     if (args.letterSpacing !== undefined) text.letterSpacing = dimension(args.letterSpacing) as LetterSpacing;
     const own = text as unknown as Record<string, unknown>;

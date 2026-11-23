@@ -4,7 +4,7 @@
 // nothing changes if any value is refused.
 import { swapTarget } from "./components";
 import { Args, bare, isId, nodeFor, read } from "./nodes";
-import { paintsIn, parseHex } from "./paint";
+import { paintsIn, parseHex, setPaints } from "./paint";
 import { kept, paragraphsIn, replaced, runsIn, setParagraphs, styleRuns } from "./richtext";
 
 type Undo = () => Promise<void> | void;
@@ -142,7 +142,16 @@ async function one(node: Node, key: string, value: unknown, undo: Undo[], variab
     for (const field of fields) assign(node, field, value, undo);
     return;
   }
-  if (key === "fills" || key === "strokes") return assign(node, key, await paintsIn(key, value, (name) => variables.named(name)), undo);
+  if (key === "fills" || key === "strokes") {
+    const paints = await paintsIn(key, value, (name) => variables.named(name));
+    if (!(key in node)) throw new Error(`a ${node.type} has no ${key}`);
+    const before = node[key];
+    setPaints(node, key, paints);
+    undo.push(() => {
+      node[key] = before;
+    });
+    return;
+  }
   if (key === "effects") return assign(node, key, effects(value), undo);
   if (key in STYLES) return style(node, key, value, undo);
   if (key === "explicitVariableModes") return modes(node, value, undo);

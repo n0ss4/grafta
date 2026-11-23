@@ -144,6 +144,20 @@ async function firstModeColour(at: string, variable: Variable): Promise<RGBA> {
   throw new Error(`${at}: ${variable.name} has no colour value to store beside the binding`);
 }
 
+/**
+ * Paints set on `target[key]` as given. Figma was seen (2026-11-23) dropping
+ * the opacity of a paint bound to a colour variable the first time one goes
+ * where none was bound, and keeping it the second: set again when it did.
+ */
+export function setPaints(target: Record<string, unknown>, key: string, paints: readonly Paint[]): void {
+  target[key] = paints;
+  const kept = () => {
+    const now = target[key];
+    return !Array.isArray(now) || paints.every((paint, i) => Math.abs((now[i]?.opacity ?? 1) - (paint.opacity ?? 1)) < 1e-6);
+  };
+  if (!kept()) target[key] = paints;
+}
+
 function defined<T extends Record<string, unknown>>(value: T): Partial<T> {
   return Object.fromEntries(Object.entries(value).filter(([, v]) => v !== undefined)) as Partial<T>;
 }
