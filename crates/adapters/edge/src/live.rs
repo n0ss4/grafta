@@ -33,8 +33,8 @@ pub fn call(kit: &Toolkit, tool: &dyn Tool, handle: &str, args: &Value) -> Resul
 /// What `set_properties` does on a file open in Figma, unlike on a file.
 pub const SET_PROPERTIES: &str = "Figma makes the change and saves it, so the result is `{ id, set }` with no \
      `unsaved_edits`, and one call is one undo step there. Not built there yet, each refused by name with \
-     nothing changed: runs, paragraphs, componentPropertyReferences, componentProperties, reactions and the \
-     other prototype keys, an image by path (give its imageHash), and Slides' and FigJam's keys";
+     nothing changed: componentPropertyReferences, reactions and the other prototype keys, an image by path \
+     (give its imageHash), and Slides' and FigJam's keys";
 
 /// What a tool that writes does on a file open in Figma, unlike on a file.
 pub const WRITTEN: &str = "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one \

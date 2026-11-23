@@ -957,6 +957,101 @@
       ],
       "live": "differs",
       "tool": "delete_node"
+    },
+    {
+      "args": {
+        "id": "$12.id",
+        "properties": {
+          "runs": [
+            {
+              "characters": "Hello "
+            },
+            {
+              "characters": "world",
+              "fills": [
+                {
+                  "color": "#13704B",
+                  "type": "SOLID"
+                }
+              ],
+              "fontStyle": "Regular"
+            }
+          ]
+        }
+      },
+      "keys": [
+        "id",
+        "set",
+        "size"
+      ],
+      "live": "differs",
+      "tool": "set_properties"
+    },
+    {
+      "args": {
+        "id": "$12.id",
+        "properties": {
+          "characters": "One\nTwo",
+          "paragraphs": [
+            {
+              "listType": "UNORDERED"
+            },
+            {
+              "listType": "UNORDERED"
+            }
+          ]
+        }
+      },
+      "keys": [
+        "id",
+        "notes",
+        "set",
+        "size"
+      ],
+      "live": "differs",
+      "tool": "set_properties"
+    },
+    {
+      "args": {
+        "component": "$24.id",
+        "parent": "$10.id",
+        "x": 800
+      },
+      "keys": [
+        "height",
+        "id",
+        "name",
+        "type",
+        "width"
+      ],
+      "live": "differs",
+      "tool": "create_instance"
+    },
+    {
+      "args": {
+        "id": "$35.id",
+        "properties": {
+          "componentProperties": {
+            "Label": "Hola"
+          }
+        }
+      },
+      "keys": [
+        "id",
+        "set"
+      ],
+      "live": "differs",
+      "tool": "set_properties"
+    },
+    {
+      "args": {
+        "id": "$35.id"
+      },
+      "keys": [
+        "removed"
+      ],
+      "live": "differs",
+      "tool": "delete_node"
     }
   ],
   "not_compared": {

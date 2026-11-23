@@ -31,5 +31,10 @@
   { "tool": "create_variable", "args": { "collection": "$28.id", "name": "Self-test/Ink", "type": "COLOR", "values": { "Default": "#15171C" } } },
   { "tool": "create_style", "args": { "name": "grafta self-test", "type": "FILL", "fills": [{ "type": "SOLID", "color": "#13704B" }] } },
   { "tool": "delete_node", "args": { "id": "$26.id" } },
-  { "tool": "delete_node", "args": { "id": "$14.id" } }
+  { "tool": "delete_node", "args": { "id": "$14.id" } },
+  { "tool": "set_properties", "args": { "id": "$12.id", "properties": { "runs": [{ "characters": "Hello " }, { "characters": "world", "fontStyle": "Regular", "fills": [{ "type": "SOLID", "color": "#13704B" }] }] } } },
+  { "tool": "set_properties", "args": { "id": "$12.id", "properties": { "characters": "One\nTwo", "paragraphs": [{ "listType": "UNORDERED" }, { "listType": "UNORDERED" }] } } },
+  { "tool": "create_instance", "args": { "parent": "$10.id", "component": "$24.id", "x": 800 } },
+  { "tool": "set_properties", "args": { "id": "$35.id", "properties": { "componentProperties": { "Label": "Hola" } } } },
+  { "tool": "delete_node", "args": { "id": "$35.id" } }
 ]

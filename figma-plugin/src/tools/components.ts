@@ -171,7 +171,7 @@ export async function addComponentProperty(args: Args): Promise<unknown> {
 }
 
 /** A component for a swap, by id, or by name on the current page. */
-async function swapTarget(wanted: string): Promise<ComponentNode> {
+export async function swapTarget(wanted: string): Promise<ComponentNode> {
   const byId = await figma.getNodeByIdAsync(wanted);
   if (byId?.type === "COMPONENT") return byId;
   const named = figma.currentPage.findAllWithCriteria({ types: ["COMPONENT"] }).filter((c) => c.name === wanted);

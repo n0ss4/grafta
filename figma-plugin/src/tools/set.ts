@@ -2,8 +2,10 @@
 // the value before kept; if Figma refuses one, those already set are put back
 // and the refusal is answered in Figma's words, so that, as on a file,
 // nothing changes if any value is refused.
+import { swapTarget } from "./components";
 import { Args, bare, isId, nodeFor, read } from "./nodes";
 import { paintsIn, parseHex } from "./paint";
+import { kept, paragraphsIn, replaced, runsIn, setParagraphs, styleRuns } from "./richtext";
 
 type Undo = () => Promise<void> | void;
 type Node = BaseNode & Record<string, unknown>;
@@ -45,9 +47,12 @@ const STYLES: Record<string, { set: string; id: string; kind: "PAINT" | "EFFECT"
   textStyle: { set: "setTextStyleIdAsync", id: "textStyleId", kind: "TEXT" },
 };
 
+/** A text's runs and paragraphs, set after its layer's own keys. */
+const RICH = new Set(["runs", "paragraphs"]);
+
 /** What a file takes and the open file does not yet: refused by name. */
 const NOT_BUILT = new Set([
-  "runs", "paragraphs", "componentPropertyReferences", "componentProperties", "reactions", "scrollBehavior",
+  "componentPropertyReferences", "reactions", "scrollBehavior",
   "overflowDirection", "overlayPositionType", "overlayBackground", "overlayBackgroundInteraction", "flowStartingPoint",
   "transition", "objectAnimations", "isSkippedSlide", "speakerNotes", "text", "cells", "connectorStart", "connectorEnd",
   "connectorStartStrokeCap", "connectorEndStrokeCap", "connectorLineType",
@@ -60,18 +65,22 @@ export async function setProperties(args: Args): Promise<unknown> {
   if (!keys.length) throw new Error("nothing to change: pass properties");
   const unknown = keys.find((key) => NOT_BUILT.has(key));
   if (unknown) throw new Error(`properties.${unknown}: not built for the open file yet, and nothing was changed`);
+  if ("characters" in properties && "runs" in properties) throw new Error("characters and runs: give the text one way, not both");
   const undo: Undo[] = [];
   const set: string[] = [];
   const variables = new Variables();
   try {
     if (keys.some((key) => TEXT.has(key))) await textChanges(node, properties, undo, variables);
+    if ("runs" in properties || "paragraphs" in properties) await richText(node, properties, undo, variables);
     if ("width" in properties || "height" in properties) await size(node, properties, undo, variables);
     for (const key of keys) {
-      if (TEXT.has(key) || key === "width" || key === "height") continue;
+      if (TEXT.has(key) || RICH.has(key) || key === "width" || key === "height") continue;
       try {
         await one(node, key, properties[key], undo, variables);
       } catch (error) {
-        throw new Error(`properties.${key}: ${words(error)}`);
+        // A message that already names the key, as componentProperties.<name> does, is not named twice.
+        const message = words(error);
+        throw new Error(message.startsWith(`${key}.`) ? `properties.${message}` : `properties.${key}: ${message}`);
       }
     }
     set.push(...keys);
@@ -137,6 +146,7 @@ async function one(node: Node, key: string, value: unknown, undo: Undo[], variab
   if (key === "effects") return assign(node, key, effects(value), undo);
   if (key in STYLES) return style(node, key, value, undo);
   if (key === "explicitVariableModes") return modes(node, value, undo);
+  if (key === "componentProperties") return componentProperties(node, value, undo);
   throw new Error(`not a property set_properties takes`);
 }
 
@@ -273,6 +283,75 @@ async function textChanges(node: Node, properties: Record<string, unknown>, undo
       assign(node, key, value, undo);
     });
   }
+}
+
+/**
+ * Runs, replacing the characters and their styles: each new character takes
+ * the layer's style, as the first character holds it once the layer's own keys
+ * are set, and a run's keys over it. Then paragraphs, one a line.
+ */
+async function richText(node: Node, properties: Record<string, unknown>, undo: Undo[], variables: Variables): Promise<void> {
+  const key = "runs" in properties ? "runs" : "paragraphs";
+  if (node.type !== "TEXT") throw new Error(`properties.${key}: ${node.id} is a ${node.type}, not a text`);
+  const text = node as unknown as TextNode;
+  const runs = "runs" in properties ? runsIn(properties.runs) : undefined;
+  const characters = runs ? runs.map((run) => run.characters).join("") : text.characters;
+  const paragraphs = "paragraphs" in properties ? paragraphsIn(characters, properties.paragraphs) : undefined;
+  await loadFonts(text);
+  undo.push(kept(text));
+  if (runs) {
+    const layer = await replaced(text, characters);
+    await styleRuns(text, runs, layer, (name) => variables.named(name));
+  }
+  if (paragraphs) setParagraphs(text, paragraphs);
+}
+
+/** An instance's values for its component's properties, by name, as on a file. */
+async function componentProperties(node: Node, value: unknown, undo: Undo[]): Promise<void> {
+  if (node.type !== "INSTANCE") throw new Error(`${node.id} is not an instance`);
+  if (typeof value !== "object" || value === null || Array.isArray(value)) throw new Error(`expected { "<property>": value }`);
+  const instance = node as unknown as InstanceNode;
+  const held = instance.componentProperties;
+  const names = Object.keys(held).filter((k) => held[k].type !== "VARIANT").map(nameOf);
+  const wanted: Record<string, string | boolean> = {};
+  const before: Record<string, string | boolean> = {};
+  for (const [name, raw] of Object.entries(value as Record<string, unknown>)) {
+    const at = `componentProperties.${name}`;
+    const keys = Object.keys(held).filter((k) => k === name || nameOf(k) === name);
+    if (keys.length !== 1) {
+      throw new Error(
+        keys.length
+          ? `${at}: ${keys.length} properties are named \`${name}\`; pass one key: ${keys.join(", ")}`
+          : `${at}: no property \`${name}\` on this instance's component; it has ${names.join(", ") || "none"}`,
+      );
+    }
+    const [key] = keys;
+    const { type } = held[key];
+    if (type === "VARIANT") throw new Error(`${at}: a VARIANT property is not set here; variants are set with set_variant`);
+    if (type === "TEXT") {
+      if (typeof raw !== "string" && typeof raw !== "number") throw new Error(`${at}: a TEXT property takes a string, got ${JSON.stringify(raw)}`);
+      wanted[key] = String(raw);
+    } else if (type === "BOOLEAN") {
+      if (typeof raw !== "boolean") throw new Error(`${at}: a BOOLEAN property takes true or false, got ${JSON.stringify(raw)}`);
+      wanted[key] = raw;
+    } else {
+      wanted[key] = await swapTarget(String(raw)).then(
+        (component) => component.id,
+        (error: unknown) => {
+          throw new Error(`${at}: ${words(error)}`);
+        },
+      );
+    }
+    before[key] = held[key].value;
+  }
+  instance.setProperties(wanted);
+  undo.push(() => instance.setProperties(before));
+}
+
+/** A property's name, from its key: `Label#12:3` is `Label`. */
+function nameOf(key: string): string {
+  const hash = key.lastIndexOf("#");
+  return hash > 0 ? key.slice(0, hash) : key;
 }
 
 /** The file's own variables, found by name or id. */

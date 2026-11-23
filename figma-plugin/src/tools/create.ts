@@ -3,6 +3,7 @@
 // had made, so nothing is left half done.
 import { Args, nodeFor, num } from "./nodes";
 import { paintsIn } from "./paint";
+import { dimension, paragraphsIn, runsIn, setParagraphs, styleRuns } from "./richtext";
 import { Variables } from "./set";
 
 type Parent = BaseNode & ChildrenMixin;
@@ -192,38 +193,15 @@ function usualFont(): { font: FontName; size: number } | undefined {
   return { font: most.font, size };
 }
 
-type Run = {
-  characters: string;
-  fontFamily?: string;
-  fontStyle?: string;
-  fontSize?: number;
-  fills?: unknown;
-  textDecoration?: TextDecoration;
-  textCase?: TextCase;
-  letterSpacing?: number | LetterSpacing;
-  lineHeight?: number | LineHeight;
-  hyperlink?: HyperlinkTarget;
-};
-
-const RUN_KEYS = new Set(["characters", "fontFamily", "fontStyle", "fontSize", "fills", "textDecoration", "textCase", "letterSpacing", "lineHeight", "hyperlink"]);
-
 const LAYER_KEYS = [
   "textAlignHorizontal", "textAlignVertical", "textDecoration", "textCase", "paragraphSpacing", "paragraphIndent",
 ] as const;
 
-function dimension(value: unknown): unknown {
-  return typeof value === "number" ? { value, unit: "PIXELS" } : value;
-}
-
 export async function createText(args: Args): Promise<unknown> {
   const parent = await parentFor(args.parent);
-  const runs = Array.isArray(args.runs) ? (args.runs as Run[]) : undefined;
-  runs?.forEach((run, i) => {
-    const extra = Object.keys(run).find((key) => !RUN_KEYS.has(key));
-    if (extra) throw new Error(`runs[${i}]: \`${extra}\` is not accepted; a run takes ${[...RUN_KEYS].join(", ")}`);
-    if (typeof run.characters !== "string" || !run.characters) throw new Error(`runs[${i}].characters: a run needs its text`);
-  });
+  const runs = args.runs === undefined ? undefined : runsIn(args.runs);
   const characters = runs ? runs.map((r) => r.characters).join("") : String(args.characters);
+  const paragraphs = args.paragraphs === undefined ? undefined : paragraphsIn(characters, args.paragraphs);
   const usual = usualFont();
   const font: FontName = {
     family: typeof args.fontFamily === "string" ? args.fontFamily : (usual?.font.family ?? "Inter"),
@@ -266,8 +244,8 @@ export async function createText(args: Args): Promise<unknown> {
       text.resize(width, text.height);
     }
     if (typeof args.textAutoResize === "string") text.textAutoResize = args.textAutoResize as TextNode["textAutoResize"];
-    if (runs) await styleRuns(text, runs, font, variables);
-    if (Array.isArray(args.paragraphs)) paragraphs(text, args.paragraphs as { listType?: string; indentation?: number }[]);
+    if (runs) await styleRuns(text, runs, font, (n) => variables.named(n));
+    if (paragraphs) setParagraphs(text, paragraphs);
   });
   const shown = text.fontName === figma.mixed ? font : text.fontName;
   return {
@@ -275,57 +253,6 @@ export async function createText(args: Args): Promise<unknown> {
     font: { family: shown.family, style: shown.style, size: text.fontSize === figma.mixed ? null : num(text.fontSize) },
     size: { width: num(text.width), height: num(text.height) },
   };
-}
-
-/** Each run styled apart from the layer, by its range. */
-async function styleRuns(text: TextNode, runs: Run[], layer: FontName, variables: Variables): Promise<void> {
-  let start = 0;
-  for (const [i, run] of runs.entries()) {
-    const end = start + run.characters.length;
-    const at = (key: string, step: () => Promise<void> | void) =>
-      Promise.resolve()
-        .then(step)
-        .catch((error: unknown) => {
-          throw new Error(`runs[${i}].${key}: ${error instanceof Error ? error.message : String(error)}`);
-        });
-    if (run.fontFamily !== undefined || run.fontStyle !== undefined) {
-      const font = { family: run.fontFamily ?? layer.family, style: run.fontStyle ?? (run.fontFamily ? "Regular" : layer.style) };
-      await at("fontFamily", () => text.setRangeFontName(start, end, font));
-    }
-    if (run.fontSize !== undefined) await at("fontSize", () => text.setRangeFontSize(start, end, Number(run.fontSize)));
-    if (run.fills !== undefined) {
-      const fills = await paintsIn(`runs[${i}].fills`, run.fills, (n) => variables.named(n));
-      await at("fills", () => text.setRangeFills(start, end, fills));
-    }
-    if (run.textCase !== undefined) await at("textCase", () => text.setRangeTextCase(start, end, run.textCase as TextCase));
-    if (run.letterSpacing !== undefined) await at("letterSpacing", () => text.setRangeLetterSpacing(start, end, dimension(run.letterSpacing) as LetterSpacing));
-    if (run.lineHeight !== undefined) await at("lineHeight", () => text.setRangeLineHeight(start, end, dimension(run.lineHeight) as LineHeight));
-    if (run.hyperlink !== undefined) {
-      await at("hyperlink", () => text.setRangeHyperlink(start, end, run.hyperlink as HyperlinkTarget));
-      // As on a file: a link is underlined unless it says otherwise.
-      if (run.textDecoration === undefined) await at("hyperlink", () => text.setRangeTextDecoration(start, end, "UNDERLINE"));
-    }
-    if (run.textDecoration !== undefined) await at("textDecoration", () => text.setRangeTextDecoration(start, end, run.textDecoration as TextDecoration));
-    start = end;
-  }
-}
-
-/** One paragraph a line: a list's kind and its indentation. */
-function paragraphs(text: TextNode, given: { listType?: string; indentation?: number }[]): void {
-  const lines = text.characters.split("\n");
-  if (given.length !== lines.length) {
-    throw new Error(`paragraphs: ${given.length} given for ${lines.length} lines of text; give one a line`);
-  }
-  let start = 0;
-  for (const [i, line] of lines.entries()) {
-    const end = start + line.length;
-    const paragraph = given[i];
-    if (end > start) {
-      if (paragraph.listType !== undefined) text.setRangeListOptions(start, end, { type: paragraph.listType as "NONE" | "ORDERED" | "UNORDERED" });
-      if (paragraph.indentation !== undefined) text.setRangeIndentation(start, end, paragraph.indentation);
-    }
-    start = end + 1;
-  }
 }
 
 /** A text's layer name by default: its first line, up to 40 characters. */
