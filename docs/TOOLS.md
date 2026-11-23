@@ -470,7 +470,7 @@ Components, variants and their properties, placed from rows of data.
 
 Turn a frame into a component, in place, keeping its children, so it can be reused: then place copies with create_instance (component: its id) and change what each copy shows with override_instance. Build the frame first (create_frame, create_text, create_vector, set_properties), then make it a component. A frame inside a component or an instance cannot be one.
 
-**On the open file in Figma, unlike on a file:** Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words.
+**On the open file in Figma, unlike on a file:** Figma makes the component and saves it, so the result has no `unsaved_edits`. Figma makes a new node for it: the component's id is new, the result's `id`, and the frame's (`replaces`) names nothing after; the layers inside keep theirs.
 
 | Argument | Type | | Description |
 |---|---|---|---|

@@ -43,6 +43,11 @@ pub const SET_PROPERTIES: &str = "Figma makes the change and saves it, so the re
 pub const WRITTEN: &str = "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one \
      call is one undo step there; what Figma refuses, a plan's limit included, is said in its words";
 
+/// What `create_component` does there.
+pub const CREATE_COMPONENT: &str = "Figma makes the component and saves it, so the result has no `unsaved_edits`. \
+     Figma makes a new node for it: the component's id is new, the result's `id`, and the frame's (`replaces`) names \
+     nothing after; the layers inside keep theirs";
+
 /// What `create_instance` does there.
 pub const CREATE_INSTANCE: &str = "Figma makes the instance and saves it, so the result has no `unsaved_edits`; \
      a library's component is placed from its node in the file, as Figma allows, and placing one the file does not \

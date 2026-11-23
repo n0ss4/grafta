@@ -105,6 +105,8 @@ export async function componentInstances(args: Args): Promise<unknown> {
 export async function createComponent(args: Args): Promise<unknown> {
   const node = await nodeFor(String(args.id));
   if (node.type !== "FRAME") throw new Error(`${node.id} is a ${node.type}: only a frame is made a component`);
+  // Figma makes a new node for the component: its id is not the frame's, which names nothing after.
+  const frame = node.id;
   const component = figma.createComponentFromNode(node);
   if (typeof args.name === "string") component.name = args.name;
   return {
@@ -112,7 +114,8 @@ export async function createComponent(args: Args): Promise<unknown> {
     name: component.name,
     type: component.type,
     children: component.children.length,
-    next: "create_instance with this id as the component; override_instance to change a copy",
+    replaces: frame,
+    next: `the frame ${frame} is now the component ${component.id}, a new id in Figma: use ${component.id} from here (its layers keep their ids); create_instance with it as the component`,
   };
 }
 
