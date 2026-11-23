@@ -116,15 +116,49 @@ export async function createShape(args: Args): Promise<unknown> {
   return created(node);
 }
 
-/** The box SVG path data is drawn in: the viewBox given, or the size asked. */
-function svgOf(args: Args): string {
+type Box = [number, number, number, number];
+
+/** The paths as SVG, drawn in `box` and scaled to `size` when both are given; as given otherwise. */
+function svgOf(args: Args, box?: Box, size?: [number, number]): string {
   const paths = Array.isArray(args.path) ? args.path.map(String) : [String(args.path)];
   const rule = args.fillRule === "EVENODD" ? "evenodd" : "nonzero";
   const escape = (d: string) => d.replace(/[<>&"]/g, "");
-  const box = Array.isArray(args.viewBox) ? (args.viewBox as number[]).join(" ") : undefined;
-  const size = [typeof args.width === "number" ? `width="${args.width}"` : "", typeof args.height === "number" ? `height="${args.height}"` : ""].join(" ");
+  const view = box ? `viewBox="${box.join(" ")}"` : "";
+  const sized = size ? `width="${size[0]}" height="${size[1]}"` : "";
   const body = paths.map((d) => `<path d="${escape(d)}" fill="black" fill-rule="${rule}"/>`).join("");
-  return `<svg xmlns="http://www.w3.org/2000/svg" ${box ? `viewBox="${box}"` : ""} ${size} preserveAspectRatio="none">${body}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" ${view} ${sized} preserveAspectRatio="none">${body}</svg>`;
+}
+
+function fromSvg(svg: string): FrameNode {
+  try {
+    return figma.createNodeFromSvg(svg);
+  } catch (error) {
+    throw new Error(`path: Figma could not read it as SVG path data: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+/** The box the paths are drawn in, as a file takes it: the viewBox given, or the drawing's own bounds, Figma's reading of them. */
+function boxOf(args: Args): Box {
+  if (Array.isArray(args.viewBox)) return args.viewBox as Box;
+  const frame = fromSvg(svgOf(args));
+  try {
+    const drawn = frame.findAll((n) => n.type === "VECTOR") as VectorNode[];
+    if (!drawn.length) throw new Error("path: Figma drew nothing from it");
+    const [x0, y0] = [Math.min(...drawn.map((v) => v.x)), Math.min(...drawn.map((v) => v.y))];
+    const [x1, y1] = [Math.max(...drawn.map((v) => v.x + v.width)), Math.max(...drawn.map((v) => v.y + v.height))];
+    return [x0, y0, x1 - x0, y1 - y0];
+  } finally {
+    frame.remove();
+  }
+}
+
+/** The size the box is drawn at, as a file takes it: width and height, or one and the box's ratio, or the box's own. */
+function sizeOf(args: Args, box: Box): [number, number] {
+  const [w, h] = [typeof args.width === "number" ? args.width : undefined, typeof args.height === "number" ? args.height : undefined];
+  if (w !== undefined && h !== undefined) return [w, h];
+  if (w !== undefined) return [w, (w * box[3]) / box[2]];
+  if (h !== undefined) return [(h * box[2]) / box[3], h];
+  return [box[2], box[3]];
 }
 
 /**
@@ -142,12 +176,9 @@ export async function createVector(args: Args): Promise<unknown> {
       : args.fills !== undefined
         ? []
         : [{ type: "SOLID", color: { r: 0, g: 0, b: 0 } } as SolidPaint];
-  let frame: FrameNode;
-  try {
-    frame = figma.createNodeFromSvg(svgOf(args));
-  } catch (error) {
-    throw new Error(`path: Figma could not read it as SVG path data: ${error instanceof Error ? error.message : String(error)}`);
-  }
+  // As on a file: the box is scaled to the size asked, so a 24 px icon asked at 48 is drawn at 48.
+  const box = boxOf(args);
+  const frame = fromSvg(svgOf(args, box, sizeOf(args, box)));
   let vector: VectorNode;
   try {
     const drawn = frame.findAll((n) => n.type === "VECTOR") as VectorNode[];
