@@ -19,7 +19,7 @@ impl Tool for CreateComponent {
         "create_component"
     }
     fn live(&self) -> Live {
-        Live::Differs(super::live::WRITTEN)
+        Live::Differs(super::live::CREATE_COMPONENT)
     }
     fn description(&self) -> &'static str {
         "Turn a frame into a component, in place, keeping its children, so it can be reused: \

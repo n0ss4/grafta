@@ -913,7 +913,7 @@
       },
       "live": "differs",
       "name": "create_component",
-      "why": "Figma makes the change and saves it, so the result has no `unsaved_edits`, and one call is one undo step there; what Figma refuses, a plan's limit included, is said in its words"
+      "why": "Figma makes the component and saves it, so the result has no `unsaved_edits`. Figma makes a new node for it: the component's id is new, the result's `id`, and the frame's (`replaces`) names nothing after; the layers inside keep theirs"
     },
     {
       "input_schema": {
