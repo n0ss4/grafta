@@ -23,7 +23,9 @@ impl Tool for SetProperties {
         "Change a frame, instance or text layer you created, using read_node's names: x, y, width, height, name, \
          visible, clipsContent (clip children to the frame), auto-layout (layoutMode NONE | \
          HORIZONTAL | VERTICAL, itemSpacing, counterAxisSpacing, padding or paddingTop/Right/\
-         Bottom/Left, primaryAxisSizingMode and counterAxisSizingMode FIXED | AUTO, \
+         Bottom/Left, primaryAxisSizingMode and counterAxisSizingMode FIXED | AUTO (a frame \
+         given layoutMode alone hugs its children along that axis, as in Figma: give \
+         primaryAxisSizingMode FIXED to keep its size), \
          primaryAxisAlignItems MIN | CENTER | MAX | SPACE_BETWEEN, counterAxisAlignItems MIN | \
          CENTER | MAX, layoutWrap), a child's layoutGrow (0 | 1), layoutAlign (INHERIT | \
          STRETCH) and layoutPositioning (AUTO | ABSOLUTE), fills and strokes (SOLID paints: \
