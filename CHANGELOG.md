@@ -4,6 +4,35 @@ What changed for someone using grafta, newest first. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.6.0](https://github.com/n0ss4/grafta/compare/v0.5.0...v0.6.0) (2026-11-23)
+
+
+### Added
+
+* check_contrast on the open Figma file, over Figma's own drawing (122) ([#89](https://github.com/n0ss4/grafta/issues/89)) ([69d3299](https://github.com/n0ss4/grafta/commit/69d32990b7ea9f37f0131aed82a97d3c55743062))
+* components, variables and styles on the open Figma file (114, phase 4) ([#77](https://github.com/n0ss4/grafta/issues/77)) ([627d791](https://github.com/n0ss4/grafta/commit/627d791638a708b6dae1721be1451f90f47d5393))
+* grafta's panel in Figma reads and changes the open file (114, phase 3) ([#76](https://github.com/n0ss4/grafta/issues/76)) ([7e96c38](https://github.com/n0ss4/grafta/commit/7e96c3825d9ebdaf1ead128f2e3463ebf5ad8a2d))
+* the bridge and the port for the open Figma file (114, phase 2) ([#75](https://github.com/n0ss4/grafta/issues/75)) ([97c8a75](https://github.com/n0ss4/grafta/commit/97c8a75fbd9e1af534af7580844645bc0b136a15))
+* the Figma panel's new look (114) ([#80](https://github.com/n0ss4/grafta/issues/80)) ([48d33bd](https://github.com/n0ss4/grafta/commit/48d33bd5ee9e272654e5aab6174a21051a09d041))
+* the panel and grafta check they speak the same protocol ([#82](https://github.com/n0ss4/grafta/issues/82)) ([1e50450](https://github.com/n0ss4/grafta/commit/1e504507b141bd650ddce1ee590388f7e6fdb2c5))
+* the panel v2: requests before and after, revert, Ask me first, protected layers ([#83](https://github.com/n0ss4/grafta/issues/83)) ([b346eb0](https://github.com/n0ss4/grafta/commit/b346eb05d99f4c5cc95e811b50989b8165f5ff8a))
+* the rest of the tools on the open Figma file, and the self-test (114, phase 5) ([#78](https://github.com/n0ss4/grafta/issues/78)) ([7fdfee4](https://github.com/n0ss4/grafta/commit/7fdfee43bf123329f52a25b905bf34659a76c692))
+
+
+### Fixed
+
+* a bound paint keeps its opacity when set on the open Figma file (131) ([#94](https://github.com/n0ss4/grafta/issues/94)) ([86a83ef](https://github.com/n0ss4/grafta/commit/86a83effe04f1b9c1615e48b49715404ff906a47))
+* a component's own layer deleted when only instances' caches name it (125) ([#92](https://github.com/n0ss4/grafta/issues/92)) ([0f25a00](https://github.com/n0ss4/grafta/commit/0f25a00ebb3686b7babe49e004e6752f8fad47d7))
+* a Figma plan's mode limit said plainly on the open file (124) ([#88](https://github.com/n0ss4/grafta/issues/88)) ([8150ad4](https://github.com/n0ss4/grafta/commit/8150ad49d43792da13d4e26a3f2cdac99b8a6bac))
+* a paint bound by its variable alone on the open Figma file (120) ([#86](https://github.com/n0ss4/grafta/issues/86)) ([f54102c](https://github.com/n0ss4/grafta/commit/f54102c95ce16fc1f21da02ca320d35db8e80da6))
+* a text's line height and sizing read and written as Figma does (116) ([#81](https://github.com/n0ss4/grafta/issues/81)) ([650e468](https://github.com/n0ss4/grafta/commit/650e468ff8a50d4c9722b6f1284458d7af65a62a))
+* a vector scaled to its box on the open Figma file (129) ([#90](https://github.com/n0ss4/grafta/issues/90)) ([e1ea97e](https://github.com/n0ss4/grafta/commit/e1ea97edc527410627337e3d777452def34e1029))
+* a vector's constraints at Figma's default on the open file (130) ([#91](https://github.com/n0ss4/grafta/issues/91)) ([19c32a1](https://github.com/n0ss4/grafta/commit/19c32a14db675208235db9cc6e510ba20495f5f5))
+* a vector's stroke centred on its path in the open Figma file (118) ([#85](https://github.com/n0ss4/grafta/issues/85)) ([c030c1d](https://github.com/n0ss4/grafta/commit/c030c1db67d35bca99c76e0f9ece3b428c76849c))
+* create_component on the open Figma file says the component's new id (127) ([#93](https://github.com/n0ss4/grafta/issues/93)) ([d494eb0](https://github.com/n0ss4/grafta/commit/d494eb0ffd1f1d9acdfe986dc272f0de333443d9))
+* rich text, lists and component properties on the open Figma file (117) ([#84](https://github.com/n0ss4/grafta/issues/84)) ([0b479c6](https://github.com/n0ss4/grafta/commit/0b479c6912a7766bb62364734d76bbddbf478c78))
+* set_properties says a frame given layoutMode alone hugs its children (121) ([#87](https://github.com/n0ss4/grafta/issues/87)) ([60a6627](https://github.com/n0ss4/grafta/commit/60a6627ce27b9950c1089c8799b3c490ca151d40))
+
 ## [0.5.0](https://github.com/n0ss4/grafta/compare/v0.4.0...v0.5.0) (2026-11-11)
 
 
