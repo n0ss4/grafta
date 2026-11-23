@@ -58,7 +58,7 @@ The screens of a page, as a person sees them in Figma, in their order: a page's 
 
 ### `search_nodes`
 
-Find nodes by name (case-insensitive substring), by type (FRAME, TEXT, INSTANCE, COMPONENT, COMPONENT_SET, PAGE, SECTION, GROUP, RECTANGLE, VECTOR, …), or both, optionally only inside one node. Returns id, name, type and the path from the page, in document order, paged. Hidden nodes are included.
+Find nodes by name (case-insensitive substring), by type (FRAME, TEXT, INSTANCE, COMPONENT, COMPONENT_SET, PAGE, SECTION, GROUP, RECTANGLE, VECTOR, …), by what a text layer says, by a style or variable a layer uses (by name, its own or a run of its text's), or by the component an instance is of (its id, or its component's or set's name). Every criterion given must match; names and text match as case-insensitive substrings. Optionally only inside one node. Returns id, name, type and the path from the page, in document order, paged. Hidden nodes are included.
 
 **On the open file in Figma, unlike on a file:** the open file is searched a page at a time, within a time budget: `total` counts the matches on the pages searched so far, `pages_searched` of `pages` says how far it went, and `next_cursor` goes on to the rest.
 
@@ -66,10 +66,14 @@ Find nodes by name (case-insensitive substring), by type (FRAME, TEXT, INSTANCE,
 |---|---|---|---|
 | `handle` | string | required | The handle open_file returned. |
 | `budget` | integer, 1024–98304 |  | Maximum result size in bytes. Default 32768. |
+| `component` | string |  | Instances of this component: its id, or a case-insensitive substring of its name or its component set's name. |
 | `cursor` | string |  | next_cursor from the previous page. |
 | `limit` | integer, 1–1000 |  | Results per page. |
 | `name` | string |  | Case-insensitive substring of the node name. |
+| `style` | string |  | Case-insensitive substring of the name of a fill, stroke, text or effect style the layer uses, or a run of its text. |
+| `text` | string |  | Case-insensitive substring of a text layer's characters. |
 | `type` | string |  | Node type, in the plugin API's spelling. |
+| `variable` | string |  | Case-insensitive substring of the name of a variable the layer binds, in any field or paint, or a run of its text. |
 | `within` | string |  | Only search inside this node id (a page, a frame…). |
 
 ### `list_open`

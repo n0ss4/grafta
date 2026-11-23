@@ -109,6 +109,36 @@ fn search_finds_by_name_and_type_with_a_path() {
 }
 
 #[test]
+fn search_finds_by_what_a_text_says_and_the_component_an_instance_is_of() {
+    let (mut kit, handle) = kit();
+    let ids = |out: &Value| out["results"].as_array().unwrap().iter().map(|r| r["id"].as_str().unwrap().to_string()).collect::<Vec<_>>();
+    let out = call(&mut kit, "search_nodes", json!({ "handle": handle, "text": "HOL" })).unwrap();
+    assert_eq!(ids(&out), ["1:3"]);
+    let out = call(&mut kit, "search_nodes", json!({ "handle": handle, "component": "play" })).unwrap();
+    assert_eq!(ids(&out), ["1:42"]);
+    let out = call(&mut kit, "search_nodes", json!({ "handle": handle, "component": "1:4" })).unwrap();
+    assert_eq!(ids(&out), ["1:5"]);
+    let out = call(&mut kit, "search_nodes", json!({ "handle": handle, "text": "chip", "name": "title" })).unwrap();
+    assert_eq!(out["total"], 0, "every criterion given must match");
+}
+
+#[test]
+fn search_finds_by_the_style_and_the_variable_a_layer_uses() {
+    let (mut kit, handle) = kit();
+    let ids = |out: &Value| out["results"].as_array().unwrap().iter().map(|r| r["id"].as_str().unwrap().to_string()).collect::<Vec<_>>();
+    call(&mut kit, "create_style", json!({ "handle": handle, "name": "Heading/Bold", "type": "TEXT", "fontFamily": "Inter", "fontStyle": "Bold", "fontSize": 18 })).unwrap();
+    set(&mut kit, &handle, "1:3", json!({ "textStyle": "Heading/Bold" })).unwrap();
+    set(&mut kit, &handle, "1:2", json!({ "fills": [{ "type": "SOLID", "variable": "primary/500" }] })).unwrap();
+    set(&mut kit, &handle, "1:41", json!({ "runs": [{ "characters": "Ch" }, { "characters": "ip", "fills": [{ "type": "SOLID", "variable": "primary/500" }] }] })).unwrap();
+    let out = call(&mut kit, "search_nodes", json!({ "handle": handle, "style": "bold" })).unwrap();
+    assert_eq!(ids(&out), ["1:3"]);
+    let out = call(&mut kit, "search_nodes", json!({ "handle": handle, "variable": "PRIMARY" })).unwrap();
+    assert_eq!(ids(&out), ["1:2", "1:41"]);
+    let out = call(&mut kit, "search_nodes", json!({ "handle": handle, "variable": "spacing" })).unwrap();
+    assert_eq!(out["total"], 0);
+}
+
+#[test]
 fn a_search_with_no_match_says_zero_rather_than_nothing() {
     let (mut kit, handle) = kit();
     let out = call(&mut kit, "search_nodes", json!({ "handle": handle, "name": "nope" })).unwrap();
