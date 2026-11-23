@@ -77,6 +77,9 @@ pub trait ImageSource: Send + Sync {
 pub trait Rasterizer: Send + Sync {
     fn render(&self, fig: &FigFile, graph: &SceneGraph, id: Guid, scale: f32, max_size: u32) -> Result<Rendered, RenderError>;
     fn contrast(&self, fig: &FigFile, graph: &SceneGraph, id: Guid) -> Result<Vec<Contrast>, RenderError>;
+    /// Texts measured against a PNG of what is behind them drawn elsewhere (by
+    /// Figma, of a file open there), at `scale` pixels per unit.
+    fn contrast_over(&self, picture: &[u8], scale: f32, samples: Vec<TextSample>) -> Result<Vec<Contrast>, RenderError>;
     fn pdf(&self, fig: &FigFile, graph: &SceneGraph, ids: &[Guid]) -> Result<Pdf, RenderError>;
     fn blank_png(&self, width: u32, height: u32, rgba: [f32; 4]) -> Result<Vec<u8>, RenderError>;
     fn measure_text(&self, fig: &FigFile, graph: &SceneGraph, node: &SceneNode) -> Option<TextBox>;

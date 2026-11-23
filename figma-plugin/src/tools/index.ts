@@ -14,6 +14,7 @@ import { createFrame, createPage, createSection, createShape, createText, create
 import { getImage, summarize } from "./file";
 import { listScreens, searchNodes } from "./find";
 import { Args, Names, nodeFor, pathOf } from "./nodes";
+import { checkContrast } from "./contrast";
 import { listOpen, renderNode } from "./session";
 import { setProperties } from "./set";
 import { deleteNode, duplicateNode, groupNodes, moveNode, ungroup } from "./structure";
@@ -47,6 +48,7 @@ export const REGISTRY: Record<string, ToolFunction | undefined> = {
   list_screens: listScreens,
   set_properties: setProperties,
   render_node: renderNode,
+  check_contrast: checkContrast,
   list_components: listComponents,
   component_instances: componentInstances,
   create_component: createComponent,
