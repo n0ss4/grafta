@@ -1,7 +1,7 @@
 // Rich text on the open file: runs styled apart and paragraphs as lists, as
 // create_text and set_properties take them on a file, and what a text held
 // before, kept so that a refused call can put it back.
-import { paintsIn } from "./paint";
+import { inLayersMode, paintsIn } from "./paint";
 
 export type Run = {
   characters: string;
@@ -59,7 +59,7 @@ export async function styleRuns(text: TextNode, runs: Run[], layer: FontName, na
     if (run.fontSize !== undefined) await at("fontSize", () => text.setRangeFontSize(start, end, Number(run.fontSize)));
     if (run.fills !== undefined) {
       const fills = await paintsIn(`runs[${i}].fills`, run.fills, named);
-      await at("fills", () => text.setRangeFills(start, end, fills));
+      await at("fills", () => text.setRangeFills(start, end, inLayersMode(text, fills)));
     }
     if (run.textCase !== undefined) await at("textCase", () => text.setRangeTextCase(start, end, run.textCase as TextCase));
     if (run.letterSpacing !== undefined) await at("letterSpacing", () => text.setRangeLetterSpacing(start, end, dimension(run.letterSpacing) as LetterSpacing));
