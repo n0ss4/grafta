@@ -17,26 +17,27 @@
 </p>
 
 <p align="center">
-  <a href="https://n0ss4.github.io/grafta/">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hero-dark.webp">
-      <img src=".github/readme/hero-light.webp" width="100%" alt="grafta's home page: Talk to your Figma. Below, an AI app asked to make a music player's play button round and coral; grafta opens player.fig, reads the screen, changes the button and draws it to check. Its corners go from 18 to 36 and its fill from Ink to the file's Accent variable.">
-    </picture>
-  </a>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/talk-dark.webp">
+    <img src=".github/readme/talk-light.webp" width="100%" alt="Three requests to an AI app, each with the grafta tools it called. What's in order.fig? An order tracking card, 360 wide, with 9 colour variables in Light and Dark, and its picture. Make it light, and check the contrast: the card in its Light mode, 9 of 9 texts pass WCAG AA, saved as order-light.fig. Now turn it into code: CSS with the card's sizes and its variables.">
+  </picture>
+  <br>
+  <sub>The sample file, <a href="https://n0ss4.github.io/grafta/sample/order.fig">order.fig</a>. The pictures and the contrast result are grafta's own; the code is an example of what a model writes from them.</sub>
 </p>
 
-grafta connects your AI to Figma. Ask it what's in a design, change it, or turn it into code. It reads and writes Figma files exactly, on your computer, with no internet. With [its panel](#in-figma) in Figma's desktop app, it works on the file you have open too, and you see each change as it is made.
+**Talk to your Figma files through the AI you already use.** Ask Claude, ChatGPT, Cursor or OpenCode what's in a design, ask it to change something, or to turn it into code. You write in words; grafta is what lets your AI open the file, read it exactly and change it.
 
-It works with Claude Desktop, Claude Code, ChatGPT desktop, Codex, Cursor, VS Code, OpenCode and any app that speaks [MCP](https://modelcontextprotocol.io) over stdio, with any model it runs.
+There is nothing new to learn and no editor to open. grafta works on your computer, with no internet and no Figma account. With [its panel](#in-figma) in Figma's desktop app, your AI works on the file you have open too, and you see each change as it is made.
 
 ## What you get
 
-- **Exact values.** Every figure is read from the file's bytes: no heuristics, no model, no network. Your AI works from the real values and never guesses.
-- **45 tools.** Open a file, read every node, colour, variable and component, change it, draw it to check, and save a new file that Figma opens.
-- **Every Figma product.** Figma Design (`.fig`), Slides (`.deck`), FigJam (`.jam`) and Sites (`.site`), each file opened in its product to prove it.
-- **Your files stay yours.** `save_as` never writes over a file and reads back what it wrote. Unsaved edits survive a restart.
-- **It says what it left out.** A cut result names what is missing; a picture names what it drew approximately. Nothing is dropped silently.
-- **Open.** MIT licence, no account, no API key.
+- **Ask what's in a design.** Its screens, colours, variables and components, explained in plain words.
+- **Change it by asking.** Colours, text, layout, a dark mode, a new screen. Your AI draws the result to check it before it says it is done.
+- **Turn it into code.** In your stack, with the file's exact sizes, colours and icons.
+- **Never guessed.** Every value comes from the file itself. When grafta leaves something out, it says so.
+- **Your files stay yours.** It never writes over a file: changes are saved as a new one, and nothing leaves your computer through grafta.
+- **Every Figma product.** Figma Design, Slides, FigJam and Sites files.
+- **Free and open source.** MIT licence, no account, no API key.
 
 ## Install
 
