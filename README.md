@@ -19,7 +19,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/talk-dark.webp">
-    <img src=".github/readme/talk-light.webp" width="100%" alt="Three requests to an AI app about a music player design, each with the grafta tools it called. Make the play button round and coral: done, with the file's Accent colour. Make it light, can every text be read: all five texts pass WCAG AA. Make this screen a web page: the page, with the design's colours and sizes.">
+    <img src=".github/readme/talk-light.webp" width="100%" alt="Three requests to an AI app about a music player design, each with the grafta tools it called. Make the play button round and coral: done, with the file's Accent colour. Make it light, can every text be read: all five texts pass WCAG AA. Make this screen a web page: the page, player.html, in a browser window, with the design's colours and sizes.">
   </picture>
 </p>
 
