@@ -1,13 +1,12 @@
 <p align="center">
   <a href="https://n0ss4.github.io/grafta/">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="docs/brand/logo-dark.svg">
-      <img src="docs/brand/logo-light.svg" alt="grafta" height="64">
-    </picture>
+    <img src="docs/brand/icon-512.png" width="80" height="80" alt="grafta logo" />
   </a>
 </p>
 
-<p align="center"><b>Talk to your Figma.</b></p>
+<h1 align="center">grafta</h1>
+
+<p align="center">Talk to your Figma.</p>
 
 <p align="center">
   <a href="#install"><strong>Install</strong></a>&ensp;
