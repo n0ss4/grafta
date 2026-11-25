@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-// internal:specs/104: getting grafta, from the page.
+// Getting grafta, from the page.
 
 test("the section offers the apps in two groups, Claude Desktop first, and its download", async ({
   page,

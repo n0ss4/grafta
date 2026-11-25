@@ -25,7 +25,7 @@ export const meta: Route.MetaFunction = () => [
 
 /**
  * A Figma file opened in the page: grafta's reader, compiled to WebAssembly,
- * reads it in a worker and draws its screens (internal: specs/109).
+ * reads it in a worker and draws its screens.
  */
 export default function OpenPage() {
   return (
