@@ -381,7 +381,7 @@ const AUTO: Dimension = Dimension { value: 100.0, unit: NumberUnits::Percent };
 /// PERCENT }` or `{ unit: AUTO }`), as Figma stores it: *Auto* as
 /// `{ PERCENT, 100 }`, a percentage as a multiple of the size (`RAW`). Of
 /// 120,000 texts in eight files, 8,121 store `PERCENT`, every one 100, and
-/// 1,939 store a percentage as `RAW` 0.9 to 1.6 (row 116).
+/// 1,939 store a percentage as `RAW` 0.9 to 1.6.
 fn line_height(name: &str, value: &Data) -> Result<Dimension, ToolError> {
     if let Data::Map(map) = value {
         match map.get("unit").and_then(Data::as_str) {

@@ -5,7 +5,7 @@
 //! event and its actions. 77,145 were measured in four fixtures, nearly all
 //! interactive components changing to another variant (`SWAP_STATE`, the
 //! plugin API's `CHANGE_TO`). Names are mapped where the file and the plugin
-//! API are known to mean the same thing (specs/107, research R1). Where they
+//! API are known to mean the same thing. Where they
 //! are not yet known, a directional transition or a spring, the file's own
 //! name is given, never a guess; a field this module does not map is shown
 //! under `notModelled`, as stored.

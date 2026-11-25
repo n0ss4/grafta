@@ -80,7 +80,7 @@ skrifa = "0.42"
 # Variant property ids are SHA-1 of the property's name.
 sha1 = "0.10"
 # The bridge to the files open in Figma (crates/adapters/bridge alone): a
-# WebSocket server, no client, no TLS. Measured by row 114 (research M5):
+# WebSocket server, no client, no TLS. Measured:
 # +322 KB in the release binary, nothing in the browser's.
 tokio-tungstenite = { version = "0.30", default-features = false, features = ["handshake"] }
 futures-util = { version = "0.3", default-features = false, features = ["sink"] }
@@ -134,7 +134,7 @@ opt-level = 3
 opt-level = 3
 
 # The browser reader (scripts/web-reader.sh): small before fast, as every byte
-# is downloaded. Measured by row 102's probe: 3.9 MB raw, 1.6 MB gzip.
+# is downloaded. Measured: 3.9 MB raw, 1.6 MB gzip.
 [profile.wasm]
 inherits = "release"
 opt-level = "z"

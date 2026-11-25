@@ -1016,7 +1016,7 @@ fn a_text_colour_binds_to_a_local_variable() {
 
 /// A line height is stored as Figma stores it, and read as Figma reads it:
 /// a percentage as a multiple of the size (`RAW`), *Auto* as `{ PERCENT, 100 }`,
-/// left out of `read_node` as Figma's default (row 116).
+/// left out of `read_node` as Figma's default.
 #[test]
 fn a_line_height_is_stored_and_read_as_figma_does() {
     let (mut kit, handle) = kit();
@@ -5134,8 +5134,8 @@ mod sites;
 
 /// Figma stores a line height's *Auto* as `{ PERCENT, 100 }` and a percentage
 /// as `RAW`: in every fixture a `PERCENT` line height is 100, on a layer, a
-/// style or a run, and the reader shows it as Figma does, by leaving it out
-/// (row 116). 8,121 texts of eight files store it so; 1,939 store `RAW`.
+/// style or a run, and the reader shows it as Figma does, by leaving it out.
+/// 8,121 texts of eight files store it so; 1,939 store `RAW`.
 #[test]
 fn a_stored_percent_line_height_is_auto() {
     use schema::{Field, NumberUnits, Wire};
@@ -5171,7 +5171,7 @@ fn a_stored_percent_line_height_is_auto() {
 }
 
 /// Every interaction of the four fixtures holding them read as a reaction,
-/// counted by kind against the census of specs/107 (SC-001).
+/// counted by kind against a census taken of them.
 #[test]
 fn every_stored_interaction_reads_as_a_reaction() {
     use std::collections::BTreeMap;

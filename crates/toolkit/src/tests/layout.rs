@@ -92,8 +92,8 @@ fn a_nested_hugging_frame_is_sized_before_its_parent_uses_it() {
 }
 
 /// A text that grows in a file's own hugging frames grows each of them, up to
-/// the outermost, as Figma lays them out: not only the frame holding it (row
-/// 116: `order.fig`'s Card kept its height when its texts grew).
+/// the outermost, as Figma lays them out: not only the frame holding it (a
+/// card kept its height when its texts grew).
 #[test]
 fn a_grown_text_grows_every_hugging_frame_around_it() {
     let (mut kit, h) = kit();
