@@ -1,4 +1,4 @@
-//! The calls grafta's panel runs in Figma as its self-test (spec 114, the
+//! The calls grafta's panel runs in Figma as its self-test (its
 //! ladder), run here on `order.fig`, the sample the web app opens, and
 //! recorded for the panel to compare with what Figma answers: every result's
 //! keys, and for a call marked `values`, a read of the sample's own layers,

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-// internal:specs/109: a Figma file opened in the page, nothing sent.
+// A Figma file opened in the page, nothing sent.
 const FILE_INPUT = 'input[type="file"][accept=".fig,.deck,.jam,.site"]';
 
 test("the sample opens: its page, its screen drawn, and nothing leaves the browser", async ({ page }) => {

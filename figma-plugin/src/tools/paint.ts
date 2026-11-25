@@ -159,7 +159,7 @@ const boundTo = new WeakMap<Paint, Variable>();
  * A bound paint with the colour its variable has in the mode the layer is shown
  * in: Figma draws the colour stored beside the binding until a mode change makes
  * it resolve again, so a paint stored with the first mode's colour inside a frame
- * shown in another mode drew the wrong one (row 132).
+ * shown in another mode drew the wrong one.
  */
 export function inLayersMode(target: object, paints: readonly Paint[]): Paint[] {
   if (!("resolvedVariableModes" in target)) return [...paints];

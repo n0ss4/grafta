@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-// internal:specs/105: a tool reference to find your way in.
+// A tool reference to find your way in.
 
 test("every tool is one closed line, by family, with what it does and its arguments", async ({ page }) => {
   await page.goto("tools/");

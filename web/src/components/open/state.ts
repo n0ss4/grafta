@@ -1,7 +1,7 @@
-// The page's states and their moves (internal: specs/109-open-in-browser/data-model.md).
+// The page's states and their moves.
 import type { Summary } from "./protocol";
 
-/** A file larger than this is refused before it is read (row 102). */
+/** A file larger than this is refused before it is read. */
 export const MAX_BYTES = 512 * 1024 * 1024;
 
 export type State =
