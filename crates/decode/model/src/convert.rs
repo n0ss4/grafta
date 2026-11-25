@@ -280,7 +280,7 @@ fn dimension(v: &Value) -> Option<Dimension> {
 /// A line height as Figma reads it. Figma stores *Auto* as `{ PERCENT, 100 }`
 /// and a percentage as a multiple of the size, `RAW`: of 120,000 texts in
 /// eight files, 8,121 store `PERCENT` and every one of them 100, and 1,939 store
-/// `RAW` 0.9 to 1.6 (row 116). So `{ PERCENT, 100 }` is *Auto*, read as no
+/// `RAW` 0.9 to 1.6. So `{ PERCENT, 100 }` is *Auto*, read as no
 /// line height, the font's own; and `RAW` is the percentage Figma shows.
 /// Another `PERCENT`, which no file Figma saved holds, is read as written.
 fn line_height(v: &Value) -> Option<Dimension> {

@@ -1,20 +1,20 @@
 import { faq } from "~/content/faq";
 import { Rich } from "../Rich";
+import { Band, headingClass, Wrap } from "./Section";
 
 /** Questions as native details: readable and operable without a script. */
 export function Questions() {
   return (
-    <section id="faq" aria-labelledby="faq-title" className="px-4 py-24 lg:px-0 lg:py-32">
-      <div className="grid grid-cols-4 lg:grid-cols-8">
-        <div className="col-span-4 lg:col-span-3 lg:col-start-2">
-          <h2
-            id="faq-title"
-            className="mt-6 text-[36px] leading-[1.1] font-normal tracking-[-0.03em] sm:text-[48px]"
-          >
-            Asked before installing.
+    <Band id="faq" labelledBy="faq-title">
+      <Wrap className="grid gap-10 lg:grid-cols-2 lg:gap-16">
+        <div>
+          <h2 id="faq-title" className={headingClass}>
+            Asked before
+            <br />
+            installing
           </h2>
         </div>
-        <div className="col-span-4 mt-10 lg:col-span-3 lg:col-start-5 lg:mt-0">
+        <div>
           {faq.map((entry) => (
             <details key={entry.question} className="group border-t border-line py-5 last:border-b">
               <summary className="flex cursor-pointer list-none items-baseline justify-between gap-6 text-[17px] font-medium marker:hidden">
@@ -29,7 +29,7 @@ export function Questions() {
             </details>
           ))}
         </div>
-      </div>
-    </section>
+      </Wrap>
+    </Band>
   );
 }

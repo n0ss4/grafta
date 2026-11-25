@@ -144,6 +144,10 @@
             "minimum": 1024,
             "type": "integer"
           },
+          "component": {
+            "description": "Instances of this component: its id, or a case-insensitive substring of its name or its component set's name.",
+            "type": "string"
+          },
           "cursor": {
             "description": "next_cursor from the previous page.",
             "type": "string"
@@ -162,8 +166,20 @@
             "description": "Case-insensitive substring of the node name.",
             "type": "string"
           },
+          "style": {
+            "description": "Case-insensitive substring of the name of a fill, stroke, text or effect style the layer uses, or a run of its text.",
+            "type": "string"
+          },
+          "text": {
+            "description": "Case-insensitive substring of a text layer's characters.",
+            "type": "string"
+          },
           "type": {
             "description": "Node type, in the plugin API's spelling.",
+            "type": "string"
+          },
+          "variable": {
+            "description": "Case-insensitive substring of the name of a variable the layer binds, in any field or paint, or a run of its text.",
             "type": "string"
           },
           "within": {

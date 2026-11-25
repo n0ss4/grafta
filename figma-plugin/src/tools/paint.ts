@@ -94,7 +94,10 @@ export async function paintsIn(at: string, given: unknown, variables: (name: str
       const color = p.color === undefined ? await firstModeColour(`${where}.variable`, bound as Variable) : parseHex(`${where}.color`, p.color);
       let paint: SolidPaint = { type: "SOLID", color: { r: color.r, g: color.g, b: color.b }, ...defined(common) };
       if (color.a < 1 && common.opacity === undefined) paint = { ...paint, opacity: color.a };
-      if (bound) paint = figma.variables.setBoundVariableForPaint(paint, "color", bound);
+      if (bound) {
+        paint = figma.variables.setBoundVariableForPaint(paint, "color", bound);
+        boundTo.set(paint, bound);
+      }
       out.push(paint);
     } else if (type.startsWith("GRADIENT_")) {
       if (!Array.isArray(p.gradientStops)) throw new Error(`${where}.gradientStops: expected an array of { position, color, opacity? }`);
@@ -149,7 +152,36 @@ async function firstModeColour(at: string, variable: Variable): Promise<RGBA> {
  * the opacity of a paint bound to a colour variable the first time one goes
  * where none was bound, and keeping it the second: set again when it did.
  */
-export function setPaints(target: Record<string, unknown>, key: string, paints: readonly Paint[]): void {
+/** The variable each bound paint `paintsIn` made is bound to, to resolve it for the layer it is set on. */
+const boundTo = new WeakMap<Paint, Variable>();
+
+/**
+ * A bound paint with the colour its variable has in the mode the layer is shown
+ * in: Figma draws the colour stored beside the binding until a mode change makes
+ * it resolve again, so a paint stored with the first mode's colour inside a frame
+ * shown in another mode drew the wrong one.
+ */
+export function inLayersMode(target: object, paints: readonly Paint[]): Paint[] {
+  if (!("resolvedVariableModes" in target)) return [...paints];
+  const consumer = target as unknown as SceneNode;
+  return paints.map((paint) => {
+    const variable = boundTo.get(paint);
+    if (!variable || paint.type !== "SOLID") return paint;
+    let value: VariableValue | undefined;
+    try {
+      value = variable.resolveForConsumer(consumer).value;
+    } catch {
+      return paint;
+    }
+    if (typeof value !== "object" || value === null || !("r" in value)) return paint;
+    const { r, g, b } = value;
+    if (r === paint.color.r && g === paint.color.g && b === paint.color.b) return paint;
+    return figma.variables.setBoundVariableForPaint({ ...paint, color: { r, g, b } }, "color", variable);
+  });
+}
+
+export function setPaints(target: Record<string, unknown>, key: string, given: readonly Paint[]): void {
+  const paints = inLayersMode(target, given);
   target[key] = paints;
   const kept = () => {
     const now = target[key];

@@ -65,9 +65,6 @@ What grafta produces is generated, never typed in, and checked:
 
 ```bash
 python3 scripts/tool-reference.py target/release/grafta   # docs/TOOLS.md and web/src/generated/tools.json; CI checks them
-scripts/sessions.sh --inputs <dir> path/to/any.fig         # the files the site's sessions are recorded on (needs Chrome)
-scripts/record-code.sh <work dir> docs/showcase/recordings/075   # the sessions, recorded in Claude Code
-python3 docs/showcase/transcripts_site.py docs/showcase/recordings/075 web   # the recordings into the site
 ```
 
 ## Branches and commits

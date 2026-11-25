@@ -1,4 +1,4 @@
-// The self-test, the ladder of spec 114: the calls recorded on order.fig by
+// The self-test, a ladder: the calls recorded on order.fig by
 // crates/toolkit/tests/selftest.rs, run here on a copy of order.fig open in
 // Figma, each answer compared with the file's: its keys, and for a read of the
 // sample's own layers, its values. What it made is removed after, and the
@@ -172,7 +172,7 @@ export async function selftest(): Promise<{ rows: Row[]; left: string[] }> {
   return { rows, left };
 }
 
-/** The table, as Markdown, for specs/114-figma-bridge/ladder/README.md as it is. */
+/** The table, as Markdown, for the ladder's README as it is. */
 export function table(rows: Row[], left: string[]): string {
   const cell = (text: string) => text.replace(/\|/g, "\\|").replace(/\n/g, " ");
   const counts = ["same", "differs", "refused", "not run"].map((o) => `${rows.filter((r) => r.outcome === o).length} ${o}`).join(", ");

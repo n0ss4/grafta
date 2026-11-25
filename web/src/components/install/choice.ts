@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { clients } from "~/content/clients";
 
-// The way in a visitor chose, shared by the install section and the dialog, and
+// The way in a visitor chose, shared by the install section's steps, and
 // kept for the visit. Without storage (private windows, blocked site data) it
 // still works, for the page's life.
 const KEY = "grafta:way-in";

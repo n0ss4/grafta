@@ -1,18 +1,20 @@
 import { Page } from "~/components/chrome/Page";
-import { Hero } from "~/components/hero/Hero";
+import { Ask } from "~/components/home/Ask";
+import { Closing } from "~/components/home/Closing";
+import { Figures } from "~/components/home/Figures";
+import { Files } from "~/components/home/Files";
+import { Hero } from "~/components/home/Hero";
 import { Install } from "~/components/home/Install";
+import { Live } from "~/components/home/Live";
 import { Questions } from "~/components/home/Questions";
-import { Trust } from "~/components/home/Trust";
-import { Picker } from "~/components/install/Picker";
-import { href, meta as pageMeta, SITE } from "~/lib/seo";
-import { readScenes } from "~/lib/vtt";
+import { meta as pageMeta, SITE } from "~/lib/seo";
 import type { Route } from "./+types/home";
 
 export const meta: Route.MetaFunction = () => [
   ...pageMeta({
-    title: "grafta · Talk to your Figma files.",
+    title: "Talk to your Figma | grafta",
     description:
-      "grafta reads and writes your Figma files, with no internet: ask your AI what's in one, change it, or turn it into code. Now from Figma's desktop app too, on the file you have open. Free and open source.",
+      "grafta connects your AI to Figma. Ask it anything about your designs: what is in a file, a change, or something new made from it, on a file or the one you have open in Figma. Free and open source.",
     path: "/",
   }),
   {
@@ -33,35 +35,22 @@ export const meta: Route.MetaFunction = () => [
   },
 ];
 
-// The video's poster is the first screen's largest paint: asked for from the head,
-// first, as a <video poster> cannot carry a priority (internal: specs/106).
-export const links: Route.LinksFunction = () => [
-  {
-    rel: "preload",
-    as: "image",
-    href: href("showcase/video/poster.webp"),
-    type: "image/webp",
-    fetchPriority: "high",
-  },
-];
-
-// The video's scenes, from its captions file, read at build time so the rail
-// and the scenes in words are in the pre-rendered page.
-export async function loader() {
-  const { readFile } = await import("node:fs/promises");
-  const path = await import("node:path");
-  const vtt = await readFile(path.join(process.cwd(), "public", "showcase", "video", "demo.vtt"), "utf8");
-  return { scenes: readScenes(vtt) };
-}
-
-export default function Home({ loaderData }: Route.ComponentProps) {
+/**
+ * The home page: the line and the product at work, the files it works on,
+ * what it does, the panel on the open file, what one can ask, the questions
+ * people ask first, and how to get it.
+ */
+export default function Home() {
   return (
     <Page home>
-      <Hero scenes={loaderData.scenes} />
-      <Trust />
+      <Hero />
+      <Files />
+      <Figures />
+      <Live />
+      <Ask />
       <Questions />
       <Install />
-      <Picker />
+      <Closing />
     </Page>
   );
 }

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-// internal:specs/104: getting grafta, from the page.
+// Getting grafta, from the page.
 
 test("the section offers the apps in two groups, Claude Desktop first, and its download", async ({
   page,
@@ -37,39 +37,55 @@ test("choosing an app shows its step, and one press copies it", async ({ page, c
   );
 });
 
-test("the second step offers the sample and the first request", async ({ page, request }) => {
+test("the panel's step says each step, with its download and Figma's menus", async ({ page }) => {
   await page.goto("./");
+  const get = page.locator("#get");
+  await expect(get.getByRole("link", { name: "Download" }).nth(1)).toHaveAttribute(
+    "href",
+    "https://github.com/n0ss4/grafta/releases/latest/download/grafta-figma-plugin.zip",
+  );
+  for (const text of ["Import plugin from manifest…", "manifest.json", "Allow"]) {
+    await expect(get).toContainText(text);
+  }
+});
+
+test("the last step offers the first requests", async ({ page }) => {
+  await page.goto("./");
+  await expect(page.locator("#get").getByRole("region", { name: "Try it in Figma" })).toContainText(
+    "Using grafta, what have I selected in Figma?",
+  );
   const step = page.locator("#get").getByRole("region", { name: "Try it on a Figma file" });
-  await expect(step).toContainText("Using grafta, what's in order.fig?");
+  await expect(step).toContainText("Using grafta, what's in design.fig?");
   // in Claude Desktop, where the file is to be found
-  await expect(step).toContainText("~/Downloads/order.fig");
-  const sample = await step
-    .getByRole("link", { name: "Download" })
-    .evaluate((node) => (node as HTMLAnchorElement).href);
-  expect(sample).toMatch(/sample\/order\.fig$/);
-  expect((await request.get(sample)).ok()).toBe(true);
+  await expect(step).toContainText("~/Downloads/design.fig");
 });
 
-test("every Get grafta opens the same installer, with the app chosen in the section", async ({ page }) => {
+test("every Get grafta leads to the section, with no dialog", async ({ page }) => {
   await page.goto("./");
-  await page.locator("#get").getByRole("button", { name: "Windsurf" }).click();
-  await page.getByRole("navigation", { name: "Site" }).getByRole("link", { name: "Get grafta" }).click();
-  const dialog = page.getByRole("dialog", { name: "Get grafta" });
-  await expect(dialog.getByRole("button", { name: "Windsurf" })).toHaveAttribute("aria-pressed", "true");
-  await expect(dialog.getByText("~/.codeium/windsurf/mcp_config.json")).toBeVisible();
-  await dialog.getByRole("button", { name: "Close" }).click();
+  await page.locator("#get").getByRole("button", { name: "OpenCode" }).click();
   await page.locator("#hero").getByRole("link", { name: "Get grafta" }).click();
-  await expect(dialog).toBeVisible();
+  await expect(page.locator("#get-title")).toBeInViewport();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.locator("#get").getByRole("button", { name: "OpenCode" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await page.goto("tools/");
+  await page.getByRole("navigation", { name: "Site" }).getByRole("link", { name: "Get grafta" }).click();
+  await expect(page.locator("#get-title")).toBeInViewport();
 });
 
-test("at 1440×900 the section holds the apps, the step and the try step in one screen", async ({ page }) => {
+test("at 1440×900 the first step holds the apps and the chosen one's step in one screen", async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("./");
-  await page.locator("#get-title").scrollIntoViewIfNeeded();
   await page.evaluate(() => {
     document.querySelector("#get-title")?.scrollIntoView({ block: "start" });
   });
-  for (const name of ["Install it in Claude Desktop", "Try it on a Figma file"]) {
-    await expect(page.locator("#get").getByRole("region", { name })).toBeInViewport({ ratio: 1 });
-  }
+  await expect(
+    page.locator("#get").getByRole("region", { name: "Install it in Claude Desktop" }),
+  ).toBeInViewport({
+    ratio: 1,
+  });
 });

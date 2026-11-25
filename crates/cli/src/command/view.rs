@@ -20,7 +20,7 @@ pub const YELLOW: Style = AnsiColor::Yellow.on_default();
 pub const CYAN: Style = AnsiColor::Cyan.on_default();
 pub const MAGENTA: Style = AnsiColor::Magenta.on_default();
 
-/// The tools by job, as the README and docs/TOOLS.md group them
+/// The tools by job, as docs/guides/what-to-ask.md and docs/TOOLS.md group them
 /// (scripts/tool-reference.py). A test checks every tool is in one.
 pub const GROUPS: &[(&str, &[&str])] = &[
     ("Find your way", &["open_file", "summarize", "list_screens", "search_nodes", "list_open", "close_file"]),

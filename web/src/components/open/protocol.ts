@@ -1,5 +1,4 @@
-// The messages between the page and the worker that runs grafta's reader
-// (internal: specs/109-open-in-browser/contracts/browser-reader.md).
+// The messages between the page and the worker that runs grafta's reader.
 
 export type ToWorker =
   | { type: "open"; id: number; name: string; bytes: ArrayBuffer }

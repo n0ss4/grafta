@@ -79,7 +79,7 @@
     },
     {
      "name": "search_nodes",
-     "description": "Find nodes by name (case-insensitive substring), by type (FRAME, TEXT, INSTANCE, COMPONENT, COMPONENT_SET, PAGE, SECTION, GROUP, RECTANGLE, VECTOR, …), or both, optionally only inside one node. Returns id, name, type and the path from the page, in document order, paged. Hidden nodes are included.",
+     "description": "Find nodes by name (case-insensitive substring), by type (FRAME, TEXT, INSTANCE, COMPONENT, COMPONENT_SET, PAGE, SECTION, GROUP, RECTANGLE, VECTOR, …), by what a text layer says, by a style or variable a layer uses (by name, its own or a run of its text's), or by the component an instance is of (its id, or its component's or set's name). Every criterion given must match; names and text match as case-insensitive substrings. Optionally only inside one node. Returns id, name, type and the path from the page, in document order, paged. Hidden nodes are included.",
      "live": "differs",
      "there": "On the open file in Figma, unlike on a file: the open file is searched a page at a time, within a time budget: `total` counts the matches on the pages searched so far, `pages_searched` of `pages` says how far it went, and `next_cursor` goes on to the rest.",
      "arguments": [
@@ -94,6 +94,12 @@
        "type": "integer, 1024–98304",
        "required": false,
        "description": "Maximum result size in bytes. Default 32768."
+      },
+      {
+       "name": "component",
+       "type": "string",
+       "required": false,
+       "description": "Instances of this component: its id, or a case-insensitive substring of its name or its component set's name."
       },
       {
        "name": "cursor",
@@ -114,10 +120,28 @@
        "description": "Case-insensitive substring of the node name."
       },
       {
+       "name": "style",
+       "type": "string",
+       "required": false,
+       "description": "Case-insensitive substring of the name of a fill, stroke, text or effect style the layer uses, or a run of its text."
+      },
+      {
+       "name": "text",
+       "type": "string",
+       "required": false,
+       "description": "Case-insensitive substring of a text layer's characters."
+      },
+      {
        "name": "type",
        "type": "string",
        "required": false,
        "description": "Node type, in the plugin API's spelling."
+      },
+      {
+       "name": "variable",
+       "type": "string",
+       "required": false,
+       "description": "Case-insensitive substring of the name of a variable the layer binds, in any field or paint, or a run of its text."
       },
       {
        "name": "within",

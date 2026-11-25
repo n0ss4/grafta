@@ -97,14 +97,61 @@ impl Query for Summarize {
     }
 }
 
-/// Nodes by name, type, or both, optionally inside one node, paged.
+/// Nodes by name, type, what they say or what they use, optionally inside
+/// one node, paged.
 pub struct SearchNodes {
     pub handle: String,
     pub name: Option<String>,
     /// In the plugin API's spelling, checked here so the words name it.
     pub node_type: Option<String>,
+    /// Case-insensitive, in a text layer's characters.
+    pub text: Option<String>,
+    /// Case-insensitive, in the name of a style the layer or a run of its text uses.
+    pub style: Option<String>,
+    /// Case-insensitive, in the name of a variable the layer or a run of its text binds.
+    pub variable: Option<String>,
+    /// For an instance: its component's id, or case-insensitive in its component's or set's name.
+    pub component: Option<String>,
     pub within: Option<String>,
     pub paging: Paging,
+}
+
+fn lower(given: Option<&String>) -> Option<String> {
+    given.map(|s| s.to_lowercase())
+}
+
+fn says(node: &SceneNode, text: &str) -> bool {
+    node.text.as_deref().is_some_and(|t| t.to_lowercase().contains(text))
+}
+
+fn uses_style(graph: &SceneGraph, node: &SceneNode, style: &str) -> bool {
+    let runs = node.text_runs.iter().map(|run| run.text_style_id);
+    [node.fill_style_id, node.stroke_style_id, node.text_style_id, node.effect_style_id]
+        .into_iter()
+        .chain(runs)
+        .flatten()
+        .filter_map(|id| graph.styles.get(&id))
+        .any(|s| s.name.to_lowercase().contains(style))
+}
+
+fn binds(graph: &SceneGraph, node: &SceneNode, variable: &str) -> bool {
+    let paints = node.fills.iter().chain(&node.strokes).chain(node.text_runs.iter().filter_map(|r| r.fills.as_ref()).flatten());
+    node.bound_variables
+        .values()
+        .copied()
+        .chain(paints.filter_map(|p| p.variable_id))
+        .filter_map(|id| graph.variables.get(&id))
+        .any(|v| v.name.to_lowercase().contains(variable))
+}
+
+fn instance_of(graph: &SceneGraph, node: &SceneNode, given: &str, lowered: &str) -> bool {
+    let Some(id) = node.component_id else { return false };
+    if id.to_string() == given {
+        return true;
+    }
+    let Some(definition) = graph.component_of(node) else { return false };
+    let set = definition.parent_id.and_then(|p| graph.node(p)).filter(|p| p.node_type == NodeType::ComponentSet);
+    std::iter::once(definition).chain(set).any(|c| c.name.to_lowercase().contains(lowered))
 }
 
 impl Query for SearchNodes {
@@ -116,9 +163,15 @@ impl Query for SearchNodes {
             Some(t) => Some(view::parse_type(t).ok_or_else(|| DomainError::NotANodeType { given: t.into() })?),
             None => None,
         };
+        let (text, style, variable) = (lower(self.text.as_ref()), lower(self.style.as_ref()), lower(self.variable.as_ref()));
+        let component = self.component.as_ref().map(|c| (c.as_str(), c.to_lowercase()));
         let matches = |node: &SceneNode| {
             name.as_ref().is_none_or(|n| node.name.to_lowercase().contains(n))
                 && wanted_type.is_none_or(|t| node.node_type == t)
+                && text.as_ref().is_none_or(|t| says(node, t))
+                && style.as_ref().is_none_or(|s| uses_style(graph, node, s))
+                && variable.as_ref().is_none_or(|v| binds(graph, node, v))
+                && component.as_ref().is_none_or(|(given, lowered)| instance_of(graph, node, given, lowered))
         };
 
         let found: Vec<&SceneNode> = match self.within.as_deref() {

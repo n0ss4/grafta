@@ -4,21 +4,23 @@ const json = '{ "mcpServers": { "grafta": { "command": "npx", "args": ["-y", "gr
 const then = "Then, in Claude Code: claude mcp add grafta -- grafta mcp";
 const NODE = "Needs Node.js 18 or newer.";
 
-// As README.md's Install section has them: the AI apps, Claude Desktop first (the
+// As docs/INSTALL.md has them: the AI apps, Claude Desktop first (the
 // app of the home's video, and the one with no terminal), then the program.
 export const clients: Client[] = [
   {
     id: "claude-desktop",
+    hint: "grafta.mcpb",
     group: "app",
     name: "Claude Desktop",
     kind: "download",
     snippet: "https://github.com/n0ss4/grafta/releases/latest/download/grafta.mcpb",
     note: "Download it and open it: Claude Desktop installs it from Settings → Extensions. No terminal, no Node.js. The binary is not signed, so your system may ask first.",
     tryNote:
-      "Say where the file is, like ~/Downloads/order.fig. A file uploaded to the chat lives in Claude's cloud, so Claude copies it to a folder on your Mac that you allow, and grafta opens it there.",
+      "Say where the file is, like ~/Downloads/design.fig. A file uploaded to the chat lives in Claude's cloud, so Claude copies it to a folder on your Mac that you allow, and grafta opens it there.",
   },
   {
     id: "claude-code",
+    hint: "/plugin install",
     group: "app",
     name: "Claude Code",
     kind: "command",
@@ -27,6 +29,7 @@ export const clients: Client[] = [
   },
   {
     id: "chatgpt",
+    hint: "codex plugin add",
     group: "app",
     name: "ChatGPT desktop",
     kind: "command",
@@ -35,6 +38,7 @@ export const clients: Client[] = [
   },
   {
     id: "codex",
+    hint: "codex mcp add",
     group: "app",
     name: "Codex",
     kind: "command",
@@ -44,6 +48,7 @@ export const clients: Client[] = [
 
   {
     id: "cursor",
+    hint: ".cursor/mcp.json",
     group: "app",
     name: "Cursor",
     kind: "json",
@@ -53,6 +58,7 @@ export const clients: Client[] = [
   },
   {
     id: "vscode",
+    hint: ".vscode/mcp.json",
     group: "app",
     name: "VS Code",
     kind: "json",
@@ -61,24 +67,26 @@ export const clients: Client[] = [
     note: `In your workspace. VS Code starts the server with npx. ${NODE} Not yet tried by us.`,
   },
   {
-    id: "windsurf",
+    id: "opencode",
+    hint: "opencode mcp add",
     group: "app",
-    name: "Windsurf",
-    kind: "json",
-    snippet: json,
-    file: "~/.codeium/windsurf/mcp_config.json",
-    note: `The same configuration as Cursor. ${NODE} Not yet tried by us.`,
+    name: "OpenCode",
+    kind: "command",
+    snippet: "opencode mcp add grafta --global -- npx -y grafta mcp",
+    note: `In a terminal. --global writes it to ~/.config/opencode, for every project; leave it out for this project only. ${NODE} Set up by OpenCode's documentation; not yet tried by us.`,
   },
   {
     id: "unix",
+    hint: "install.sh",
     group: "program",
-    name: "macOS · Linux",
+    name: "macOS and Linux",
     kind: "command",
     snippet: "curl -fsSL https://raw.githubusercontent.com/n0ss4/grafta/main/install.sh | sh",
     note: `One self-contained binary, not signed. ${then}`,
   },
   {
     id: "brew",
+    hint: "brew install",
     group: "program",
     name: "Homebrew",
     kind: "command",
@@ -87,6 +95,7 @@ export const clients: Client[] = [
   },
   {
     id: "windows",
+    hint: "install.ps1",
     group: "program",
     name: "Windows",
     kind: "command",
@@ -95,6 +104,7 @@ export const clients: Client[] = [
   },
   {
     id: "rust",
+    hint: "cargo install",
     group: "program",
     name: "Rust",
     kind: "command",
@@ -103,6 +113,12 @@ export const clients: Client[] = [
   },
 ];
 
-/** The sample file, and the first thing to ask about it (the message's). */
-export const sample = { file: "order.fig", href: "sample/order.fig" };
-export const firstRequest = "Using grafta, what's in order.fig?";
+/** The first thing to ask about a file saved from Figma. */
+export const firstRequest = "Using grafta, what's in design.fig?";
+
+/** grafta's panel for Figma's desktop app, as docs/guides/in-figma.md gives it. */
+export const panel = {
+  file: "grafta-figma-plugin.zip",
+  href: "https://github.com/n0ss4/grafta/releases/latest/download/grafta-figma-plugin.zip",
+};
+export const panelRequest = "Using grafta, what have I selected in Figma?";

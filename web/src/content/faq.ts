@@ -19,7 +19,7 @@ export const faq: FaqEntry[] = [
   {
     question: "Which apps and models does it work with?",
     answer:
-      "Any client that speaks MCP over stdio should work, with any model it runs. We have run it in Claude Code and Claude Desktop. Cursor, VS Code, Windsurf, Codex and the ChatGPT desktop app use the same setup, but we have not tried them yet. Clients that only connect to remote servers, such as ChatGPT on the web, cannot use it yet.",
+      "Any client that speaks MCP over stdio should work, with any model it runs. We have run it in Claude Code and Claude Desktop. Cursor, VS Code, OpenCode, Codex and the ChatGPT desktop app use the same setup, but we have not tried them yet. Clients that only connect to remote servers, such as ChatGPT on the web, cannot use it yet.",
   },
   {
     question: "How accurate are the pictures?",
@@ -34,7 +34,7 @@ export const faq: FaqEntry[] = [
   {
     question: "Can I use it without a model?",
     answer:
-      "Yes. `grafta tool` calls any tool from a terminal, and `grafta tool --batch` runs a sequence of calls on one file: this site's pictures, sessions and social card are made that way.",
+      "Yes. `grafta tool` calls any tool from a terminal, and `grafta tool --batch` runs a sequence of calls on one file: this site's social card is made that way.",
   },
   {
     question: "What can't it do yet?",

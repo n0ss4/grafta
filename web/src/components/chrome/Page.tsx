@@ -8,7 +8,7 @@ export function Page({ home = false, children }: { home?: boolean; children: Rea
     <>
       <RulerNav home={home} />
       <main id="main">{children}</main>
-      <EditorialFooter />
+      <EditorialFooter home={home} />
     </>
   );
 }

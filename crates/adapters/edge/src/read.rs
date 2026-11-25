@@ -80,9 +80,12 @@ impl Tool for SearchNodes {
     }
     fn description(&self) -> &'static str {
         "Find nodes by name (case-insensitive substring), by type (FRAME, TEXT, INSTANCE, \
-         COMPONENT, COMPONENT_SET, PAGE, SECTION, GROUP, RECTANGLE, VECTOR, …), or both, \
-         optionally only inside one node. Returns id, name, type and the path from the page, \
-         in document order, paged. Hidden nodes are included."
+         COMPONENT, COMPONENT_SET, PAGE, SECTION, GROUP, RECTANGLE, VECTOR, …), by what a text \
+         layer says, by a style or variable a layer uses (by name, its own or a run of its \
+         text's), or by the component an instance is of (its id, or its component's or set's \
+         name). Every criterion given must match; names and text match as case-insensitive \
+         substrings. Optionally only inside one node. Returns id, name, type and the path from \
+         the page, in document order, paged. Hidden nodes are included."
     }
     fn input_schema(&self) -> Value {
         schema(
@@ -91,6 +94,10 @@ impl Tool for SearchNodes {
                     "handle": handle_property(),
                     "name": { "type": "string", "description": "Case-insensitive substring of the node name." },
                     "type": { "type": "string", "description": "Node type, in the plugin API's spelling." },
+                    "text": { "type": "string", "description": "Case-insensitive substring of a text layer's characters." },
+                    "style": { "type": "string", "description": "Case-insensitive substring of the name of a fill, stroke, text or effect style the layer uses, or a run of its text." },
+                    "variable": { "type": "string", "description": "Case-insensitive substring of the name of a variable the layer binds, in any field or paint, or a run of its text." },
+                    "component": { "type": "string", "description": "Instances of this component: its id, or a case-insensitive substring of its name or its component set's name." },
                     "within": { "type": "string", "description": "Only search inside this node id (a page, a frame…)." },
                 }),
                 paging_properties(),
@@ -103,6 +110,10 @@ impl Tool for SearchNodes {
             handle: string(args, "handle")?.into(),
             name: optional_string(args, "name")?.map(str::to_owned),
             node_type: optional_string(args, "type")?.map(str::to_owned),
+            text: optional_string(args, "text")?.map(str::to_owned),
+            style: optional_string(args, "style")?.map(str::to_owned),
+            variable: optional_string(args, "variable")?.map(str::to_owned),
+            component: optional_string(args, "component")?.map(str::to_owned),
             within: optional_string(args, "within")?.map(str::to_owned),
             paging: paging(args)?,
         })))

@@ -14,13 +14,12 @@ npm run lighthouse           # budgets: ≥ 95 in each category, ≤ 150 KB of s
 
 ## Where each fact lives
 
-| What                                                                  | Where                                                                      | Written by                                                       |
-| --------------------------------------------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Products, prompts, FAQ, promises, limits, clients, stats, nav, footer | `src/content/*.ts`, typed by `src/content/types.ts`                        | hand; a stat without its source does not compile                 |
-| Every tool and its arguments                                          | `src/generated/tools.json`                                                 | `scripts/tool-reference.py`, checked in CI                       |
-| The guided image-to-Figma recording and result pictures               | `public/sessions/image.claude-code.json`, `public/showcase/`               | `docs/showcase/transcripts_site.py`, from recordings (spec 075)  |
-| The changelog                                                         | `../CHANGELOG.md`                                                          | hand; rendered at build time                                     |
-| Pictures, brand, install scripts, `snapshot.js`                       | `../docs/assets`, `../docs/brand`, `../install.*`, `../scripts/snapshot.*` | copied into `public/` by `scripts/sync-public.mjs` (git-ignored) |
+| What                                            | Where                                                                      | Written by                                                       |
+| ----------------------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Products, FAQ, clients, nav, footer             | `src/content/*.ts`, typed by `src/content/types.ts`                        | hand; a stat without its source does not compile                 |
+| Every tool and its arguments                    | `src/generated/tools.json`                                                 | `scripts/tool-reference.py`, checked in CI                       |
+| The changelog                                   | `../CHANGELOG.md`                                                          | hand; rendered at build time                                     |
+| Pictures, brand, install scripts, `snapshot.js` | `../docs/assets`, `../docs/brand`, `../install.*`, `../scripts/snapshot.*` | copied into `public/` by `scripts/sync-public.mjs` (git-ignored) |
 
 The Markdown renderer runs in a route loader at build time only; it does not
 reach the browser.

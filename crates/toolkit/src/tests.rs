@@ -109,6 +109,36 @@ fn search_finds_by_name_and_type_with_a_path() {
 }
 
 #[test]
+fn search_finds_by_what_a_text_says_and_the_component_an_instance_is_of() {
+    let (mut kit, handle) = kit();
+    let ids = |out: &Value| out["results"].as_array().unwrap().iter().map(|r| r["id"].as_str().unwrap().to_string()).collect::<Vec<_>>();
+    let out = call(&mut kit, "search_nodes", json!({ "handle": handle, "text": "HOL" })).unwrap();
+    assert_eq!(ids(&out), ["1:3"]);
+    let out = call(&mut kit, "search_nodes", json!({ "handle": handle, "component": "play" })).unwrap();
+    assert_eq!(ids(&out), ["1:42"]);
+    let out = call(&mut kit, "search_nodes", json!({ "handle": handle, "component": "1:4" })).unwrap();
+    assert_eq!(ids(&out), ["1:5"]);
+    let out = call(&mut kit, "search_nodes", json!({ "handle": handle, "text": "chip", "name": "title" })).unwrap();
+    assert_eq!(out["total"], 0, "every criterion given must match");
+}
+
+#[test]
+fn search_finds_by_the_style_and_the_variable_a_layer_uses() {
+    let (mut kit, handle) = kit();
+    let ids = |out: &Value| out["results"].as_array().unwrap().iter().map(|r| r["id"].as_str().unwrap().to_string()).collect::<Vec<_>>();
+    call(&mut kit, "create_style", json!({ "handle": handle, "name": "Heading/Bold", "type": "TEXT", "fontFamily": "Inter", "fontStyle": "Bold", "fontSize": 18 })).unwrap();
+    set(&mut kit, &handle, "1:3", json!({ "textStyle": "Heading/Bold" })).unwrap();
+    set(&mut kit, &handle, "1:2", json!({ "fills": [{ "type": "SOLID", "variable": "primary/500" }] })).unwrap();
+    set(&mut kit, &handle, "1:41", json!({ "runs": [{ "characters": "Ch" }, { "characters": "ip", "fills": [{ "type": "SOLID", "variable": "primary/500" }] }] })).unwrap();
+    let out = call(&mut kit, "search_nodes", json!({ "handle": handle, "style": "bold" })).unwrap();
+    assert_eq!(ids(&out), ["1:3"]);
+    let out = call(&mut kit, "search_nodes", json!({ "handle": handle, "variable": "PRIMARY" })).unwrap();
+    assert_eq!(ids(&out), ["1:2", "1:41"]);
+    let out = call(&mut kit, "search_nodes", json!({ "handle": handle, "variable": "spacing" })).unwrap();
+    assert_eq!(out["total"], 0);
+}
+
+#[test]
 fn a_search_with_no_match_says_zero_rather_than_nothing() {
     let (mut kit, handle) = kit();
     let out = call(&mut kit, "search_nodes", json!({ "handle": handle, "name": "nope" })).unwrap();
@@ -986,7 +1016,7 @@ fn a_text_colour_binds_to_a_local_variable() {
 
 /// A line height is stored as Figma stores it, and read as Figma reads it:
 /// a percentage as a multiple of the size (`RAW`), *Auto* as `{ PERCENT, 100 }`,
-/// left out of `read_node` as Figma's default (row 116).
+/// left out of `read_node` as Figma's default.
 #[test]
 fn a_line_height_is_stored_and_read_as_figma_does() {
     let (mut kit, handle) = kit();
@@ -5104,8 +5134,8 @@ mod sites;
 
 /// Figma stores a line height's *Auto* as `{ PERCENT, 100 }` and a percentage
 /// as `RAW`: in every fixture a `PERCENT` line height is 100, on a layer, a
-/// style or a run, and the reader shows it as Figma does, by leaving it out
-/// (row 116). 8,121 texts of eight files store it so; 1,939 store `RAW`.
+/// style or a run, and the reader shows it as Figma does, by leaving it out.
+/// 8,121 texts of eight files store it so; 1,939 store `RAW`.
 #[test]
 fn a_stored_percent_line_height_is_auto() {
     use schema::{Field, NumberUnits, Wire};
@@ -5141,7 +5171,7 @@ fn a_stored_percent_line_height_is_auto() {
 }
 
 /// Every interaction of the four fixtures holding them read as a reaction,
-/// counted by kind against the census of specs/107 (SC-001).
+/// counted by kind against a census taken of them.
 #[test]
 fn every_stored_interaction_reads_as_a_reaction() {
     use std::collections::BTreeMap;
