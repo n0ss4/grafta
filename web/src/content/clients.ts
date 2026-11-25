@@ -4,7 +4,7 @@ const json = '{ "mcpServers": { "grafta": { "command": "npx", "args": ["-y", "gr
 const then = "Then, in Claude Code: claude mcp add grafta -- grafta mcp";
 const NODE = "Needs Node.js 18 or newer.";
 
-// As README.md's Install section has them: the AI apps, Claude Desktop first (the
+// As docs/INSTALL.md has them: the AI apps, Claude Desktop first (the
 // app of the home's video, and the one with no terminal), then the program.
 export const clients: Client[] = [
   {
@@ -117,7 +117,7 @@ export const clients: Client[] = [
 export const sample = { file: "order.fig", href: "sample/order.fig" };
 export const firstRequest = "Using grafta, what's in order.fig?";
 
-/** grafta's panel for Figma's desktop app, as README.md's "In Figma" gives it. */
+/** grafta's panel for Figma's desktop app, as docs/guides/in-figma.md gives it. */
 export const panel = {
   file: "grafta-figma-plugin.zip",
   href: "https://github.com/n0ss4/grafta/releases/latest/download/grafta-figma-plugin.zip",

@@ -8,7 +8,7 @@ import { Band, Head, Wrap } from "./Section";
 /**
  * Getting grafta, on the page, in the order it is done: the AI app, then
  * grafta's panel in Figma for the file you have open, then the first request.
- * Every step is here, the panel's included, as README.md's "In Figma" has it.
+ * Every step is here, the panel's included, as docs/guides/in-figma.md has it.
  */
 export function Install() {
   return (
