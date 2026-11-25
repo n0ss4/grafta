@@ -5,7 +5,7 @@ import type { Route } from "./+types/open";
 
 export const meta: Route.MetaFunction = () => [
   ...pageMeta({
-    title: "Open a Figma file online, without Figma · grafta",
+    title: "Open a Figma file online, without Figma | grafta",
     description:
       "Drop a .fig, .deck, .jam or .site file and see its pages and screens, download them as PNG, and take its variables as W3C design tokens. It runs in your browser: nothing is uploaded, no Figma account.",
     path: "/open/",

@@ -2,16 +2,16 @@ import { expect, test } from "@playwright/test";
 
 test("the home page keeps its products, questions and metadata", async ({ page }) => {
   await page.goto("./");
-  await expect(page).toHaveTitle("grafta · Talk to your Figma files.");
+  await expect(page).toHaveTitle("Talk to your Figma | grafta");
   for (const extension of [".fig", ".deck", ".jam", ".site"]) {
-    await expect(page.locator("#trust").getByText(extension, { exact: true })).toBeVisible();
+    await expect(page.locator("#files").getByText(extension, { exact: true })).toBeVisible();
   }
   await expect(page.locator("#faq details")).toHaveCount(11);
   await expect(
-    page.getByRole("navigation", { name: "Product" }).getByRole("link", { name: "Get grafta" }),
+    page.getByRole("navigation", { name: "Footer" }).getByRole("link", { name: "Get grafta" }),
   ).toHaveAttribute("href", "#get");
   await expect(
-    page.getByRole("navigation", { name: "Product" }).getByRole("link", { name: "FAQ" }),
+    page.getByRole("navigation", { name: "Footer" }).getByRole("link", { name: "FAQ" }),
   ).toHaveAttribute("href", "#faq");
   const card = "https://n0ss4.github.io/grafta/assets/card.png";
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", card);

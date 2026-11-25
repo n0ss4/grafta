@@ -27,6 +27,8 @@ export interface Client {
   /** An AI app, or a way to install the program for any app. */
   group: "app" | "program";
   kind: "command" | "json" | "download";
+  /** The step in a few words, as the way in's tile shows it: a file, a command's start. */
+  hint: string;
   snippet: string;
   file?: string;
   note: string;

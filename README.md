@@ -82,12 +82,19 @@ Anywhere else, register it once:
 claude mcp add grafta -- grafta mcp
 ```
 
+In OpenCode:
+
+```bash
+opencode mcp add grafta --global -- npx -y grafta mcp
+```
+
+`--global` registers it for every project; leave it out for the current project only.
+
 Or, in a client configured with JSON:
 
 | Client | File | Configuration |
 |---|---|---|
 | **Cursor** | `.cursor/mcp.json` (or `~/.cursor/mcp.json`) | `{ "mcpServers": { "grafta": { "command": "npx", "args": ["-y", "grafta", "mcp"] } } }` |
-| **Windsurf** | `~/.codeium/windsurf/mcp_config.json` | the same as Cursor |
 | **Claude Desktop**, by hand | `claude_desktop_config.json` | the same as Cursor |
 | **VS Code** | `.vscode/mcp.json` | `{ "servers": { "grafta": { "command": "npx", "args": ["-y", "grafta", "mcp"] } } }` |
 
@@ -96,7 +103,7 @@ With grafta installed by the script, Homebrew or Cargo, `"command": "grafta", "a
 Prebuilt for macOS (Apple silicon and Intel), Linux (x86_64 and arm64) and
 Windows (x86_64). One self-contained binary. We have run it by hand on a Mac with
 Apple silicon; the tests also pass on Linux and Windows in CI. Claude Code, Cursor,
-VS Code, Windsurf, Codex and the ChatGPT desktop app start it with `npx`, which needs
+VS Code, OpenCode, Codex and the ChatGPT desktop app start it with `npx`, which needs
 Node.js 18 or newer. We have tried Claude Code and Claude Desktop; the others use the
 same setup. ChatGPT on the web reads no local server, so it cannot use grafta yet.
 
@@ -296,7 +303,7 @@ that exists and reads back what it wrote. It refuses what Figma would have to
 repair, and unsaved edits survive a restart.
 
 **Which clients and models?** Any MCP client over stdio (Claude Desktop,
-Claude Code, Cursor, VS Code, Windsurf…) with any model it runs.
+Claude Code, Cursor, VS Code, OpenCode…) with any model it runs.
 
 **Is it affiliated with Figma?** No. It is free and open source, under the MIT
 licence.

@@ -11,7 +11,7 @@ import type { Route } from "./+types/tools";
 
 export const meta: Route.MetaFunction = () =>
   pageMeta({
-    title: "Tool reference · grafta",
+    title: "Tool reference | grafta",
     description: `Every one of grafta's ${tools.count} MCP tools, with its arguments, as the server lists them.`,
     path: "/tools/",
   });
