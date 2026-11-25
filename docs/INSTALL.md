@@ -46,11 +46,11 @@ Ask in words, in your AI app:
 
 > Using grafta, what have I selected in Figma?
 
-> Using grafta, what's in order.fig?
+> Using grafta, what's in design.fig?
 
 > Make it light, and check the contrast. Now turn it into code.
 
-No file at hand? Use [this sample](https://n0ss4.github.io/grafta/sample/order.fig). A Figma file on your computer comes from *File → Save local copy…* in Figma. In Claude Desktop, say where the file is, like `~/Downloads/order.fig`: a file uploaded to the chat lives in Claude's cloud, so Claude copies it to a folder on your Mac that you allow, and grafta opens it there.
+A Figma file on your computer comes from *File → Save local copy…* in Figma. In Claude Desktop, say where the file is, like `~/Downloads/design.fig`: a file uploaded to the chat lives in Claude's cloud, so Claude copies it to a folder on your Mac that you allow, and grafta opens it there.
 
 No AI app at hand? [Open a Figma file in your browser](https://n0ss4.github.io/grafta/open/): its pages and screens, PNGs and design tokens, with grafta running in the page and nothing uploaded.
 

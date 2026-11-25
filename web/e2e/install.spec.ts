@@ -49,20 +49,15 @@ test("the panel's step says each step, with its download and Figma's menus", asy
   }
 });
 
-test("the last step offers the sample and the first requests", async ({ page, request }) => {
+test("the last step offers the first requests", async ({ page }) => {
   await page.goto("./");
   await expect(page.locator("#get").getByRole("region", { name: "Try it in Figma" })).toContainText(
     "Using grafta, what have I selected in Figma?",
   );
   const step = page.locator("#get").getByRole("region", { name: "Try it on a Figma file" });
-  await expect(step).toContainText("Using grafta, what's in order.fig?");
+  await expect(step).toContainText("Using grafta, what's in design.fig?");
   // in Claude Desktop, where the file is to be found
-  await expect(step).toContainText("~/Downloads/order.fig");
-  const sample = await step
-    .getByRole("link", { name: "order.fig" })
-    .evaluate((node) => (node as HTMLAnchorElement).href);
-  expect(sample).toMatch(/sample\/order\.fig$/);
-  expect((await request.get(sample)).ok()).toBe(true);
+  await expect(step).toContainText("~/Downloads/design.fig");
 });
 
 test("every Get grafta leads to the section, with no dialog", async ({ page }) => {

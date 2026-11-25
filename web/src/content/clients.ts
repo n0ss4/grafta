@@ -16,7 +16,7 @@ export const clients: Client[] = [
     snippet: "https://github.com/n0ss4/grafta/releases/latest/download/grafta.mcpb",
     note: "Download it and open it: Claude Desktop installs it from Settings → Extensions. No terminal, no Node.js. The binary is not signed, so your system may ask first.",
     tryNote:
-      "Say where the file is, like ~/Downloads/order.fig. A file uploaded to the chat lives in Claude's cloud, so Claude copies it to a folder on your Mac that you allow, and grafta opens it there.",
+      "Say where the file is, like ~/Downloads/design.fig. A file uploaded to the chat lives in Claude's cloud, so Claude copies it to a folder on your Mac that you allow, and grafta opens it there.",
   },
   {
     id: "claude-code",
@@ -113,9 +113,8 @@ export const clients: Client[] = [
   },
 ];
 
-/** The sample file, and the first thing to ask about it (the message's). */
-export const sample = { file: "order.fig", href: "sample/order.fig" };
-export const firstRequest = "Using grafta, what's in order.fig?";
+/** The first thing to ask about a file saved from Figma. */
+export const firstRequest = "Using grafta, what's in design.fig?";
 
 /** grafta's panel for Figma's desktop app, as docs/guides/in-figma.md gives it. */
 export const panel = {

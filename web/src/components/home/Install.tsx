@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
-import { firstRequest, panel, panelRequest, sample } from "~/content/clients";
-import { href } from "~/lib/seo";
+import { firstRequest, panel, panelRequest } from "~/content/clients";
 import { CopyButton } from "../install/CopyButton";
 import { Installer, Line, useClient } from "../install/Installer";
 import { Band, Head, Wrap } from "./Section";
@@ -187,7 +186,7 @@ function FigmaMenus() {
   );
 }
 
-/** The first requests: on the file open in Figma, or on the sample. */
+/** The first requests: on the file open in Figma, or on a file saved from it. */
 function Try() {
   const client = useClient();
   return (
@@ -200,11 +199,7 @@ function Try() {
       <section aria-label="Try it on a Figma file" className="rounded-xl bg-surface p-5 ring-1 ring-line">
         <h4 className="text-[15px] font-[510]">On a file on your computer</h4>
         <p className="mt-1 text-[14px] text-muted">
-          Yours, or{" "}
-          <a href={href(sample.href)} download>
-            {sample.file}
-          </a>
-          , a sample. Then ask:
+          In Figma, File → Save local copy. Then ask, with the file's name:
         </p>
         <Request text={firstRequest} />
         {client?.tryNote ? (
