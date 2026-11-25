@@ -8,7 +8,7 @@
     {
       "name": "grafta",
       "source": "./plugin",
-      "version": "0.6.0",
+      "version": "0.7.0",
       "description": "Read and write Figma .fig files, exactly and offline: an MCP server with 45 tools, and skills for using them well: auditing, building screens, design systems, handoff and batch runs.",
       "category": "design",
       "homepage": "https://n0ss4.github.io/grafta"
