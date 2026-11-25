@@ -34,7 +34,7 @@ export const faq: FaqEntry[] = [
   {
     question: "Can I use it without a model?",
     answer:
-      "Yes. `grafta tool` calls any tool from a terminal, and `grafta tool --batch` runs a sequence of calls on one file: this site's pictures, sessions and social card are made that way.",
+      "Yes. `grafta tool` calls any tool from a terminal, and `grafta tool --batch` runs a sequence of calls on one file: this site's social card is made that way.",
   },
   {
     question: "What can't it do yet?",

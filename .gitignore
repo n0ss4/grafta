@@ -51,5 +51,5 @@ __pycache__/
 # Tracked even where a global ignore names lib/ directories.
 !/web/src/lib/
 
-# Raw session recordings: transcripts with local paths, imported by docs/showcase/transcripts_site.py
+# Raw session recordings: transcripts with local paths
 docs/showcase/recordings/
