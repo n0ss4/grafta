@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://n0ss4.github.io/grafta/">
-    <img src="docs/brand/icon-512.png" width="80" height="80" alt="grafta logo" />
+    <img src=".github/readme/icon.svg" width="80" height="80" alt="grafta logo" />
   </a>
 </p>
 
@@ -20,7 +20,7 @@
   <a href="https://n0ss4.github.io/grafta/">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hero-dark.webp">
-      <img src=".github/readme/hero-light.webp" width="100%" alt="An AI app asked to make a music player's play button round and coral. grafta opens player.fig, reads the Now Playing screen, changes the Play button and draws it to check. The button's corners go from 18 to 36 and its fill from Ink to the file's Accent variable.">
+      <img src=".github/readme/hero-light.webp" width="100%" alt="grafta's home page: Talk to your Figma. Below, an AI app asked to make a music player's play button round and coral; grafta opens player.fig, reads the screen, changes the button and draws it to check. Its corners go from 18 to 36 and its fill from Ink to the file's Accent variable.">
     </picture>
   </a>
 </p>
