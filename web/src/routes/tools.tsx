@@ -11,7 +11,7 @@ import type { Route } from "./+types/tools";
 
 export const meta: Route.MetaFunction = () =>
   pageMeta({
-    title: "Tool reference · grafta",
+    title: "Tool reference | grafta",
     description: `Every one of grafta's ${tools.count} MCP tools, with its arguments, as the server lists them.`,
     path: "/tools/",
   });
@@ -25,7 +25,7 @@ const toolNames = new Set(tools.families.flatMap((family) => family.tools.map((t
 /**
  * The tool reference: every tool closed, one line each, by family; open one, or
  * all, for its words and arguments. Search finds a tool by what it does. A link to
- * a tool opens it (internal: specs/105).
+ * a tool opens it.
  */
 export default function Tools({ loaderData }: Route.ComponentProps) {
   const { families, count } = loaderData;

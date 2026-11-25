@@ -2,26 +2,18 @@ import { expect, test } from "@playwright/test";
 
 test("home tells the complete story without JavaScript", async ({ page }) => {
   await page.goto("./");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Talk to your Figma files.");
-  // The video's six scenes, named and told, and its poster in place of it.
-  const rail = page.getByRole("list", { name: "Scenes of the video" });
-  await expect(rail.getByRole("listitem")).toHaveCount(6);
-  for (const name of [
-    "Your AI app",
-    "Add a file",
-    "Ask what's in it",
-    "Change it, check it",
-    "Turn it into code",
-    "Open it in Figma",
-  ]) {
-    await expect(rail).toContainText(name);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Talk to your Figma.");
+  // The product's window, drawn with the change made.
+  const window = page.locator("#hero").getByRole("img", { name: /changes the play button/ });
+  await expect(window).toContainText("Done. The play button is round");
+  for (const extension of [".fig", ".deck", ".jam", ".site"]) {
+    await expect(page.locator("#files")).toContainText(extension);
   }
-  await expect(page.locator("#hero-video-scenes li")).toHaveCount(6);
-  await expect(page.locator("#hero-video-scenes")).toContainText("It saves a new file, never over yours.");
-  await expect(page.locator("#hero video")).toHaveAttribute("poster", /poster\.webp$/);
-  await expect(page.locator("#trust")).toContainText("No account");
+  await expect(page.locator("#what")).toContainText("Reads your design");
+  await expect(page.locator("#live")).toContainText("Revert this request");
+  await expect(page.locator("#ask")).toContainText("Seven, each in light and dark.");
   // Getting grafta works without scripts: the first app's step, and links to it.
-  await expect(page.locator("#get")).toContainText("Install it in Claude Desktop");
+  await expect(page.locator("#get")).toContainText("Add grafta to your AI app");
   await expect(page.locator("#get").getByRole("link", { name: "Download" }).first()).toHaveAttribute(
     "href",
     /grafta\.mcpb$/,

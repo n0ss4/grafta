@@ -5,9 +5,9 @@ import {
   ClaudeMark,
   CodeXml,
   CursorMark,
-  MessageCircle,
+  OpenAIMark,
+  OpenCodeMark,
   Terminal,
-  WindsurfMark,
 } from "../editorial/icons";
 
 type Glyph = ComponentType<{ size?: number; className?: string }>;
@@ -16,11 +16,11 @@ type Glyph = ComponentType<{ size?: number; className?: string }>;
 const marks: Record<string, { Icon: Glyph; colour: string }> = {
   "claude-desktop": { Icon: ClaudeMark, colour: "text-[#D97757]" },
   "claude-code": { Icon: ClaudeCodeMark, colour: "text-[#D97757]" },
-  chatgpt: { Icon: MessageCircle, colour: "text-text" },
-  codex: { Icon: Terminal, colour: "text-text" },
+  chatgpt: { Icon: OpenAIMark, colour: "text-text" },
+  codex: { Icon: OpenAIMark, colour: "text-text" },
   cursor: { Icon: CursorMark, colour: "text-text" },
   vscode: { Icon: CodeXml, colour: "text-[#1F8AD2]" },
-  windsurf: { Icon: WindsurfMark, colour: "text-[#14A887]" },
+  opencode: { Icon: OpenCodeMark, colour: "text-text" },
   unix: { Icon: Terminal, colour: "text-accent-text" },
   brew: { Icon: Terminal, colour: "text-accent-text" },
   windows: { Icon: Terminal, colour: "text-accent-text" },

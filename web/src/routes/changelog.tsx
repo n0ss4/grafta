@@ -5,7 +5,7 @@ import type { Route } from "./+types/changelog";
 
 export const meta: Route.MetaFunction = () =>
   pageMeta({
-    title: "Changelog · grafta",
+    title: "Changelog | grafta",
     description: "What changed in grafta, newest first.",
     path: "/changelog/",
   });

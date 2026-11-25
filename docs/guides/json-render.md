@@ -14,7 +14,7 @@ spec below, drawn by json-render 0.22.0 with `@json-render/shadcn`.
 ## What you need
 
 - The Figma file, saved from Figma with *File → Save local copy…*
-- grafta in your AI app: see [Install](../../README.md#install).
+- grafta in your AI app: see [Install](../INSTALL.md).
 - A React project with `@json-render/core`, `@json-render/react` and
   `@json-render/shadcn`.
 

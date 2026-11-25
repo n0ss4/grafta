@@ -18,13 +18,12 @@ export function Layout({ children }: { children: ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#E8E8E4" media="(prefers-color-scheme: light)" />
-        <meta name="theme-color" content="#17191D" media="(prefers-color-scheme: dark)" />
         {/* Before the first paint: that scripts run (data-js, which the hero's panels
-            wait on), and the visitor's choice of light or dark. */}
+            wait on), the visitor's choice of light over the default dark, and the
+            browser bar's colour to match, made here so hydration never meets it. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `document.documentElement.dataset.js="";try{var t=sessionStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}`,
+            __html: `document.documentElement.dataset.js="";try{var t=sessionStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}var m=document.createElement("meta");m.name="theme-color";m.content=t==="light"?"#FAFAFB":"#060607";document.head.appendChild(m)`,
           }}
         />
         <Meta />

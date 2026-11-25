@@ -21,7 +21,7 @@ MARKDOWN = ROOT / "docs" / "TOOLS.md"
 DATA = ROOT / "web" / "src" / "generated" / "tools.json"
 CONTRACT = ROOT / "figma-plugin" / "src" / "contract.json"
 
-# The README's families, in its order. A tool the server lists and no family
+# The families of docs/guides/what-to-ask.md, in its order. A tool the server lists and no family
 # names, or a family naming a tool the server does not list, is an error.
 FAMILIES = [
     ("Find your way", "Pages, their screens, counts, and nodes by name or type, with their path.",

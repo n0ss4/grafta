@@ -3,7 +3,7 @@
 
 The card a link to the site shows (1200 × 630, og:image) is drawn by grafta, as
 the showcase is: the mark from its shapes and paths, the headline as text, and
-the idea of docs/showcase/talk, one file and three asks, in shapes.
+one file and three asks, in shapes.
 
     python3 docs/showcase/card.py <any .fig, for its format> <out dir> <docs/assets> > card.json
 
@@ -84,7 +84,7 @@ text(None, "card", "Ask your AI what's in one, change it, or turn it into code. 
      24, "Regular", MUTED, x=80, y=414, width=540, textAutoResize="HEIGHT",
      lineHeight={"value": 140, "unit": "PERCENT"})
 
-# ── The idea: one file, three asks, as in docs/showcase/talk ─────────────────
+# ── The idea: one file, three asks ──────────────────────────────────────────
 call("file-window", "create_frame", handle=h(), parent=ref("card"), name="order.fig",
      x=700, y=72, width=420, height=472)
 props("file-window", cornerRadius=22, clipsContent=True, fills=solid("#202227"),

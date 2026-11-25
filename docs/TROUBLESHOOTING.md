@@ -93,7 +93,7 @@ The same goes for `npx`: `command -v npx` gives its full path.
 
 **Check the file and the key.** Each app has its own file and its own shape:
 VS Code uses `"servers"`, the others `"mcpServers"`. The
-[README](../README.md#install) has the line for each. A comma out of place
+[Install](INSTALL.md) has the line for each. A comma out of place
 stops the whole file from being read, so try it in a JSON checker if you
 edited it by hand.
 
@@ -107,7 +107,7 @@ edited it by hand.
 | VS Code | *Output* panel, the server's own entry under *MCP* |
 
 **ChatGPT on the web cannot use grafta.** It does not run tools from your
-machine. The ChatGPT desktop app, with the Codex line in the README, can.
+machine. The ChatGPT desktop app, with the Codex line in [Install](INSTALL.md), can.
 
 ## Text looks wrong, or a result says a font is not installed
 
@@ -177,7 +177,7 @@ installed apart, so one can be updated and the other not.
 **What to do.** The panel says which one to update.
 
 - *grafta … is older than this panel*: update grafta the way you installed it
-  ([installing](../README.md#install)), then start your AI app or a new
+  ([installing](INSTALL.md)), then start your AI app or a new
   conversation in it again.
 - *This panel is older than grafta …*: download `grafta-figma-plugin.zip`
   from the same release as your grafta (`grafta --version`), unzip it over the
