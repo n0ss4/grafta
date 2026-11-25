@@ -4,6 +4,19 @@ What changed for someone using grafta, newest first. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.7.0](https://github.com/n0ss4/grafta/compare/v0.6.0...v0.7.0) (2026-11-25)
+
+
+### Added
+
+* search_nodes finds layers by their text, style, variable or component (123) ([#97](https://github.com/n0ss4/grafta/issues/97)) ([aa117d7](https://github.com/n0ss4/grafta/commit/aa117d7411b1e7fd09a26ab953f7fa9e40e0254b))
+* skills in the Claude Code plugin for auditing, building screens, design systems, handoff and batch runs (133) ([#99](https://github.com/n0ss4/grafta/issues/99)) ([69e99a9](https://github.com/n0ss4/grafta/commit/69e99a99b6fe9a429adb467ef5676f9dd8d4fb0f))
+
+
+### Fixed
+
+* a bound paint takes its variable's colour in the layer's mode on the open Figma file (132) ([#98](https://github.com/n0ss4/grafta/issues/98)) ([1bb29b6](https://github.com/n0ss4/grafta/commit/1bb29b68ee5d02c60c727fcd35c781783e35e6a5))
+
 ## [0.6.0](https://github.com/n0ss4/grafta/compare/v0.5.0...v0.6.0) (2026-11-23)
 
 
